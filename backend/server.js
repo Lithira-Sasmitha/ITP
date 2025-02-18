@@ -17,7 +17,7 @@ require("./db");
 
 // Define Routes (Example)
 app.get("/", (req, res) => {
-  res.send( Server is running!");
+  res.send( "Server is running!");
 });
 
 // Start Server
