@@ -1,11 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Layout from "./page/inventory/Layout";
+// import DeliverHome from "./components/DeliverHome";
+// import Delivery from "./components/Delivery";
+// import DeliveryDetail from "./components/Deliverydetail";
+// import AddDelivery from "./components/AddDelivery";
+// import DrivervehicleDetails from "./components/DrivervehicleDetails";
+
+// import DeliverAdminProfile from "./components/DeliverAdminProfile";
+// import AddOrder from "./page/order/AddOrder";
 
 function App() {
   return (
-    <div>
-      <h1 className='bg-blue-400 '> ITP PROJECT</h1>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          {/* <Route index element={<DeliverHome />} />*/}
+          {/* <Route path="profile" element={<DeliverAdminProfile />} /> */}
+          {/*<Route path="dashboard" element={<Delivery />} />
+           */}
+          {/* <Route path="deliverydetail" element={<DeliveryDetail />} />
+           */}
+          {/*<Route path="adddelivery" element={<AddDelivery />} /> */}
+          {/* <Route path="addorder" element={<AddOrder />} /> */}
+          {/*  <Route
+            path="drivervehicledetails"
+            element={<DrivervehicleDetails />}
+          />{" "}
+          */}
+          
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 
