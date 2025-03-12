@@ -29,18 +29,28 @@ function Layout() {
                 </button>
               </li>
               <li className="mb-4">
-                <button onClick={() => navigate("/assignments")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaBook className="mr-4" /> Assignments
+                <button onClick={() => navigate("/income")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                  <FaBook className="mr-4" /> Income
                 </button>
               </li>
               <li className="mb-4">
                 <button onClick={() => navigate("/profile")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaUser className="mr-4" /> Profile
+                  <FaUser className="mr-4" /> Expences
                 </button>
               </li>
               <li className="mb-4">
                 <button onClick={() => navigate("/settings")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaCog className="mr-4" /> Settings
+                  <FaCog className="mr-4" /> Salary
+                </button>
+              </li>
+              <li className="mb-4">
+                <button onClick={() => navigate("/Payment")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                  <FaCog className="mr-4" /> Payment
+                </button>
+              </li>
+              <li className="mb-4">
+                <button onClick={() => navigate("/Chat")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                  <FaCog className="mr-4" /> Chat
                 </button>
               </li>
               <li>
