@@ -1,11 +1,14 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Layout from "./page/financial/Layout"; // ✅ Corrected path
 
 function App() {
   return (
-    <div>
-      <h1 className='bg-blue-400 '> ITP PROJECT</h1>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />} />
+      </Routes>
+    </Router>
   );
 }
 
