@@ -1,180 +1,108 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
-import {
-  FaTruck,
-  FaCog,
-  FaSignOutAlt,
-  FaListAlt,
-  FaPlusCircle,
-  FaTasks,
-  FaMoon,
-  FaSun,
-  FaEnvelope,
-  FaPhone,
-  FaClock,
-} from "react-icons/fa";
-import logo from "../../assets/logo.png"; // ✅ Corrected import path
+import { FaCog, FaSignOutAlt } from "react-icons/fa";
+import logo from "../../assets/logo.png";
 
 function Layout() {
-  const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showProductSubMenu, setShowProductSubMenu] = useState(false);
+  const [showMachineSubMenu, setShowMachineSubMenu] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const toggleDeliveryDropdown = () => {
-    setIsDeliveryOpen(!isDeliveryOpen);
+  const handleProductManagementClick = () => {
+    setShowProductSubMenu(!showProductSubMenu);
   };
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
-
-  const handleNavigate = (path) => {
-    navigate(path);
+  const handleMachineManagementClick = () => {
+    setShowMachineSubMenu(!showMachineSubMenu);
   };
 
   return (
-    <div className="flex">
+    <div className="flex h-full bg-gray-150">
       {/* Sidebar */}
-      <div className="h-screen w-64 p-5 flex flex-col justify-between bg-green-700 text-white shadow-lg">
+      <div className="w-64 bg-green-900 text-white p-5 flex flex-col justify-between shadow-lg">
         <div>
-          {/* Logo Section */}
-          <div className="flex justify-center mb-8">
-            <img
-              src={logo}
-              alt="Logo"
-              className="w-20 h-20 rounded-full border-4 border-white"
-            />
+          <div className="flex justify-center mb-6">
+            <img src={logo} alt="Logo" className="w-16 h-16 rounded-full" />
           </div>
-
-          {/* Menu Section (Blends with Sidebar, No White Background) */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold mb-6 text-white">Menu</h2>
-            <nav>
-              <ul>
-                <li className="mb-4">
-                  <button
-                    onClick={() => handleNavigate("/dashboard")}
-                    className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-600 hover:bg-green-500"
-                  >
-                    <FaListAlt className="h-6 w-6 mr-4 text-white" />
-                    Dashboard
-                  </button>
-                </li>
-
-                <li className="mb-4">
-                  <button
-                    onClick={toggleDeliveryDropdown}
-                    className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-600 hover:bg-green-500"
-                  >
-                    <FaTruck className="h-6 w-6 mr-4 text-white" />
-                    Deliveries
-                  </button>
-                  {isDeliveryOpen && (
-                    <ul className="ml-4 mt-2 space-y-1 bg-green-500 rounded-lg">
-                      <li>
-                        <button
-                          onClick={() => handleNavigate("deliverydetail")}
-                          className="flex items-center rounded-lg px-4 py-2 transition-all duration-300 hover:bg-green-400"
-                        >
-                          <FaPlusCircle className="h-6 w-6 mr-4 text-white" />
-                          Delivery Details
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => handleNavigate("adddelivery")}
-                          className="flex items-center rounded-lg px-4 py-2 transition-all duration-300 hover:bg-green-400"
-                        >
-                          <FaPlusCircle className="h-6 w-6 mr-4 text-white" />
-                          Add Delivery
-                        </button>
-                      </li>
-                    </ul>
-                  )}
-                </li>
-
-                <li className="mb-4">
-                  <button
-                    onClick={() => handleNavigate("drivervehicledetails")}
-                    className="flex items-center rounded-lg px-4 py-3 transition-all duration-300 bg-green-600 hover:bg-green-500"
-                  >
-                    <FaTasks className="h-6 w-6 mr-4 text-white" />
-                    D & V Details
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </div>
-
-          {/* Settings & Logout */}
-          <div>
-            <nav>
-              <ul>
-                <li className="mb-4">
-                  <button
-                    onClick={() => handleNavigate("settings")}
-                    className="flex items-center rounded-lg px-4 py-3 transition-all duration-300 bg-green-600 hover:bg-green-500"
-                  >
-                    <FaCog className="h-6 w-6 mr-4 text-white" />
-                    Settings
-                  </button>
-                </li>
-
-                <li className="mb-4">
-                  <button
-                    onClick={() => handleNavigate("logout")}
-                    className="flex items-center rounded-lg px-4 py-3 transition-all duration-300 bg-red-500 hover:bg-red-600"
-                  >
-                    <FaSignOutAlt className="h-6 w-6 mr-4 text-white" />
-                    Logout
-                  </button>
-                </li>
-
-                <li className="mb-4">
-                  <button
-                    onClick={toggleDarkMode}
-                    className="flex items-center w-full rounded-lg px-4 py-3 transition-all duration-300 bg-green-500 hover:bg-green-400 text-white"
-                  >
-                    {darkMode ? (
-                      <FaSun className="h-6 w-6 mr-4" />
-                    ) : (
-                      <FaMoon className="h-6 w-6 mr-4" />
-                    )}
-                    {darkMode ? "Light Mode" : "Dark Mode"}
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          </div>
+          <nav>
+            <ul>
+              <li className="mb-4">
+                <button onClick={() => navigate("/menu")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                  Menu
+                </button>
+              </li>
+              <li className="mb-4">
+                <button onClick={() => navigate("/dashboard")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                  Dashboard
+                </button>
+              </li>
+              <li className="mb-4">
+                <button onClick={handleProductManagementClick} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                  Product Management
+                </button>
+                {showProductSubMenu && (
+                  <ul className="ml-6 mt-2">
+                    <li className="mb-2">
+                      <button onClick={() => navigate("/product-details")} className="w-full p-2 rounded-lg hover:bg-green-600">
+                        Product Details
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => navigate("/add-product")} className="w-full p-2 rounded-lg hover:bg-green-600">
+                        Add Product
+                      </button>
+                    </li>
+                  </ul>
+                )}
+              </li>
+              <li className="mb-4">
+                <button onClick={handleMachineManagementClick} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                  Machine Management
+                </button>
+                {showMachineSubMenu && (
+                  <ul className="ml-6 mt-2">
+                    <li className="mb-2">
+                      <button onClick={() => navigate("/add-machine")} className="w-full p-2 rounded-lg hover:bg-green-600">
+                        Add Machine
+                      </button>
+                    </li>
+                    <li className="mb-2">
+                      <button onClick={() => navigate("/machine-parts")} className="w-full p-2 rounded-lg hover:bg-green-600">
+                        Machine Parts
+                      </button>
+                    </li>
+                    <li>
+                      <button onClick={() => navigate("/maintenance")} className="w-full p-2 rounded-lg hover:bg-green-600">
+                        Maintenance
+                      </button>
+                    </li>
+                  </ul>
+                )}
+              </li>
+            </ul>
+          </nav>
         </div>
 
-        {/* Footer */}
-        <div className="mt-8 pt-4 border-t border-white">
-          <div className="flex items-center mb-2 text-white">
-            <FaEnvelope className="mr-2" />
-            <span className="text-sm">info@jayasinghe.com</span>
-          </div>
-          <div className="flex items-center mb-2 text-white">
-            <FaPhone className="mr-2" />
-            <span className="text-sm">+94 11 234 5678</span>
-          </div>
-          <div className="flex items-center text-white">
-            <FaClock className="mr-2" />
-            <span className="text-sm">{currentTime.toLocaleTimeString()}</span>
+        {/* Logout button at the bottom */}
+        <div>
+          <button onClick={() => navigate("/logout")} className="flex items-center w-full p-3 rounded-lg bg-red-600 hover:bg-red-500">
+            <FaSignOutAlt className="mr-4" /> Logout
+          </button>
+          <div className="text-sm text-gray-400 mt-4 text-center">
+            {currentTime.toLocaleTimeString()}
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-grow bg-green-50 text-black">
+      <div className="flex-grow p-8">
         <Outlet />
       </div>
     </div>

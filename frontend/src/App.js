@@ -1,7 +1,7 @@
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Layout from "./page/machine/Layout";
-// import DeliverHome from "./components/DeliverHome";
+import Prodetails from "./page/machine/Prodetails";
 // import Delivery from "./components/Delivery";
 // import DeliveryDetail from "./components/Deliverydetail";
 // import AddDelivery from "./components/AddDelivery";
@@ -16,7 +16,8 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Layout />}>
-          {/* <Route index element={<DeliverHome />} />*/}
+        
+        
           {/*<Route path="profile" element={<DeliverAdminProfile />} />*/}
           {/*<Route path="dashboard" element={<Delivery />} />
            */}
@@ -31,7 +32,9 @@ function App() {
           */}
           {/*<Route path="settings" element={<Settings />} /> */}
            {/*<Route path="logout" element={<Logout />} /> */} 
-        </Route>
+        
+        <Route path="/product-details" element={<Prodetails/>}/>
+      </Route>
       </Routes>
     </Router>
   );
