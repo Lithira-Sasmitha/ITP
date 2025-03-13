@@ -1,12 +1,20 @@
-import logo from './logo.svg';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import SignIn from './components/login/index.jsx'; // Import your SignIn component
+import Signup from './components/register/index.js'
 import './App.css';
 
 function App() {
   return (
-    <h1 className="text-3xl font-bold underline font-quickSand">Hello world!</h1>
-    
-/* <div><h1 className='bg-blue-400 '> ITP PROJECT</h1></div> */
-    
+    <Router>
+      
+        <Routes>
+          <Route path="/signin" element={<SignIn/>} />
+          <Route path="/signup" element={<Signup/>} />
+        </Routes>
+     
+    </Router>
+
   );
 }
 
