@@ -63,11 +63,7 @@ function Layout() {
                         Product Details
                       </button>
                     </li>
-                    <li>
-                      <button onClick={() => navigate("/add-product")} className="w-full p-2 rounded-lg hover:bg-green-600">
-                        Add Product
-                      </button>
-                    </li>
+                    
                   </ul>
                 )}
               </li>
