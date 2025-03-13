@@ -3,7 +3,7 @@ import { useNavigate, Outlet } from "react-router-dom";
 import { FaUser, FaBook, FaChartBar, FaEnvelope, FaCog, FaSignOutAlt } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 
-function Income() {  
+function Dashboard() {  
   const [darkMode, setDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
@@ -24,12 +24,12 @@ function Income() {
           <nav>
             <ul>
               <li className="mb-4">
-                <button onClick={() => navigate("/dashboard")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                <button onClick={() => navigate("/dashboard")} className="flex items-center w-full p-3 rounded-lg  bg-red-600 hover:bg-red-500">
                   <FaChartBar className="mr-4" /> Dashboard
                 </button>
               </li>
               <li className="mb-4">
-                <button onClick={() => navigate("/income")} className="flex items-center w-full p-3 rounded-lg  bg-red-600 hover:bg-red-500">
+                <button onClick={() => navigate("/income")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
                   <FaBook className="mr-4" /> Income
                 </button>
               </li>
@@ -66,13 +66,38 @@ function Income() {
 
       {/* Main Content */}
       <div className="flex-grow p-8">
-        <h1 className="text-2xl font-bold mb-6">Incomes</h1>
-        
+        <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="p-6 bg-white shadow-lg rounded-lg text-center">
+            <h2 className="text-lg font-semibold">Web Development</h2>
+          </div>
+          <div className="p-6 bg-white shadow-lg rounded-lg text-center">
+            <h2 className="text-lg font-semibold">App Development</h2>
+          </div>
+          <div className="p-6 bg-white shadow-lg rounded-lg text-center">
+            <h2 className="text-lg font-semibold">UX & UI</h2>
+          </div>
         </div>
         
-    
+        {/* Profile Section */}
+        <div className="mt-8 bg-white p-6 shadow-lg rounded-lg">
+          <div className="flex items-center mb-4">
+            <img src="https://via.placeholder.com/50" alt="Profile" className="w-16 h-16 rounded-full mr-4" />
+            <div>
+              <h3 className="text-lg font-semibold">Jhonne Doe</h3>
+              <p className="text-gray-500">Teacher</p>
+            </div>
+          </div>
+          <ul>
+            <li className="p-3 bg-gray-100 rounded-lg mb-2">HTML & CSS - 2 Hours</li>
+            <li className="p-3 bg-gray-100 rounded-lg mb-2">JavaScript - 2 Hours</li>
+            <li className="p-3 bg-gray-100 rounded-lg mb-2">React.js - 2 Hours</li>
+            <li className="p-3 bg-gray-100 rounded-lg mb-2">Node.js - 2 Hours</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
 
-export default Income;  
+export default Dashboard;  

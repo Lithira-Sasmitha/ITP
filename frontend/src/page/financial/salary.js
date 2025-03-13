@@ -3,7 +3,7 @@ import { useNavigate, Outlet } from "react-router-dom";
 import { FaUser, FaBook, FaChartBar, FaEnvelope, FaCog, FaSignOutAlt } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 
-function Income() {  
+function Salary() {  
   const [darkMode, setDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ function Income() {
                 </button>
               </li>
               <li className="mb-4">
-                <button onClick={() => navigate("/income")} className="flex items-center w-full p-3 rounded-lg  bg-red-600 hover:bg-red-500">
+                <button onClick={() => navigate("/income")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
                   <FaBook className="mr-4" /> Income
                 </button>
               </li>
@@ -39,7 +39,7 @@ function Income() {
                 </button>
               </li>
               <li className="mb-4">
-                <button onClick={() => navigate("/salary")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                <button onClick={() => navigate("/salary")} className="flex items-center w-full p-3 rounded-lg  bg-red-600 hover:bg-red-500">
                   <FaCog className="mr-4" /> Salary
                 </button>
               </li>
@@ -66,13 +66,12 @@ function Income() {
 
       {/* Main Content */}
       <div className="flex-grow p-8">
-        <h1 className="text-2xl font-bold mb-6">Incomes</h1>
-        
+        <h1 className="text-2xl font-bold mb-6">Salary</h1>
         </div>
         
-    
+     
     </div>
   );
 }
 
-export default Income;  
+export default Salary;  
