@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { FaEnvelope } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 
-function Salary() {  
+function Message() {  
   const [darkMode, setDarkMode] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -17,7 +17,7 @@ function Salary() {
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center">
           <img src={logo} alt="Logo" className="w-12 h-12 rounded-full mr-4" />
-          <h1 className="text-2xl font-bold">Salary</h1>
+          <h1 className="text-2xl font-bold">Chat</h1>
         </div>
         <div className="text-sm text-gray-500">
           <div className="flex items-center mb-2">
@@ -27,13 +27,14 @@ function Salary() {
         </div>
       </div>
 
-      {/* Salary Content */}
+      {/* Chat Content */}
       <div className="p-6 bg-white shadow-lg rounded-lg">
-        <h2 className="text-lg font-semibold mb-4">Recent Salary Payments</h2>
+        <h2 className="text-lg font-semibold mb-4">Messages</h2>
         <ul>
-          <li className="p-3 bg-gray-100 rounded-lg mb-2">John Doe - $5000</li>
-          <li className="p-3 bg-gray-100 rounded-lg mb-2">Jane Smith - $4500</li>
-          <li className="p-3 bg-gray-100 rounded-lg mb-2">Mark Wilson - $4200</li>
+          <li className="p-3 bg-gray-100 rounded-lg mb-2">John Doe: Hello!</li>
+          <li className="p-3 bg-gray-100 rounded-lg mb-2">Jane Smith: How are you?</li>
+          <li className="p-3 bg-gray-100 rounded-lg mb-2">Admin: Please check the reports.</li>
+          <li className="p-3 bg-gray-100 rounded-lg mb-2">You: Sure, I'll do that!</li>
         </ul>
       </div>
 
@@ -50,4 +51,4 @@ function Salary() {
   );
 }
 
-export default Salary;
+export default Message;

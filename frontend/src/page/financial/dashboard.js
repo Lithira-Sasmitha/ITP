@@ -1,104 +1,99 @@
+import { FaEnvelope } from "react-icons/fa";
+import { FiZap, FiUsers, FiShoppingBag, FiBarChart2 } from "react-icons/fi";
+import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { useNavigate, Outlet } from "react-router-dom";
-import { FaUser, FaBook, FaChartBar, FaEnvelope, FaCog, FaSignOutAlt } from "react-icons/fa";
-import logo from "../../assets/logo.png";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
-function Dashboard() {  
-  const [darkMode, setDarkMode] = useState(false);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const navigate = useNavigate();
+import StatCard from "../../components/statCard/statCard"; 
+import Header from "../../components/header/header";
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+const salesData = [
+	{ name: "Jul", sales: 4200 },
+	{ name: "Aug", sales: 3800 },
+	{ name: "Sep", sales: 5100 },
+	{ name: "Oct", sales: 4600 },
+	{ name: "Nov", sales: 5400 },
+	{ name: "Dec", sales: 7200 },
+	{ name: "Jan", sales: 6100 },
+	{ name: "Feb", sales: 5900 },
+	{ name: "Mar", sales: 6800 },
+	{ name: "Apr", sales: 6300 },
+	{ name: "May", sales: 7100 },
+	{ name: "Jun", sales: 7500 },
+];
 
-  return (
-    <div className="flex h-screen bg-gray-150">
-      {/* Sidebar */}
-      <div className="w-64 bg-green-900 text-white p-5 flex flex-col justify-between shadow-lg">
-        <div>
-          <div className="flex justify-center mb-6">
-            <img src={logo} alt="Logo" className="w-16 h-16 rounded-full" />
-          </div>
-          <nav>
-            <ul>
-              <li className="mb-4">
-                <button onClick={() => navigate("/dashboard")} className="flex items-center w-full p-3 rounded-lg  bg-red-600 hover:bg-red-500">
-                  <FaChartBar className="mr-4" /> Dashboard
-                </button>
-              </li>
-              <li className="mb-4">
-                <button onClick={() => navigate("/income")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaBook className="mr-4" /> Income
-                </button>
-              </li>
-              <li className="mb-4">
-                <button onClick={() => navigate("/expenses")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaUser className="mr-4" /> Expenses
-                </button>
-              </li>
-              <li className="mb-4">
-                <button onClick={() => navigate("/salary")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaCog className="mr-4" /> Salary
-                </button>
-              </li>
-              <li className="mb-4">
-                <button onClick={() => navigate("/Payment")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaCog className="mr-4" /> Payment
-                </button>
-              </li>
-              <li className="mb-4">
-                <button onClick={() => navigate("/massege")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaCog className="mr-4" /> Chat
-                </button>
-              </li>
+const Dashboard = () => {
+	return (
+		<div className='flex-1 overflow-auto relative z-10'>
+			<Header title='Dashboard' />
+      
+			<main className='max-w-7xl mx-auto py-12 px-3 lg:px-8'>
+				{/* STATS SECTION */}
+				<motion.div
+	      className='w-full max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8'
+	      initial={{ opacity: 0, y: 20 }}
+	      animate={{ opacity: 1, y: 0 }}
+	      transition={{ duration: 1 }}
+>
+	      < StatCard name='Total Income' icon={FiZap} value='$12,345' color='#6366F1' />
+	      <StatCard name='Expense' icon={FiUsers} value='1,234' color='#8B5CF6' />
+	      <StatCard name='Conversion Rate' icon={FiBarChart2} value='12.5%' color='#10B981' />
+      </motion.div>
 
-            </ul>
-          </nav>
-        </div>
-        <div className="text-sm text-gray-400">
-          <div className="flex items-center mb-2">
-            <FaEnvelope className="mr-2" /> info@example.com
-          </div>
-          <div>{currentTime.toLocaleTimeString()}</div>
-        </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="flex-grow p-8">
-        <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="p-6 bg-white shadow-lg rounded-lg text-center">
-            <h2 className="text-lg font-semibold">Web Development</h2>
-          </div>
-          <div className="p-6 bg-white shadow-lg rounded-lg text-center">
-            <h2 className="text-lg font-semibold">App Development</h2>
-          </div>
-          <div className="p-6 bg-white shadow-lg rounded-lg text-center">
-            <h2 className="text-lg font-semibold">UX & UI</h2>
-          </div>
-        </div>
-        
-        {/* Profile Section */}
-        <div className="mt-8 bg-white p-6 shadow-lg rounded-lg">
-          <div className="flex items-center mb-4">
-            <img src="https://via.placeholder.com/50" alt="Profile" className="w-16 h-16 rounded-full mr-4" />
-            <div>
-              <h3 className="text-lg font-semibold">Jhonne Doe</h3>
-              <p className="text-gray-500">Teacher</p>
-            </div>
-          </div>
-          <ul>
-            <li className="p-3 bg-gray-100 rounded-lg mb-2">HTML & CSS - 2 Hours</li>
-            <li className="p-3 bg-gray-100 rounded-lg mb-2">JavaScript - 2 Hours</li>
-            <li className="p-3 bg-gray-100 rounded-lg mb-2">React.js - 2 Hours</li>
-            <li className="p-3 bg-gray-100 rounded-lg mb-2">Node.js - 2 Hours</li>
-          </ul>
-        </div>
-      </div>
+				{/* SALES CHART SECTION */}
+        <div className="grid grid-cols-2 gap-10">
+  {/* Sales Overview Box */}
+  <motion.div
+    className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.2 }}
+  >
+    <h2 className="text-lg font-medium mb-4 text-gray-100">Sales Overview</h2>
+
+    <div className="h-80">
+      <ResponsiveContainer width={"100%"} height={"100%"}>
+        <LineChart data={salesData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
+          <XAxis dataKey={"name"} stroke="#9ca3af" />
+          <YAxis stroke="#9ca3af" />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "rgba(31, 41, 55, 0.8)",
+              borderColor: "#4B5563",
+            }}
+            itemStyle={{ color: "#E5E7EB" }}
+          />
+          <Line
+            type="monotone"
+            dataKey="sales"
+            stroke="#6366F1"
+            strokeWidth={3}
+            dot={{ fill: "#6366F1", strokeWidth: 2, r: 6 }}
+            activeDot={{ r: 8, strokeWidth: 2 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
-  );
-}
+  </motion.div>
 
-export default Dashboard;  
+  {/* Category Distribution Box */}
+  <motion.div
+    className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.3 }}
+  >
+    <h2 className="text-lg font-medium mb-4 text-gray-100">Category Distribution</h2>
+    {/* You can add a chart or content here for Category Distribution */}
+  </motion.div>
+</div>
+
+    
+			</main>
+		</div>
+	);
+};
+
+export default Dashboard;
