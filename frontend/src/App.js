@@ -5,9 +5,9 @@ import Layout from "./page/order/Layout";
 // import Delivery from "./components/Delivery";
 // import DeliveryDetail from "./components/Deliverydetail";
 // import AddDelivery from "./components/AddDelivery";
-// import DrivervehicleDetails from "./components/DrivervehicleDetails";
+  import DrivervehicleDetails from "./page/order/DrivervehicleDetails";
 import Settings from "./page/order/Settings";
-//import Logout from "./page/order/Logout";
+ import Logout from "./page/order/Logout";
 // import DeliverAdminProfile from "./components/DeliverAdminProfile";
 // import AddOrder from "./page/order/AddOrder";
 
@@ -24,13 +24,13 @@ function App() {
            */}
           {/*<Route path="adddelivery" element={<AddDelivery />} /> */}
           {/* <Route path="addorder" element={<AddOrder />} /> */}
-          {/*  <Route
+             <Route
             path="drivervehicledetails"
             element={<DrivervehicleDetails />}
-          />{" "}
-          */}
+          /> 
+           
            <Route path="settings" element={<Settings />} />
-          {/* <Route path="logout" element={<Logout />} />*/}
+            <Route path="logout" element={<Logout />} /> 
         </Route>
       </Routes>
     </Router>
