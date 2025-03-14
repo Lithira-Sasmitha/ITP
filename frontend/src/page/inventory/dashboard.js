@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Outlet } from "react-router-dom";
-import { FaUser, FaBook, FaChartBar, FaEnvelope, FaCog, FaSignOutAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { FaChartBar, FaWarehouse, FaCubes, FaBarcode, FaEnvelope } from "react-icons/fa";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import logo from "../../assets/logo.png";
 
-function Dashboard() {  
-  const [darkMode, setDarkMode] = useState(false);
+function Dashboard() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
 
@@ -13,8 +13,59 @@ function Dashboard() {
     return () => clearInterval(timer);
   }, []);
 
+  const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#a4de6c"];
+
+  const rawMaterialsData = [
+    { name: "Coconut Husk", value: 400 },
+    { name: "Coir Fiber", value: 300 },
+    { name: "Dust", value: 300 },
+  ];
+
+  const packingMaterialsData = [
+    { name: "Bags", value: 200 },
+    { name: "Straps", value: 150 },
+    { name: "Pallets", value: 100 },
+  ];
+
+  const finalProductsData = [
+    { name: "Coco Peat Blocks", value: 250 },
+    { name: "Grow Bags", value: 180 },
+    { name: "Coir Bricks", value: 120 },
+  ];
+
+  const warehouseSpaceData = [
+    { name: "Used Space", value: 75 },
+    { name: "Available Space", value: 25 },
+  ];
+
+  const renderPieChart = (data, title) => (
+    <div className="w-full p-4 md:w-1/2 xl:w-1/4">
+      <div className="p-4 bg-white shadow rounded-2xl">
+        <h3 className="mb-2 text-xl font-semibold text-center">{title}</h3>
+        <ResponsiveContainer width="100%" height={250}>
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              label
+              dataKey="value"
+            >
+              {data.map((_, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="flex h-screen bg-gray-150">
+    <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <div className="flex flex-col justify-between w-64 p-5 text-white bg-green-900 shadow-lg">
         <div>
@@ -29,70 +80,51 @@ function Dashboard() {
                 </button>
               </li>
               <li className="mb-4">
-                <button onClick={() => navigate("/income")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaBook className="mr-4" /> Income
+                <button onClick={() => navigate("/inventory")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                  <FaWarehouse className="mr-4" /> Inventory
                 </button>
               </li>
               <li className="mb-4">
-                <button onClick={() => navigate("/expenses")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaUser className="mr-4" /> Expenses
+                <button onClick={() => navigate("/stock-movement")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                  <FaCubes className="mr-4" /> Stock Movements
                 </button>
               </li>
               <li className="mb-4">
-                <button onClick={() => navigate("/salary")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaCog className="mr-4" /> Salary
-                </button>
-              </li>
-              <li className="mb-4">
-                <button onClick={() => navigate("/Payment")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaCog className="mr-4" /> Payment
-                </button>
-              </li>
-              <li className="mb-4">
-                <button onClick={() => navigate("/massege")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  <FaCog className="mr-4" /> Chat
+                <button onClick={() => navigate("/qr-generator")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
+                  <FaBarcode className="mr-4" /> QR Generator
                 </button>
               </li>
             </ul>
           </nav>
         </div>
-        <div className="text-sm text-gray-400">
+        <div className="text-sm text-gray-300">
           <div className="flex items-center mb-2">
-            <FaEnvelope className="mr-2" /> info@example.com
+            <FaEnvelope className="mr-2" /> warehouse@ceyloncoir.com
           </div>
           <div>{currentTime.toLocaleTimeString()}</div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-grow p-8">
-        <h1 className="mb-6 text-2xl font-bold">Dashboard</h1>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="p-6 text-center bg-white rounded-lg shadow-lg">
-            <h2 className="text-lg font-semibold">Web Development</h2>
-          </div>
-          <div className="p-6 text-center bg-white rounded-lg shadow-lg">
-            <h2 className="text-lg font-semibold">App Development</h2>
-          </div>
-          <div className="p-6 text-center bg-white rounded-lg shadow-lg">
-            <h2 className="text-lg font-semibold">UX & UI</h2>
-          </div>
+      <div className="flex-grow p-8 overflow-y-auto">
+        <h1 className="mb-6 text-2xl font-bold">Inventory Dashboard</h1>
+
+        {/* Charts */}
+        <div className="flex flex-wrap justify-center mb-8 -mx-4">
+          {renderPieChart(rawMaterialsData, "Raw Materials")}
+          {renderPieChart(packingMaterialsData, "Packing Materials")}
+          {renderPieChart(finalProductsData, "Final Products")}
+          {renderPieChart(warehouseSpaceData, "Warehouse Space")}
         </div>
-        
-        {/* Profile Section */}
-        <div className="p-6 mt-8 bg-white rounded-lg shadow-lg">
-          <div className="flex items-center mb-4">
-            <img src="https://via.placeholder.com/50" alt="Profile" className="w-16 h-16 mr-4 rounded-full" />
-            <div>
-              <h3 className="text-lg font-semibold">Jhonne Doe</h3>
-              <p className="text-gray-500">Teacher</p>
-            </div>
-          </div>
+
+        {/* Staff Time Log */}
+        <div className="p-6 bg-white rounded-lg shadow-lg">
+          <h2 className="mb-4 text-lg font-semibold">Staff Activity Log</h2>
           <ul>
-            <li className="p-3 mb-2 bg-gray-100 rounded-lg">HTML & CSS - 2 Hours</li>
-            <li className="p-3 mb-2 bg-gray-100 rounded-lg">JavaScript - 2 Hours</li>
-            <li className="p-3 mb-2 bg-gray-100 rounded-lg">React.js - 2 Hours</li>
-            <li className="p-3 mb-2 bg-gray-100 rounded-lg">Node.js - 2 Hours</li>
+            <li className="p-3 mb-2 bg-gray-100 rounded-lg">Checked Raw Material Stock - 1 Hour</li>
+            <li className="p-3 mb-2 bg-gray-100 rounded-lg">Updated Packing Material Usage - 1 Hour</li>
+            <li className="p-3 mb-2 bg-gray-100 rounded-lg">QR Code Generated for Final Product - 1 Hour</li>
+            <li className="p-3 mb-2 bg-gray-100 rounded-lg">Stock Movement Recorded - 1 Hour</li>
           </ul>
         </div>
       </div>
@@ -100,4 +132,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;  
+export default Dashboard;
