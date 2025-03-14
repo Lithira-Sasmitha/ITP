@@ -4,13 +4,30 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import Dashboard from './page/inventory/dashboard';
+import InventoryPage from './page/inventory/inventoryPage';
+import RawMaterialList from './page/inventory/rawMaterialList';
+import AddRawMaterial from './page/inventory/addRawMaterial';
+import PackingMaterialList from './page/inventory/packingMaterialList';
+import AddPackingMaterial from './page/inventory/addPackingMaterial';
+import FinalProductList from './page/inventory/finalProductList';
+import AddFinalProduct from './page/inventory/addFinalProduct';
+
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/inventory/dashboard" element={<Dashboard />} />
-        {/* You can add more routes here */}
+        <Route path="/inventory/addFinalProduct" element={<AddFinalProduct />} />
+        <Route path="/inventory/inventoryPage" element={<InventoryPage />} />
+        <Route path="/inventory/rawMaterialList" element={<RawMaterialList />} />
+        <Route path="/inventory/addRawMaterial" element={<AddRawMaterial/>} />
+        <Route path="/inventory/packingMaterialList" element={<PackingMaterialList />} />
+        <Route path="/inventory/addPackingMaterial" element={<AddPackingMaterial />} />
+        <Route path="/inventory/finalProductList" element={<FinalProductList />} />
+        <Route path="/inventory/addFinalProduct" element={<AddFinalProduct />} />
+        
+        
       </Routes>
     </Router>
   );
