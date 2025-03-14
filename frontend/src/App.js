@@ -3,11 +3,11 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Layout from "./page/order/Layout";
 // import DeliverHome from "./components/DeliverHome";
 // import Delivery from "./components/Delivery";
-// import DeliveryDetail from "./components/Deliverydetail";
+import DeliveryDetail from "./page/order/Deliverydetail";
 // import AddDelivery from "./components/AddDelivery";
-  import DrivervehicleDetails from "./page/order/DrivervehicleDetails";
+import DrivervehicleDetails from "./page/order/DrivervehicleDetails";
 import Settings from "./page/order/Settings";
- import Logout from "./page/order/Logout";
+import Logout from "./page/order/Logout";
 // import DeliverAdminProfile from "./components/DeliverAdminProfile";
 // import AddOrder from "./page/order/AddOrder";
 
@@ -20,17 +20,17 @@ function App() {
           {/*<Route path="profile" element={<DeliverAdminProfile />} />*/}
           {/*<Route path="dashboard" element={<Delivery />} />
            */}
-          {/* <Route path="deliverydetail" element={<DeliveryDetail />} />
-           */}
+          <Route path="deliverydetail" element={<DeliveryDetail />} />
+
           {/*<Route path="adddelivery" element={<AddDelivery />} /> */}
           {/* <Route path="addorder" element={<AddOrder />} /> */}
-             <Route
+          <Route
             path="drivervehicledetails"
             element={<DrivervehicleDetails />}
-          /> 
-           
-           <Route path="settings" element={<Settings />} />
-            <Route path="logout" element={<Logout />} /> 
+          />
+
+          <Route path="settings" element={<Settings />} />
+          <Route path="logout" element={<Logout />} />
         </Route>
       </Routes>
     </Router>
