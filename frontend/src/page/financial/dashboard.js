@@ -53,6 +53,7 @@ function Dashboard() {
                   <FaCog className="mr-4" /> Chat
                 </button>
               </li>
+
             </ul>
           </nav>
         </div>
