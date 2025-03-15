@@ -46,7 +46,7 @@ const WarehouseLayout = ({ children }) => {
               </li>
               <li className="mb-4">
                 <button
-                  onClick={() => navigate("/stock-movement")}
+                  onClick={() => navigate("/inventory/stockMovements")}
                   className="flex items-center w-full p-3 rounded-lg hover:bg-green-700"
                 >
                   <FaCubes className="mr-4" /> Stock Movements

@@ -183,13 +183,18 @@ const AddRawMaterialForm = ({ onSubmit }) => {
         {/* Warehouse Location */}
         <div>
           <label className="block mb-1 font-medium">Warehouse Location</label>
-          <input
-            type="text"
-            name="location"
+          <select
+            name="locaton"
             value={formData.location}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded-lg"
-          />
+          >
+            <option value="Storage Room 1">Storage Room 1</option>
+            <option value="Storage Room 2">Storage Room 2</option>
+            <option value="Storage Room 3">Storage Room 3</option>
+            <option value="Main Rack Zone">Main Rack Zone</option>
+            <option value="Cold Room">Cold Room</option>
+          </select>
           {errors.location && <p className="text-sm text-red-500">{errors.location}</p>}
         </div>
 
