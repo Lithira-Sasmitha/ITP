@@ -2,14 +2,13 @@ import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Layout from "./page/order/Layout";
 // import DeliverHome from "./components/DeliverHome";
-// import Delivery from "./components/Delivery";
+import Delivery from "./page/order/Delivery";
 import DeliveryDetail from "./page/order/Deliverydetail";
-// import AddDelivery from "./components/AddDelivery";
+import AddDelivery from "./page/order/AddDelivery";
 import DrivervehicleDetails from "./page/order/DrivervehicleDetails";
 import Settings from "./page/order/Settings";
 import Logout from "./page/order/Logout";
 // import DeliverAdminProfile from "./components/DeliverAdminProfile";
-// import AddOrder from "./page/order/AddOrder";
 
 function App() {
   return (
@@ -18,12 +17,12 @@ function App() {
         <Route path="/" element={<Layout />}>
           {/* <Route index element={<DeliverHome />} />*/}
           {/*<Route path="profile" element={<DeliverAdminProfile />} />*/}
-          {/*<Route path="dashboard" element={<Delivery />} />
-           */}
+          <Route path="dashboard" element={<Delivery />} />
+
           <Route path="deliverydetail" element={<DeliveryDetail />} />
 
-          {/*<Route path="adddelivery" element={<AddDelivery />} /> */}
-          {/* <Route path="addorder" element={<AddOrder />} /> */}
+          <Route path="adddelivery" element={<AddDelivery />} />
+
           <Route
             path="drivervehicledetails"
             element={<DrivervehicleDetails />}
