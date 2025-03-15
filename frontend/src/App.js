@@ -5,7 +5,7 @@ import Sidebar from "./components/sidebar/sidebar";
 
 // Financial Management Pages
 import Income from "./page/financial/income"; 
-import Expenses from "./page/financial/expenses"; 
+import Expense from "./page/financial/expense"; 
 import Salary from "./page/financial/salary"; 
 import Payment from "./page/financial/payment"; 
 import Message from "./page/financial/message"; 
@@ -29,7 +29,7 @@ function App() {
             {/* Financial Management Routes */}
             <Route path="/" element={<Dashboard />} />
             <Route path="/income" element={<Income />} /> 
-            <Route path="/expenses" element={<Expenses />} /> 
+            <Route path="/expense" element={<Expense />} /> 
             <Route path="/salary" element={<Salary />} /> 
             <Route path="/payment" element={<Payment />} /> 
             <Route path="/message" element={<Message />} />

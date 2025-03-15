@@ -27,10 +27,10 @@ const Dashboard = () => {
 		<div className='flex-1 overflow-auto relative z-10'>
 			<Header title='Dashboard' />
       
-			<main className='max-w-7xl mx-auto py-12 px-3 lg:px-8'>
+			<main className='w-full px-4 lg:px-6 py-16'>
 				{/* STATS SECTION */}
 				<motion.div
-	      className='w-full max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8'
+	      className='w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8'
 	      initial={{ opacity: 0, y: 20 }}
 	      animate={{ opacity: 1, y: 0 }}
 	      transition={{ duration: 1 }}

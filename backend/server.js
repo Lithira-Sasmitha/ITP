@@ -20,8 +20,11 @@ app.get("/", (req, res) => {
   res.send( "Server is running!");
 });
 
+// using routes 
+app.use(require('../backend/routes/financialRoute/expencesroute'));
+
 // Start Server
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5001;
 app.listen(port, () => {
   console.log(`Server is running on: http://localhost:${port}`);
 });
