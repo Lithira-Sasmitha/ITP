@@ -1,20 +1,25 @@
- 
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("./db");
+const cors = require("cors");
+
+const driverRoutes = require("./routes/driverRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware (optional)
+// Middleware
 app.use(express.json());
+app.use(cors());
 
-// Sample route
+// Routes
+app.use("/api/drivers", driverRoutes);
+
 app.get("/", (req, res) => {
   res.send("🚀 Server is running!");
 });
 
-// Start server and handle port conflicts
+// Start server
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });

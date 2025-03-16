@@ -1,40 +1,50 @@
+// This is dashboard
 import React, { useState, useEffect } from "react";
 import {
   FaBox,
   FaClock,
   FaCheck,
   FaExclamationCircle,
-  FaUser,
-  FaCarAlt,
+  FaMoneyBill,
   FaTrash,
-  FaSun,
+  FaUser,
   FaMoon,
+  FaSun,
 } from "react-icons/fa";
-
-import { Line } from "react-chartjs-2";
-import { Chart as ChartJS } from "chart.js/auto";
-
+import { useGetDriversQuery } from "../../page/order/redux/api/driverApiSlice";
 export default function Delivery() {
   const [deliveries, setDeliveries] = useState([]);
   const [pendingDeliveries, setPendingDeliveries] = useState(0);
   const [completedDeliveries, setCompletedDeliveries] = useState(0);
   const [delayedDeliveries, setDelayedDeliveries] = useState(0);
+  const [totalEarnings, setTotalEarnings] = useState(0);
+  const [totalDeliveredItems, setTotalDeliveredItems] = useState(0);
   const [totalDrivers, setTotalDrivers] = useState(0);
-  const [totalVehicles, setTotalVehicles] = useState(0);
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
 
+  // Price formatter for LKR
   const priceFormatter = new Intl.NumberFormat("en-LK", {
     style: "decimal",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 
+  //count driver function call driver api
+  const { data: drivers } = useGetDriversQuery();
+
+  useEffect(() => {
+    if (drivers) {
+      setTotalDrivers(drivers.length);
+    }
+  }, [drivers]);
+
   const fetchDeliveries = async () => {
     try {
       const response = await fetch("/api/deliveries");
       if (!response.ok) throw new Error("Network response was not ok");
       const data = await response.json();
+      console.log(data);
       setDeliveries(data);
 
       const pending = data.filter((d) => d.deliveryStatus === "Pending").length;
@@ -46,6 +56,22 @@ export default function Delivery() {
       setPendingDeliveries(pending);
       setCompletedDeliveries(completed);
       setDelayedDeliveries(delayed);
+
+      const totalDeliveryEarnings = data.reduce((sum, delivery) => {
+        const deliveryPrice = delivery.deliveryPrice
+          ? parseFloat(delivery.deliveryPrice)
+          : 0;
+        return sum + deliveryPrice;
+      }, 0);
+      setTotalEarnings(totalDeliveryEarnings);
+
+      const totalItemEarnings = data.reduce((sum, delivery) => {
+        const itemsPrice = delivery.itemsPrice
+          ? parseFloat(delivery.itemsPrice)
+          : 0;
+        return sum + itemsPrice;
+      }, 0);
+      setTotalDeliveredItems(totalItemEarnings);
     } catch (error) {
       console.error("Error fetching deliveries:", error);
       setError(error.message);
@@ -64,39 +90,13 @@ export default function Delivery() {
     }
   };
 
-  const fetchVehicles = async () => {
-    try {
-      const response = await fetch("/api/vehicles");
-      if (!response.ok) throw new Error("Network response was not ok");
-      const data = await response.json();
-      setTotalVehicles(data.length);
-    } catch (error) {
-      console.error("Error fetching vehicles:", error);
-      setError(error.message);
-    }
-  };
-
   useEffect(() => {
     fetchDeliveries();
     fetchDrivers();
-    fetchVehicles();
   }, []);
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
-  };
-
-  const deliveryChartData = {
-    labels: ["Pending", "Completed", "Delayed"],
-    datasets: [
-      {
-        label: "Deliveries",
-        data: [pendingDeliveries, completedDeliveries, delayedDeliveries],
-        borderColor: "#34D399",
-        backgroundColor: "rgba(52, 211, 153, 0.2)",
-        fill: true,
-      },
-    ],
   };
 
   return (
@@ -179,30 +179,33 @@ export default function Delivery() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <DashboardCard
+          icon={<FaMoneyBill />}
+          title="Total Delivery Earnings"
+          value={priceFormatter.format(totalEarnings)}
+          color="green"
+          darkMode={darkMode}
+        />
+        <DashboardCard
+          icon={<FaMoneyBill />}
+          title="Total Item Earnings"
+          value={priceFormatter.format(totalDeliveredItems)}
+          color="blue"
+          darkMode={darkMode}
+        />
+        <DashboardCard
+          icon={<FaMoneyBill />}
+          title="Total Earnings"
+          value={priceFormatter.format(totalEarnings + totalDeliveredItems)}
+          color="indigo"
+          darkMode={darkMode}
+        />
+        <DashboardCard
           icon={<FaUser />}
           title="Total Drivers"
           value={totalDrivers}
           color="purple"
           darkMode={darkMode}
         />
-        <DashboardCard
-          icon={<FaCarAlt />}
-          title="Total Vehicles"
-          value={totalVehicles}
-          color="blue"
-          darkMode={darkMode}
-        />
-      </div>
-
-      <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Delivery Status
-          </h2>
-        </div>
-        <div className="px-6 py-4">
-          <Line data={deliveryChartData} />
-        </div>
       </div>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
@@ -247,7 +250,10 @@ export default function Delivery() {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <button className="text-red-500 hover:text-red-700">
+                      <button
+                        className="text-red-500 hover:text-red-700"
+                        // onClick={() => handleDelete(delivery._id)}
+                      >
                         <FaTrash />
                       </button>
                     </td>
@@ -256,6 +262,18 @@ export default function Delivery() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* New NBcoir Section */}
+      <div
+        className={`${
+          darkMode ? "bg-gray-800 text-white" : "bg-blue-600 text-white"
+        } py-4 rounded-lg text-center shadow-md`}
+      >
+        <h3 className="text-lg font-bold">NBcoir</h3>
+        <p className="text-sm">
+          Delivering quality coir products to local and global markets.
+        </p>
       </div>
 
       <style jsx>{`
@@ -281,6 +299,30 @@ export default function Delivery() {
           );
           background-size: 400% 400%;
           animation: gradientAnimation 15s ease infinite;
+        }
+
+        .dark {
+          color: #ffffff;
+        }
+
+        .dark .bg-white {
+          background-color: #1a202c;
+        }
+
+        .dark .text-gray-600 {
+          color: #a0aec0;
+        }
+
+        .dark .text-gray-800 {
+          color: #e2e8f0;
+        }
+
+        .dark .bg-gray-50 {
+          background-color: #2d3748;
+        }
+
+        .dark .hover:bg-gray-50:hover {
+          background-color: #4a5568;
         }
       `}</style>
     </div>
