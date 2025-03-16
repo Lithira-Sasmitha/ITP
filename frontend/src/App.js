@@ -7,15 +7,19 @@ import AddDelivery from "./page/order/AddDelivery";
 import DrivervehicleDetails from "./page/order/DrivervehicleDetails";
 import Settings from "./page/order/Settings";
 import Logout from "./page/order/Logout";
+import DeliverAdminProfile from "./page/order/DeliverAdminProfile";
+import DeliverHome from "./page/order/DeliverHome";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Layout />}>
+          <Route index element={<DeliverHome />} />
           <Route path="dashboard" element={<Delivery />} />
           <Route path="deliverydetail" element={<DeliveryDetail />} />
           <Route path="adddelivery" element={<AddDelivery />} />
+          <Route path="profile" element={<DeliverAdminProfile />} />
           <Route
             path="drivervehicledetails"
             element={<DrivervehicleDetails />}
