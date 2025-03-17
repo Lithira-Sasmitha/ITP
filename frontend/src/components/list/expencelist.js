@@ -94,11 +94,11 @@ export default function Expencelist() {
               <div className="mb-4">
                 <label htmlFor="type" className="text-white font-medium">Category Type</label>
                 <select
-                  id="type"
-                  defaultValue={updatedType}
-                  {...register('type')}
-                  className="border p-2 w-full"
-                >
+    id="type"
+    defaultValue={updatedType}
+    {...register('type')}
+    className="bg-gray-800 bg-opacity-50  rounded-lg  py-2 w-full "
+  >
                   <option value="Investment">Investment</option>
                   <option value="Saving">Saving</option>
                   <option value="Expense">Expense</option>
@@ -112,7 +112,7 @@ export default function Expencelist() {
                   id="amount"
                   defaultValue={updatedAmount}
                   {...register('amount')}
-                  className="border p-2 w-full bg-red-200 text-black"
+                  className="bg-transparent outline-none text-white placeholder-gray-400 px-2 w-full"
                   min="0"
                   max="20000"
                   onChange={(e) => setUpdatedAmount(e.target.value)}
@@ -131,7 +131,7 @@ export default function Expencelist() {
                       value <= today || 'Future dates are not allowed!',
                   })}
                   max={today} // Restrict future dates
-                  className="border p-2 w-full "
+                  className="bg-transparent outline-none text-white placeholder-gray-400 px-2 w-full "
                 />
               </div>
 

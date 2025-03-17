@@ -23,23 +23,27 @@ export default function ExpenceChart() {
 
   return (
     <div className="flex justify-center max-w-xs mx-auto">
-      <div className="item">
-        <div className="chart relative">
-          
-          {graphData}
-          <h3 className="mb-4 font-bold title">
-            Total
-            <span className="block text-3xl text-emerald-400">
-              ${getTotal(data) ?? 0}
-            </span>
-          </h3>
-        </div>
+  <div className="item relative">
+    <div className="chart relative">
+      
+      {graphData}
 
-        {/* Labels Section */}
-        <div className="flex flex-col py-10 gap-4">
-          <Labels /> 
-        </div>
+      {/* Centered Total Value */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <h3 className="mb-2 font-bold text-lg">Total</h3>
+        <span className="text-3xl font-bold text-emerald-400">
+          ${getTotal(data) ?? 0}
+        </span>
       </div>
+
     </div>
+
+    {/* Labels Section */}
+    <div className="flex flex-col py-10 gap-4">
+      <Labels />
+    </div>
+  </div>
+</div>
+
   );
 }

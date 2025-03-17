@@ -1,18 +1,17 @@
 import { motion } from "framer-motion";
 import Expenseform from "../../components/form/expenseform";
-
 import Header from "../../components/header/header";
 import ExpenceChart from "../../components/Chart/expencechart";
 import Expencelist from "../../components/list/expencelist";
 
 function Expense() {
   return (
-    <div className="relative z-10 h-screen overflow-y-auto"> {/* Allow scrolling for the page */}
+    <div className="relative z-10 h-screen overflow-y-auto p-4"> 
       <Header title="Expenses" />
 
-      <div className="grid grid-cols-2 gap-4 grid-rows-2 mt-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-16"> 
         {/* Transaction Form */}
-        <div className="overflow-y-auto"> 
+        <div className="overflow-y-auto px-4 sm:px-6"> 
           <motion.div
             className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
             initial={{ opacity: 0, y: 20 }}
@@ -24,32 +23,30 @@ function Expense() {
           </motion.div>
         </div>
 
-        {/* Expense Form (Empty section can be filled with more content) */}
-        
-          <motion.div
-            className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <h2 className="text-lg font-medium mb-4 text-gray-100">Chart</h2>
-            <div className="flex justify-center">
-              <div className="w-full max-w-md">
-              <ExpenceChart/>
-              </div>
+        {/* Expense Chart */}
+        <motion.div
+          className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <h2 className="text-lg font-medium mb-4 text-gray-100">Chart</h2>
+          <div className="flex justify-center">
+            <div className="w-full max-w-md">
+              <ExpenceChart />
             </div>
-          </motion.div>
-       
+          </div>
+        </motion.div>
 
         {/* Transaction Labels */}
-        <div className="overflow-y-auto"> {/* Ensure scrolling for this section */}
+        <div className="overflow-y-auto max-h-[400px] md:max-h-[600px]"> 
           <motion.div
             className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Expencelist/>
+            <Expencelist />
           </motion.div>
         </div>
       </div>
