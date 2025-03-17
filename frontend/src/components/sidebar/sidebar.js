@@ -11,7 +11,7 @@ const SIDEBAR_ITEMS = [
 		color: "#6366f1",
 		href: "/",
 	},
-	{ name: "Income", icon: ShoppingBag, color: "#8B5CF6", href: "/icome" },
+	{ name: "Income", icon: ShoppingBag, color: "#8B5CF6", href: "/income" },
 	{ name: "Expense", icon: DollarSign, color: "#10B981", href: "/expense" },
 	{ name: "Salary", icon: ShoppingCart, color: "#F59E0B", href: "/salary" },
 	{ name: "Paymant", icon: TrendingUp, color: "#3B82F6", href: "/payment" },

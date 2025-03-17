@@ -27,10 +27,10 @@ const Dashboard = () => {
 		<div className='flex-1 overflow-auto relative z-10'>
 			<Header title='Dashboard' />
       
-			<main className='w-full px-4 lg:px-6 py-16'>
+			<main className='w-full px-4 lg:px-6 py-20'>
 				{/* STATS SECTION */}
 				<motion.div
-	      className='w-full max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-8'
+	      className='w-full max-w-full mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-5 mb-8'
 	      initial={{ opacity: 0, y: 20 }}
 	      animate={{ opacity: 1, y: 0 }}
 	      transition={{ duration: 1 }}
@@ -45,7 +45,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 gap-10">
   {/* Sales Overview Box */}
   <motion.div
-    className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
+    className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 w-full max-w-full"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.2 }}
@@ -80,7 +80,7 @@ const Dashboard = () => {
 
   {/* Category Distribution Box */}
   <motion.div
-    className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
+    className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 w-full max-w-full"
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.3 }}
