@@ -162,7 +162,7 @@ function Transaction({ category, handler, onUpdate }) {
   if (!category) return null;
   return (
     <div
-      className="item flex justify-center bg-gray-200 py-2 rounded-r"
+      className="item flex justify-center py-2 rounded-r text-white bg-transparent"
       style={{ borderRight: `8px solid ${category.color ?? "#e5e5e5"}` }}
     >
       <button className="px-3" onClick={handler}>
