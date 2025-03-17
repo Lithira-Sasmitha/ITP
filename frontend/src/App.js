@@ -9,6 +9,9 @@ import Expense from "./page/financial/expense";
 import Salary from "./page/financial/salary"; 
 import Payment from "./page/financial/payment"; 
 import Message from "./page/financial/message"; 
+//testing
+import ExpenceChart from "./components/Chart/expencechart"; 
+import Labels from "./components/labels/expencelabels"; 
 
 function App() {
   return (
@@ -33,6 +36,10 @@ function App() {
             <Route path="/salary" element={<Salary />} /> 
             <Route path="/payment" element={<Payment />} /> 
             <Route path="/message" element={<Message />} />
+          
+
+            <Route path="/expencechart" element={<ExpenceChart />} />
+            <Route path="/expencelabels" element={<Labels />} />
           </Routes>
         </div>
       </div>

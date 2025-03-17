@@ -1,40 +1,55 @@
 import { motion } from "framer-motion";
 import Expenseform from "../../components/form/expenseform";
-//import Expencelist from "../../components/list/expenselist";
-import Header from "../../components/header/header";
 
-function Expense() {  
+import Header from "../../components/header/header";
+import ExpenceChart from "../../components/Chart/expencechart";
+import Expencelist from "../../components/list/expencelist";
+
+function Expense() {
   return (
-    <div className="relative z-10">
+    <div className="relative z-10 h-screen overflow-y-auto"> {/* Allow scrolling for the page */}
       <Header title="Expenses" />
 
-      <div className="grid grid-cols-2 gap-4 mt-16">
-        <div>
+      <div className="grid grid-cols-2 gap-4 grid-rows-2 mt-16">
+        {/* Transaction Form */}
+        <div className="overflow-y-auto"> 
           <motion.div
             className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h2 className="text-lg font-medium mb-4 text-gray-100">Category Distribution</h2>
+            <h1 className="font-bold pb-4 text-xl">Transaction</h1>
+            <Expenseform />
           </motion.div>
         </div>
 
-        <div>
+        {/* Expense Form (Empty section can be filled with more content) */}
+        
           <motion.div
             className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h2 className="text-lg font-medium mb-4 text-gray-100">Expense Form</h2>
+            <h2 className="text-lg font-medium mb-4 text-gray-100">Chart</h2>
             <div className="flex justify-center">
               <div className="w-full max-w-md">
-                 <Expenseform /> 
-                {/* <Expencelist /> */}
-                
+              <ExpenceChart/>
               </div>
             </div>
+          </motion.div>
+       
+
+        {/* Transaction Labels */}
+        <div className="overflow-y-auto"> {/* Ensure scrolling for this section */}
+          <motion.div
+            className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Expencelist/>
           </motion.div>
         </div>
       </div>
