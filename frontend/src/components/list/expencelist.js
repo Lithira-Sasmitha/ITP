@@ -71,27 +71,28 @@ export default function Expencelist() {
 
   return (
     <div className="flex flex-col py-6 gap-3">
-      <h1 className="py-4 font-bold text-xl">History</h1>
+      <h1 className="font-bold pb-4 text-xl">History</h1>
       {Transactions}
 
       {showPopup && selectedCategory && (
-        <div className="popup-overlay fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="popup-container bg-white p-6 rounded-lg">
+        <div className="popup-overlay fixed inset-0 bg-gray-800 bg-opacity-80 flex justify-center items-center">
+          <div className="popup-container bg-blue-900 bg-opacity-65 backdrop-blur-lg p-5 rounded-2xl">
             <h2 className="font-bold text-xl mb-4">Update Transaction</h2>
             <form onSubmit={handleSubmit(handleSubmitUpdate)}>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">Category Name</label>
+              <label htmlFor="name" className="text-white font-medium">Category Name</label>
+             
                 <input
                   type="text"
                   id="name"
                   defaultValue={updatedName}
                   {...register('name')}
-                  className="border p-2 w-full"
+                  className="  bg-transparent outline-none text-white placeholder-gray-400 px-2 w-full"
                 />
               </div>
 
               <div className="mb-4">
-                <label htmlFor="type" className="block text-sm font-medium text-gray-700">Category Type</label>
+                <label htmlFor="type" className="text-white font-medium">Category Type</label>
                 <select
                   id="type"
                   defaultValue={updatedType}
@@ -105,13 +106,13 @@ export default function Expencelist() {
               </div>
 
               <div className="mb-4">
-                <label htmlFor="amount" className="block text-sm font-medium text-gray-700">Amount</label>
+                <label htmlFor="amount" className="text-white font-medium">Amount</label>
                 <input
                   type="number"
                   id="amount"
                   defaultValue={updatedAmount}
                   {...register('amount')}
-                  className="border p-2 w-full"
+                  className="border p-2 w-full bg-red-200 text-black"
                   min="0"
                   max="20000"
                   onChange={(e) => setUpdatedAmount(e.target.value)}
@@ -119,9 +120,9 @@ export default function Expencelist() {
               </div>
 
               {/* Date Input with Validation */}
-              <div className="mb-4">
-                <label htmlFor="date" className="block text-sm font-medium text-gray-700">Transaction Date</label>
-                <input
+              <div className="mb-4 ">
+                <label htmlFor="date" className="text-white font-medium">Transaction Date</label>
+                <input 
                   type="date"
                   id="date"
                   defaultValue={updatedDate}
@@ -130,7 +131,7 @@ export default function Expencelist() {
                       value <= today || 'Future dates are not allowed!',
                   })}
                   max={today} // Restrict future dates
-                  className="border p-2 w-full"
+                  className="border p-2 w-full "
                 />
               </div>
 
@@ -138,13 +139,13 @@ export default function Expencelist() {
                 <button
                   type="button"
                   onClick={handleClosePopup}
-                  className="mr-3 bg-gray-400 text-white px-4 py-2 rounded"
+                  className="mr-3 bg-gray-500 text-white px-4 py-2 rounded"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                  className="bg-blue-700 text-white px-4 py-2 rounded"
                 >
                   Update
                 </button>

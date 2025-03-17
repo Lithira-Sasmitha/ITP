@@ -24,7 +24,7 @@ app.get("/", (req, res) => {
 app.use(require('../backend/routes/financialRoute/expencesroute'));
 
 // Start Server
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 5005;
 app.listen(port, () => {
   console.log(`Server is running on: http://localhost:${port}`);
 });
