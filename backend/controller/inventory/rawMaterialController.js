@@ -1,4 +1,4 @@
-const RawMaterial = require("../models/inventoryModel/rawMaterialModel");
+const RawMaterial = require("../../models/inventoryModel/rawMaterialModel");
 
 // Create a new raw material
 exports.createRawMaterial = async (req, res) => {

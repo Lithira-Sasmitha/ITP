@@ -6,11 +6,8 @@ const AddFinalProductForm = ({ onSubmit }) => {
     quantity: "",
     unit: "",
     unit_price: "",
-    category: "",
-    supplier_name: "",
-    supplier_email: "",
-    supplier_phone: "",
-    location: "",
+    description: "",
+    location: "Storage Room 3",
     received_date: "",
     expiry_date: "",
     status: "In Stock",
@@ -24,35 +21,27 @@ const AddFinalProductForm = ({ onSubmit }) => {
 
   const validateForm = () => {
     const newErrors = {};
-
-    if (formData.quantity <= 0) {
-      newErrors.quantity = "Quantity must be a positive number";
+    
+    if (!formData.name) {
+      newErrors.name = "Product name is required";
     }
 
-    if (formData.unit_price < 0) {
-      newErrors.unit_price = "Unit price can't be negative";
+    if (formData.quantity <= 0 || !Number.isInteger(Number(formData.quantity))) {
+      newErrors.quantity = "Quantity must be a positive integer";
     }
 
-    if (!formData.supplier_email.includes('@')) {
-      newErrors.supplier_email = "Email must contain '@'";
+    if (formData.unit_price < 0 || isNaN(formData.unit_price)) {
+      newErrors.unit_price = "Unit price must be a non-negative number";
     }
-
-    const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(formData.supplier_phone)) {
-      newErrors.supplier_phone = "Supplier contact must be exactly 10 digits";
-    }
-
-    if (!formData.location) {
-      newErrors.location = "Warehouse location is required";
-    }
-
-    if (!formData.supplier_name) {
-      newErrors.supplier_name = "Supplier name is required";
+    
+    if (formData.received_date && formData.expiry_date) {
+      if (new Date(formData.received_date) > new Date(formData.expiry_date)) {
+        newErrors.date = "Expiry date must be after received date";
+      }
     }
 
     setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0; // Return false if there are errors
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
@@ -62,7 +51,7 @@ const AddFinalProductForm = ({ onSubmit }) => {
       return;
     }
 
-    onSubmit(formData); // Callback to parent or API
+    onSubmit(formData); 
   };
 
   return (
@@ -91,7 +80,6 @@ const AddFinalProductForm = ({ onSubmit }) => {
             name="quantity"
             value={formData.quantity}
             onChange={handleChange}
-            required
             className="w-full p-2 border border-gray-300 rounded-lg"
           />
           {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
@@ -105,7 +93,6 @@ const AddFinalProductForm = ({ onSubmit }) => {
             name="unit"
             value={formData.unit}
             onChange={handleChange}
-            required
             className="w-full p-2 border border-gray-300 rounded-lg"
           />
         </div>
@@ -124,69 +111,36 @@ const AddFinalProductForm = ({ onSubmit }) => {
           {errors.unit_price && <p className="text-sm text-red-500">{errors.unit_price}</p>}
         </div>
 
-        {/* Category */}
+        {/* Desciption */}
         <div>
-          <label className="block mb-1 font-medium">Category</label>
+          <label className="block mb-1 font-medium">Description</label>
           <input
             type="text"
-            name="category"
-            value={formData.category}
+            name="description"
+            value={formData.description}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded-lg"
           />
         </div>
 
-        {/* Supplier Name */}
-        <div>
-          <label className="block mb-1 font-medium">Supplier Name</label>
-          <input
-            type="text"
-            name="supplier_name"
-            value={formData.supplier_name}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-          {errors.supplier_name && <p className="text-sm text-red-500">{errors.supplier_name}</p>}
-        </div>
-
-        {/* Supplier Email */}
-        <div>
-          <label className="block mb-1 font-medium">Supplier Email</label>
-          <input
-            type="email"
-            name="supplier_email"
-            value={formData.supplier_email}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-          {errors.supplier_email && <p className="text-sm text-red-500">{errors.supplier_email}</p>}
-        </div>
-
-        {/* Supplier Contact */}
-        <div>
-          <label className="block mb-1 font-medium">Supplier Contact</label>
-          <input
-            type="text"
-            name="supplier_phone"
-            value={formData.supplier_phone}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-lg"
-          />
-          {errors.supplier_phone && <p className="text-sm text-red-500">{errors.supplier_phone}</p>}
-        </div>
-
-        {/* Warehouse Location */}
-        <div>
+       {/* Warehouse Location */}
+       <div>
           <label className="block mb-1 font-medium">Warehouse Location</label>
-          <input
-            type="text"
-            name="location"
+          <select
+            name="locaton"
             value={formData.location}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded-lg"
-          />
+          >
+            <option value="Storage Room 1">Storage Room 1</option>
+            <option value="Storage Room 2">Storage Room 2</option>
+            <option value="Storage Room 3">Storage Room 3</option>
+            <option value="Main Rack Zone">Main Rack Zone</option>
+            <option value="Cold Room">Cold Room</option>
+          </select>
           {errors.location && <p className="text-sm text-red-500">{errors.location}</p>}
         </div>
+
 
         {/* Received Date */}
         <div>

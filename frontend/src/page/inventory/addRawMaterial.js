@@ -10,7 +10,7 @@ const AddRawMaterialForm = ({ onSubmit }) => {
     supplier_name: "",
     supplier_email: "",
     supplier_phone: "",
-    location: "",
+    location: "Storage Room 1",
     received_date: "",
     expiry_date: "",
     status: "In Stock",
@@ -50,8 +50,10 @@ const AddRawMaterialForm = ({ onSubmit }) => {
       newErrors.location = "Warehouse location is required";
     }
 
-    if (!formData.supplier_name) {
-      newErrors.supplier_name = "Supplier name is required";
+    if (formData.received_date && formData.expiry_date) {
+      if (new Date(formData.received_date) > new Date(formData.expiry_date)) {
+        newErrors.date = "Expiry date must be after received date";
+      }
     }
 
     setErrors(newErrors);
@@ -95,7 +97,6 @@ const AddRawMaterialForm = ({ onSubmit }) => {
             name="quantity"
             value={formData.quantity}
             onChange={handleChange}
-            required
             className="w-full p-2 border border-gray-300 rounded-lg"
           />
           {errors.quantity && <p className="text-sm text-red-500">{errors.quantity}</p>}
@@ -109,7 +110,6 @@ const AddRawMaterialForm = ({ onSubmit }) => {
             name="unit"
             value={formData.unit}
             onChange={handleChange}
-            required
             className="w-full p-2 border border-gray-300 rounded-lg"
           />
         </div>
@@ -184,7 +184,7 @@ const AddRawMaterialForm = ({ onSubmit }) => {
         <div>
           <label className="block mb-1 font-medium">Warehouse Location</label>
           <select
-            name="locaton"
+            name="location"
             value={formData.location}
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded-lg"
@@ -220,6 +220,7 @@ const AddRawMaterialForm = ({ onSubmit }) => {
             onChange={handleChange}
             className="w-full p-2 border border-gray-300 rounded-lg"
           />
+          {errors.date && <p className="text-sm text-red-500">{errors.date}</p>}
         </div>
 
         {/* Status */}
