@@ -270,7 +270,7 @@ export default function Delivery() {
           darkMode ? "bg-gray-800 text-white" : "bg-blue-600 text-white"
         } py-4 rounded-lg text-center shadow-md`}
       >
-        <h3 className="text-lg font-bold">CEY COIR</h3>
+        <h3 className="text-lg font-bold">NBcoir</h3>
         <p className="text-sm">
           Delivering quality coir products to local and global markets.
         </p>

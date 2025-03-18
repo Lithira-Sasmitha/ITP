@@ -5,7 +5,7 @@ const {
   getDriverById,
   updateDriver,
   deleteDriver,
-} = require ("../controller/order/DriverController");
+} = require("../controller/order/DriverController");
 
 const router = express.Router();
 

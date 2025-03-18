@@ -106,7 +106,8 @@ function Layout() {
                     onClick={() => handleNavigate("drivervehicledetails")}
                     className="flex items-center rounded-lg px-4 py-3 transition-all duration-300 bg-green-600 hover:bg-green-500"
                   >
-                    <FaTasks className="h-6 w-6 mr-4 text-white" />D & V Details
+                    <FaTasks className="h-6 w-6 mr-4 text-white" />
+                    D & V Details
                   </button>
                 </li>
               </ul>

@@ -6,6 +6,8 @@ const AddDelivery = () => {
     customerName: "",
     orderId: "",
     itemsPrice: "",
+    deliveryPrice: "",
+    totalPrice: "",
   });
 
   // State to store delivery details (which will be auto-filled)
@@ -18,6 +20,10 @@ const AddDelivery = () => {
     province: "",
     postalCode: "",
     items: "",
+    itemsPrice: "",
+    deliveryPrice: "",
+    totalPrice: "",
+    deliveryStatus: "",
   });
 
   // Handle "Add Order" form submission
@@ -30,6 +36,9 @@ const AddDelivery = () => {
       firstName: orderDetails.customerName.split(" ")[0], // Assume first name is the first word of customer name
       lastName: orderDetails.customerName.split(" ")[1] || "", // Assume last name is the second word
       items: orderDetails.itemsPrice, // You can modify this to match actual items
+      itemsPrice: orderDetails.itemsPrice,
+      deliveryPrice: orderDetails.deliveryPrice,
+      totalPrice: orderDetails.totalPrice,
     }));
   };
 
@@ -87,6 +96,28 @@ const AddDelivery = () => {
               placeholder="Enter items price"
               name="itemsPrice"
               value={orderDetails.itemsPrice}
+              onChange={handleOrderChange}
+            />
+          </div>
+          <div>
+            <label className="block mb-2 text-white">Delivery Price</label>
+            <input
+              type="text"
+              className="w-full p-2 border-2 border-gray-300 rounded text-black"
+              placeholder="Enter delivery price"
+              name="deliveryPrice"
+              value={orderDetails.deliveryPrice}
+              onChange={handleOrderChange}
+            />
+          </div>
+          <div>
+            <label className="block mb-2 text-white">Total Price</label>
+            <input
+              type="text"
+              className="w-full p-2 border-2 border-gray-300 rounded text-black"
+              placeholder="Enter total price"
+              name="totalPrice"
+              value={orderDetails.totalPrice}
               onChange={handleOrderChange}
             />
           </div>
