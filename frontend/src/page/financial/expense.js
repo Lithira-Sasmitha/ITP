@@ -6,7 +6,7 @@ import Expencelist from "../../components/list/expencelist";
 
 function Expense() {
   return (
-    <div className="relative z-10 h-screen overflow-y-auto p-4"> 
+    <div className="relative z-10 overflow-y-auto p-4"> 
       <Header title="Expenses" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-16"> 
