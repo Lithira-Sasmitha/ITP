@@ -7,7 +7,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { getTotal } from '../../components/helper/helper';
 import StatCard from "../../components/statCard/statCard"; 
 import Header from "../../components/header/header";
-import { default as api } from '../../store/apiSLice'; // ✅ Import API correctly
+import { default as api } from '../../store/apiSLice'; 
 
 const salesData = [
   { name: "Jul", sales: 4200 },
