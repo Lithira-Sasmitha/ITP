@@ -6,10 +6,10 @@ import Expencelist from "../../components/list/expencelist";
 
 function Expense() {
   return (
-    <div className="relative z-10 overflow-y-auto p-4"> 
-      <Header title="Expenses" />
+    <div className="relative z-10  overflow-y-auto p-4"> 
+      <Header title={"Expenses"} />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-16"> 
+      <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mt-16"> 
         {/* Transaction Form */}
         <div className="overflow-y-auto px-4 sm:px-6"> 
           <motion.div
@@ -37,9 +37,7 @@ function Expense() {
             </div>
           </div>
         </motion.div>
-
-        {/* Transaction Labels */}
-        <div className="overflow-y-auto max-h-[400px] md:max-h-[600px]"> 
+        <div className="w-full mt-6"> 
           <motion.div
             className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
             initial={{ opacity: 0, y: 20 }}
@@ -49,7 +47,10 @@ function Expense() {
             <Expencelist />
           </motion.div>
         </div>
-      </div>
+        </div>
+        {/* Transaction Labels */}
+       
+      
     </div>
   );
 }

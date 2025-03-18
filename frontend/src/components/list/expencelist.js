@@ -70,7 +70,7 @@ export default function Expencelist() {
   }
 
   return (
-    <div className="flex flex-col py-6 gap-3">
+    <div className="flex flex-col py-6 w-full gap-3">
       <h1 className="font-bold pb-4 text-xl">History</h1>
       {Transactions}
 

@@ -7,6 +7,8 @@ function Salary() {
   return (
     <div className="relative z-10">
       <Header title='Salary' />
+
+      
       
     </div>
     
