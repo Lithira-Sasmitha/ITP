@@ -2,7 +2,7 @@ require("dotenv").config(); // Load environment variables
 const mongoose = require("mongoose");
 
 // MongoDB Connection URL from .env file
-const mongoURL = process.env.MONGO_URL || "mongodb+srv://lithira:lithira@cluster0.z8g0b.mongodb.net/";
+const mongoURL = process.env.MONGO_URL;
 
 mongoose.connect(mongoURL, { 
   useNewUrlParser: true, 

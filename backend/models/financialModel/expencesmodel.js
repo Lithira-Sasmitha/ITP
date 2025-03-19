@@ -49,7 +49,7 @@ const transaction_model = new Schema({
 
 // Create models
 const Categories = mongoose.model('categories', categories_model);
-const Transaction = mongoose.model('transactions', transaction_model); // Ensure pluralization consistency
+const Transaction = mongoose.model('transactions', transaction_model); 
 
 // Export the models
 module.exports = {

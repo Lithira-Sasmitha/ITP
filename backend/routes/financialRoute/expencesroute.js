@@ -1,12 +1,15 @@
 const routes = require('express').Router();
 const controller = require('../../controller/financial/expencesCrt');
+const { default: route } = require('./const');
 
-routes.route('/api/categories')
+
+
+routes.route(route.expence.apiExpence)
  .post(controller.create_Categories)
  .get(controller.get_Categories)
 
 
- routes.route('/api/transaction')
+ routes.route(route.expence.apitrasaction)
  .post(controller.create_Transaction)
  .get(controller.get_Transaction)
  .delete(controller.delete_Transaction)
