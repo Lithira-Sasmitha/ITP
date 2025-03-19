@@ -1,29 +1,28 @@
-import React, { useState } from "react";
-import { FaSearch, FaDownload, FaPlus, FaEdit, FaTrash, FaBell, FaEnvelope } from "react-icons/fa"; // Import FaEnvelope
+import React, { useState, useEffect } from "react";
+import { FaSearch, FaDownload, FaPlus, FaEdit, FaTrash, FaBell, FaEnvelope } from "react-icons/fa";
 import WarehouseLayout from "../../components/sidebar/warehouseLayout";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import 'animate.css';
 import { useNavigate } from "react-router-dom";
-
-const packingMaterials = [
-  { name: "Packing Foam", quantity: 200, supplier: "supplier1@email.com" },
-  { name: "Plastic Wrap", quantity: 500, supplier: "supplier2@email.com" },
-  { name: "Cardboard Boxes", quantity: 50, supplier: "supplier3@email.com" },
-];
-
-const lowStockThreshold = 100; // Set low stock threshold for packing materials
-const COLORS = ["#8e44ad", "#3498db", "#e74c3c"];
-
-const trendData = [
-  { month: "Jan", usage: 120 },
-  { month: "Feb", usage: 80 },
-  { month: "Mar", usage: 100 },
-  { month: "Apr", usage: 90 },
-];
+import axios from "axios"; // To make API calls
+import { jsPDF } from "jspdf";
 
 const ViewPackingMaterials = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [packingMaterials, setPackingMaterials] = useState([]);
   const navigate = useNavigate();
+  
+// Fetch packing materials from the database
+useEffect(() => {
+  axios
+    .get("http://localhost:5000/api/packingMaterial") 
+    .then((response) => {
+      setPackingMaterials(response.data);
+    })
+    .catch((error) => {
+      console.error("Error fetching packing materials:", error);
+    });
+}, []);
 
   // Filter materials based on search term
   const filteredMaterials = packingMaterials.filter((material) =>
@@ -31,11 +30,46 @@ const ViewPackingMaterials = () => {
   );
 
   // Get low stock materials
-  const lowStockMaterials = packingMaterials.filter((item) => item.quantity < lowStockThreshold);
+  const lowStockMaterials = packingMaterials.filter((item) => item.quantity < item.reorder_level);
 
   // Function to send email (Placeholder)
   const sendEmail = (supplierEmail) => {
     alert(`Email sent to ${supplierEmail}`);
+  };
+
+  // Handle delete action
+  const handleDelete = (_id) => {
+    axios
+      .delete(`http://localhost:5000/api/packingMaterial/deletePackingMaterial/${_id}`) 
+      .then(() => {
+        setPackingMaterials(packingMaterials.filter((item) => item._id !== _id)); // Remove deleted item from state
+      })
+      .catch((error) => {
+        console.error("Error deleting material:", error);
+      });
+  };
+
+  // Handle update action (navigate to update page)
+  const handleUpdate = (_id) => {
+    navigate(`/inventory/updatePackingMaterial/${_id}`);
+  };
+
+  // Generate and download report
+  const generateReport = () => {
+    const doc = new jsPDF();
+    doc.text("Packing Materials Report", 20, 20);
+    packingMaterials.forEach((material, index) => {
+      doc.text(`${material.name} - Quantity: ${material.quantity}`, 20, 30 + index * 10);
+    });
+    doc.save("packing_materials_report.pdf");
+  };
+
+  // Generate a color array based on raw material names
+  const generateColorArray = () => {
+    const colors = [
+      "#8884d8", "#ff6347", "#4caf50", "#ffeb3b", "#2196f3", "#ff5722", "#9c27b0", "#3f51b5"
+    ];
+    return packingMaterials.map((material, index) => colors[index % colors.length]);
   };
 
   return (
@@ -102,7 +136,7 @@ const ViewPackingMaterials = () => {
       </div>
 
       {/* Top Summary Cards */}
-      <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-4 ">
+      <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-4">
         <div className="p-6 text-green-900 transition duration-300 transform bg-green-200 rounded-lg shadow-xl hover:-translate-y-1 hover:shadow-2xl">
           <h2 className="text-lg font-semibold">Total Quantity</h2>
           <p className="text-2xl">{packingMaterials.reduce((acc, item) => acc + item.quantity, 0)}</p>
@@ -139,10 +173,10 @@ const ViewPackingMaterials = () => {
                 <td className="p-3">{material.quantity}</td>
                 <td className="p-3">{material.supplier}</td>
                 <td className="flex gap-3 p-3">
-                  <button className="text-blue-600 hover:text-blue-800">
+                  <button onClick={() => navigate(`/inventory/updatePackingMaterial/${material.name}`)} className="text-blue-600 hover:text-blue-800">
                     <FaEdit />
                   </button>
-                  <button className="text-red-600 hover:text-red-800">
+                  <button onClick={() => alert(`Delete ${material.name}`)} className="text-red-600 hover:text-red-800">
                     <FaTrash />
                   </button>
                 </td>
@@ -154,28 +188,40 @@ const ViewPackingMaterials = () => {
 
       {/* Charts Section */}
       <div className="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl">
-        {/* Right Side (Pie Chart) */}
-        <div className="w-full">
-          <h3 className="mb-4 text-lg font-semibold text-center">Packing Material Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={packingMaterials}
-                dataKey="quantity"
-                nameKey="name"
-                outerRadius={100}
-                label
-              >
-                {packingMaterials.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend verticalAlign="top" height={36} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
+              <div className="w-full">
+                <h3 className="mb-4 text-lg font-semibold text-center">Packing Material Distribution</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={packingMaterials}
+                      dataKey="quantity"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      fill="#8884d8"
+                      label
+                    >
+                      {packingMaterials.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={generateColorArray()[index]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend
+                      layout="horizontal"
+                      align="center"
+                      verticalAlign="top"
+                      iconSize={10}
+                      payload={packingMaterials.map((entry, index) => ({
+                        value: entry.name,
+                        type: "square",
+                        color: generateColorArray()[index]
+                      }))}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
     </WarehouseLayout>
   );
 };

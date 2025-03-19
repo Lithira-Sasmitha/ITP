@@ -1,14 +1,15 @@
-import React, { useState } from "react";
-import { useNavigate,} from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom"; // Import useNavigate
 
-const RawMaterialForm = () => {
-  const navigate = useNavigate();
+const PackingMaterialUpdateForm = () => {
+  const { _id } = useParams(); // Get the ID from URL
+  const navigate = useNavigate(); // Declare navigate function
   const [formData, setFormData] = useState({
     name: "",
-    quantity: "",
+    quantity: 1,
     unit: "",
-    reorder_level: "",
-    unit_price: "",
+    reorder_level: 0,
+    unit_price: 0,
     supplier_name: "",
     supplier_email: "",
     supplier_phone: "",
@@ -19,6 +20,36 @@ const RawMaterialForm = () => {
   });
 
   const [errors, setErrors] = useState({});
+
+  // Fetch data using the ID
+  useEffect(() => {
+    const fetchPackingMaterialData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/packingMaterial/${_id}`);
+        const data = await response.json();
+        if (data) {
+          setFormData({
+            name: data.name,
+            quantity: data.quantity,
+            unit: data.unit,
+            reorder_level: data.reorder_level,
+            unit_price: data.unit_price,
+            supplier_name: data.supplier_name,
+            supplier_email: data.supplier_email,
+            supplier_phone: data.supplier_phone,
+            location: data.location,
+            received_date: data.received_date.split("T")[0], // Convert to YYYY-MM-DD format
+            expiry_date: data.expiry_date.split("T")[0], // Convert to YYYY-MM-DD format
+            status: data.status,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchPackingMaterialData();
+  }, [id]);
 
   // Handle input change
   const handleChange = (e) => {
@@ -37,8 +68,8 @@ const RawMaterialForm = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/rawMaterial/createRawMaterial", {
-        method: "POST",
+      const response = await fetch(`http://localhost:5000/api/packingMaterial/updatePackingMaterial/${_id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -47,25 +78,11 @@ const RawMaterialForm = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Raw material added successfully:", data);
-        navigate("/inventory/rawMaterialList");
-        // Optionally reset the form
-        setFormData({
-          name: "",
-          quantity: 1,
-          unit: "",
-          reorder_level: 0,
-          unit_price: 0,
-          supplier_name: "",
-          supplier_email: "",
-          supplier_phone: "",
-          location: "Storage Room 2",
-          received_date: "",
-          expiry_date: "",
-          status: "In Stock",
-        });
+        console.log("Packing material updated successfully:", data);
+        // Redirect to the packing material list page using navigate
+        navigate("/inventory/packingMaterialList"); // Use navigate instead of history.push
       } else {
-        console.error("Failed to add raw material");
+        console.error("Failed to update packing material");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -93,7 +110,7 @@ const RawMaterialForm = () => {
 
   return (
     <div className="max-w-4xl p-8 mx-auto bg-white rounded-lg shadow-lg">
-      <h2 className="mb-6 text-3xl font-semibold text-center text-green-900 transition duration-300 hover:text-green-900">Add Raw Material</h2>
+      <h2 className="mb-6 text-3xl font-semibold text-center text-blue-900 transition duration-300 hover:text-blue-900">Update Packing Material</h2>
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Name */}
@@ -259,13 +276,9 @@ const RawMaterialForm = () => {
             </select>
           </div>
 
-          {/* Submit Button */}
           <div className="mb-4 md:col-span-2">
-            <button
-              type="submit"
-              className="w-full p-2 text-white bg-green-900 rounded-md hover:bg-green-700"
-            >
-              Add Raw Material
+            <button type="submit" className="w-full px-6 py-2 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none">
+              Update
             </button>
           </div>
         </div>
@@ -274,4 +287,4 @@ const RawMaterialForm = () => {
   );
 };
 
-export default RawMaterialForm;
+export default PackingMaterialUpdateForm;

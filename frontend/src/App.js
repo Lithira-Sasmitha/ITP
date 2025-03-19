@@ -11,6 +11,7 @@ import PackingMaterialList from './page/inventory/packingMaterialList';
 import AddPackingMaterial from './page/inventory/addPackingMaterial';
 import FinalProductList from './page/inventory/finalProductList';
 import AddFinalProduct from './page/inventory/addFinalProduct';
+import UpdateRawMaterial from './page/inventory/updateRawMaterial';
 import StockMovements from './page/inventory/stockMovements';
 
 function App() {
@@ -21,14 +22,12 @@ function App() {
         <Route path="/inventory/addFinalProduct" element={<AddFinalProduct />} />
         <Route path="/inventory/inventoryPage" element={<InventoryPage />} />
         <Route path="/inventory/rawMaterialList" element={<RawMaterialList />} />
-        <Route path="/inventory/addRawMaterial" element={<AddRawMaterial/>} />
+        <Route path="/inventory/addRawMaterial" element={<AddRawMaterial />} />
         <Route path="/inventory/packingMaterialList" element={<PackingMaterialList />} />
         <Route path="/inventory/addPackingMaterial" element={<AddPackingMaterial />} />
         <Route path="/inventory/finalProductList" element={<FinalProductList />} />
-        <Route path="/inventory/addFinalProduct" element={<AddFinalProduct />} />
+        <Route path="/inventory/updateRawMaterial/:id" element={<UpdateRawMaterial />} />
         <Route path="/inventory/stockMovements" element={<StockMovements />} />
-        
-        
       </Routes>
     </Router>
   );

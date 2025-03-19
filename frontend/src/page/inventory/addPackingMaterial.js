@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate,} from "react-router-dom";
 
-const AddPackingMaterialForm = ({ onSubmit }) => {
+const AddPackingMaterialForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     quantity: "",
@@ -22,57 +24,67 @@ const AddPackingMaterialForm = ({ onSubmit }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.name.trim()) {
-      newErrors.name = "Material name is required";
-    }
-
-    if (formData.quantity <= 0) {
-      newErrors.quantity = "Quantity must be a positive number";
-    }
-
-    if (formData.reorder_level < 0) {
-      newErrors.reorder_level = "Reorder level can't be negative";
-    }
-
-    if (formData.unit_price < 0) {
-      newErrors.unit_price = "Unit price can't be negative";
-    }
-
-    if (!formData.supplier_email.includes('@')) {
-      newErrors.supplier_email = "Email must contain '@'";
-    }
-
-    const phoneRegex = /^\d{10}$/;
-    if (!phoneRegex.test(formData.supplier_phone)) {
-      newErrors.supplier_phone = "Supplier contact must be exactly 10 digits";
-    }
-
-    if (!formData.location) {
-      newErrors.location = "Warehouse location is required";
-    }
-
-    if (formData.received_date && formData.expiry_date) {
-      if (new Date(formData.received_date) > new Date(formData.expiry_date)) {
-        newErrors.date = "Expiry date must be after received date";
-      }
-    }
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0; // Return false if there are errors
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateForm()) {
+    const newErrors = validateForm();
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
-    onSubmit(formData); 
+    try {
+      const response = await fetch("http://localhost:5000/api/packingMaterial/createPackingMaterial", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Packing material added successfully:", data);
+        navigate("/inventory/packingMaterialList");
+        // Optionally reset the form
+        setFormData({
+          name: "",
+          quantity: 1,
+          unit: "",
+          reorder_level: 0,
+          unit_price: 0,
+          supplier_name: "",
+          supplier_email: "",
+          supplier_phone: "",
+          location: "Storage Room 2",
+          received_date: "",
+          expiry_date: "",
+          status: "In Stock",
+        });
+      } else {
+        console.error("Failed to add Packing material");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
+  };
+
+  // Form validation
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.name) errors.name = "Name is required";
+    if (!formData.quantity || formData.quantity < 1) errors.quantity = "Quantity must be at least 1";
+    if (!formData.unit) errors.unit = "Unit is required";
+    if (formData.unit_price < 0) errors.unit_price = "Unit price cannot be negative";
+    if (formData.supplier_email && !/\S+@\S+\.\S+/.test(formData.supplier_email)) {
+      errors.supplier_email = "Please provide a valid email address";
+    }
+    if (formData.supplier_phone && !/^\d{10}$/.test(formData.supplier_phone)) {
+      errors.supplier_phone = "Supplier contact must be exactly 10 digits";
+    }
+    if (formData.expiry_date && new Date(formData.expiry_date) <= new Date()) {
+      errors.expiry_date = "Expiry date must be in the future";
+    }
+    return errors;
   };
 
   return (

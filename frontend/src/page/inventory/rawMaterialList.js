@@ -1,31 +1,29 @@
-import React, { useState } from "react";
-import { FaSearch, FaDownload, FaPlus, FaEdit, FaTrash, FaBell, FaEnvelope } from "react-icons/fa"; // Import FaEnvelope
+import React, { useState, useEffect } from "react";
+import { FaSearch, FaDownload, FaPlus, FaEdit, FaTrash, FaBell, FaEnvelope } from "react-icons/fa";
 import WarehouseLayout from "../../components/sidebar/warehouseLayout";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import 'animate.css';
 import { useNavigate } from "react-router-dom";
-
-
-
-const rawMaterials = [
-  { name: "Coconut Husk", quantity: 400, supplier: "supplier1@email.com" },
-  { name: "Coir Fiber", quantity: 300, supplier: "supplier2@email.com" },
-  { name: "Dust", quantity: 120, supplier: "supplier3@email.com" },
-];
-
-const lowStockThreshold = 150; // Set low stock threshold
-const COLORS = ["#8e44ad", "#3498db", "#e74c3c"];
-
-const trendData = [
-  { month: "Jan", usage: 200 },
-  { month: "Feb", usage: 180 },
-  { month: "Mar", usage: 220 },
-  { month: "Apr", usage: 190 },
-];
+import axios from "axios"; // To make API calls
+import { jsPDF } from "jspdf"; // For generating PDF reports
 
 const ViewRawMaterials = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [rawMaterials, setRawMaterials] = useState([]);
+  const [lowStockThreshold, setLowStockThreshold] = useState(10); // Set your threshold for low stock
   const navigate = useNavigate();
+
+  // Fetch raw materials from the database
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/rawMaterial") // API endpoint to fetch raw materials
+      .then((response) => {
+        setRawMaterials(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching raw materials:", error);
+      });
+  }, []);
 
   // Filter materials based on search term
   const filteredMaterials = rawMaterials.filter((material) =>
@@ -33,11 +31,46 @@ const ViewRawMaterials = () => {
   );
 
   // Get low stock materials
-  const lowStockMaterials = rawMaterials.filter((item) => item.quantity < lowStockThreshold);
+  const lowStockMaterials = rawMaterials.filter((item) => item.quantity < item.reorder_level);
 
   // Function to send email (Placeholder)
   const sendEmail = (supplierEmail) => {
     alert(`Email sent to ${supplierEmail}`);
+  };
+
+  // Handle delete action
+  const handleDelete = (_id) => {
+    axios
+      .delete(`http://localhost:5000/api/rawMaterial/deleteRawMaterial/${_id}`) // API endpoint to delete raw material by ID
+      .then(() => {
+        setRawMaterials(rawMaterials.filter((item) => item._id !== _id)); // Remove deleted item from state
+      })
+      .catch((error) => {
+        console.error("Error deleting material:", error);
+      });
+  };
+
+  // Handle update action (navigate to update page)
+  const handleUpdate = (_id) => {
+    navigate(`/inventory/updateRawMaterial/${_id}`);
+  };
+
+  // Generate and download report
+  const generateReport = () => {
+    const doc = new jsPDF();
+    doc.text("Raw Materials Report", 20, 20);
+    rawMaterials.forEach((material, index) => {
+      doc.text(`${material.name} - Quantity: ${material.quantity}`, 20, 30 + index * 10);
+    });
+    doc.save("raw_materials_report.pdf");
+  };
+
+  // Generate a color array based on raw material names
+  const generateColorArray = () => {
+    const colors = [
+      "#8884d8", "#ff6347", "#4caf50", "#ffeb3b", "#2196f3", "#ff5722", "#9c27b0", "#3f51b5"
+    ];
+    return rawMaterials.map((material, index) => colors[index % colors.length]);
   };
 
   return (
@@ -46,39 +79,39 @@ const ViewRawMaterials = () => {
         <h1 className="text-2xl font-semibold text-gray-800">View Raw Materials</h1>
       </div>
 
-     {/* Low Stock Notification Section */}
-     <div className="flex flex-col p-3 mb-6 text-white bg-red-600 shadow-xl rounded-xl animate__animated animate__bounceIn">
-  <div className="flex items-center mb-4">
-    <span className="mr-2 text-2xl animate__animated animate__heartBeat animate__infinite">
-      <FaBell />
-    </span>
-    <div>
-      <h2 className="text-base font-semibold">Low Stock Alerts</h2>
-      <p className="text-lg">There are {lowStockMaterials.length} materials with low stock! </p>
-      <p className="text-lg">If you want to reorder this raw material, click the <span className="underline">Send Email</span> button to contact the supplier directly.</p>
-    </div>
-  </div>
-
-
-  {/* Low Stock Materials List */}
-  <div className="space-y-4">
-    {lowStockMaterials.map((material, index) => (
-      <div key={index} className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow-md">
-        <div>
-          <h4 className="font-bold text-gray-900">{material.name}</h4>
-          <p className="text-gray-600">Quantity: {material.quantity}</p>
+      {/* Low Stock Notification Section */}
+      <div className="flex flex-col p-3 mb-6 text-white bg-red-600 shadow-xl rounded-xl animate__animated animate__bounceIn">
+        <div className="flex items-center mb-4">
+          <span className="mr-2 text-2xl animate__animated animate__heartBeat animate__infinite">
+            <FaBell />
+          </span>
+          <div>
+            <h2 className="text-base font-semibold">Low Stock Alerts</h2>
+            <p className="text-lg">There are {lowStockMaterials.length} materials with low stock! </p>
+            <p className="text-lg">
+              If you want to reorder this raw material, click the <span className="underline">Send Email</span> button to contact the supplier directly.
+            </p>
+          </div>
         </div>
-        <button
-          onClick={() => sendEmail(material.supplier)}
-          className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-500"
-        >
-          <FaEnvelope className="mr-2" /> Send Email
-        </button>
-      </div>
-    ))}
-  </div>
-</div>
 
+        {/* Low Stock Materials List */}
+        <div className="space-y-4">
+          {lowStockMaterials.map((material, index) => (
+            <div key={index} className="flex items-center justify-between p-4 bg-gray-100 rounded-lg shadow-md">
+              <div>
+                <h4 className="font-bold text-gray-900">{material.name}</h4>
+                <p className="text-gray-600">Quantity: {material.quantity}</p>
+              </div>
+              <button
+                onClick={() => sendEmail(material.supplier)}
+                className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-500"
+              >
+                <FaEnvelope className="mr-2" /> Send Email
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Search and Actions */}
       <div className="flex flex-wrap items-center justify-between mb-6">
@@ -99,7 +132,7 @@ const ViewRawMaterials = () => {
           >
             <FaPlus className="mr-2" /> Add Raw Material
           </button>
-          <button className="flex items-center px-4 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-500">
+          <button onClick={generateReport} className="flex items-center px-4 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-500">
             <FaDownload className="mr-2" /> Download Report
           </button>
         </div>
@@ -141,12 +174,12 @@ const ViewRawMaterials = () => {
               <tr key={index} className="transition hover:bg-gray-100">
                 <td className="p-3">{material.name}</td>
                 <td className="p-3">{material.quantity}</td>
-                <td className="p-3">{material.supplier}</td>
+                <td className="p-3">{material.supplier_email}</td>
                 <td className="flex gap-3 p-3">
-                  <button className="text-blue-600 hover:text-blue-800">
+                  <button onClick={() => handleUpdate(material._id)} className="text-blue-600 hover:text-blue-800">
                     <FaEdit />
                   </button>
-                  <button className="text-red-600 hover:text-red-800">
+                  <button onClick={() => handleDelete(material._id)} className="text-red-600 hover:text-red-800">
                     <FaTrash />
                   </button>
                 </td>
@@ -156,33 +189,42 @@ const ViewRawMaterials = () => {
         </table>
       </div>
 
-              {/* Charts Section */}
-<div className="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl">
-
-{/* Right Side (Pie Chart) */}
-<div className="w-full">
-  <h3 className="mb-4 text-lg font-semibold text-center">Raw Material Distribution</h3>
-  <ResponsiveContainer width="100%" height={300}>
-    <PieChart>
-      <Pie
-        data={rawMaterials}
-        dataKey="quantity"
-        nameKey="name"
-        outerRadius={100}
-        label
-      >
-        {rawMaterials.map((_, index) => (
-          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-        ))}
-      </Pie>
-      <Tooltip />
-      <Legend verticalAlign="top" height={36} />
-    </PieChart>
-  </ResponsiveContainer>
-</div>
-</div>
-
-
+      {/* Charts Section */}
+      <div className="flex flex-col items-center p-6 bg-white rounded-lg shadow-xl">
+        <div className="w-full">
+          <h3 className="mb-4 text-lg font-semibold text-center">Raw Material Distribution</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={rawMaterials}
+                dataKey="quantity"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#8884d8"
+                label
+              >
+                {rawMaterials.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={generateColorArray()[index]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend
+                layout="horizontal"
+                align="center"
+                verticalAlign="top"
+                iconSize={10}
+                payload={rawMaterials.map((entry, index) => ({
+                  value: entry.name,
+                  type: "square",
+                  color: generateColorArray()[index]
+                }))}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
     </WarehouseLayout>
   );
 };
