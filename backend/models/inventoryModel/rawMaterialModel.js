@@ -31,5 +31,6 @@ const rawMaterialSchema = new mongoose.Schema(
   }
 );
 
+
 rawMaterialSchema.plugin(AutoIncrement, { inc_field: 'rawMaterialId' });
 module.exports = mongoose.model("RawMaterial", rawMaterialSchema);

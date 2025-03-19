@@ -25,7 +25,7 @@ app.use("/api/finalProduct", finalProductRoutes);
 
 // Root Route
 app.get("/", (req, res) => {
-  res.send("nventory Server is Running!");
+  res.send("inventory Server is Running!");
 });
 
 // Error handling for unknown routes (optional but good)

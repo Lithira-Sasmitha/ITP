@@ -79,7 +79,7 @@ const AddRawMaterialForm = ({ onSubmit }) => {
       console.error("onSubmit is not a function or is undefined");
     }
   };
-
+  
   return (
     <div className="max-w-4xl p-6 mx-auto overflow-hidden bg-white rounded-lg shadow-xl">
       <h2 className="mb-6 text-2xl font-semibold text-center text-green-700">Add Raw Material</h2>

@@ -3,8 +3,8 @@ const RawMaterial = require("../../models/inventoryModel/rawMaterialModel");
 // Create a new raw material
 exports.createRawMaterial = async (req, res) => {
   try {
-    const { id, name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status } = req.body;
-    const newMaterial = new RawMaterial({id, name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status });
+    const {  name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status } = req.body;
+    const newMaterial = new RawMaterial({ name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status });
     await newMaterial.save();
     res.status(201).json(newMaterial);
   } catch (error) {
@@ -37,7 +37,7 @@ exports.getRawMaterialById = async (req, res) => {
 // Update raw material details
 exports.updateRawMaterial = async (req, res) => {
   try {
-    const { id, name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status } = req.body;
+    const { name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status } = req.body;
     const updatedMaterial = await RawMaterial.findByIdAndUpdate(
       req.params.id,
       {  name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status, lastUpdated: Date.now() },
