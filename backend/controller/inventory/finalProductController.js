@@ -40,7 +40,7 @@ exports.updateFinalProduct = async (req, res) => {
     const { id, name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status } = req.body;
     const updatedProduct = await FinalProduct.findByIdAndUpdate(
       req.params.id,
-      { name, quantity, unit, lastUpdated: Date.now() },
+      { name, quantity, unit, reorder_level, unit_price, location, received_date, expiry_date, status, lastUpdated: Date.now() },
       { new: true }
     );
     if (!updatedProduct) return res.status(404).json({ message: "Not found" });

@@ -8,10 +8,10 @@ const {
   deletePackingMaterial,
 } = require("../../controller/inventory/packingMaterialController");
 
-router.post("/", createPackingMaterial);
+router.post("/createPackingMaterial", createPackingMaterial);
 router.get("/", getPackingMaterials);
 router.get("/:id", getPackingMaterialById);
-router.put("/:id",  updatePackingMaterial);
-router.delete("/:id", deletePackingMaterial);
+router.put("/updatePackingMaterial/:id",  updatePackingMaterial);
+router.delete("/deletePackingMaterial/:id", deletePackingMaterial);
 
 module.exports = router;

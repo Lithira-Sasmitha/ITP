@@ -18,10 +18,12 @@ const AddRawMaterialForm = ({ onSubmit }) => {
 
   const [errors, setErrors] = useState({});
 
+  // Handle input change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Form validation logic
   const validateForm = () => {
     const newErrors = {};
 
@@ -58,23 +60,31 @@ const AddRawMaterialForm = ({ onSubmit }) => {
 
     setErrors(newErrors);
 
-    return Object.keys(newErrors).length === 0; // Return false if there are errors
+    return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
+  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validate form before submission
     if (!validateForm()) {
-      return;
+      return; // Do not submit if validation fails
     }
 
-    onSubmit(formData); // Callback to parent or API
+    // Ensure onSubmit is a function before calling it
+    if (onSubmit && typeof onSubmit === "function") {
+      onSubmit(formData); // Pass the form data to the parent onSubmit function
+    } else {
+      console.error("onSubmit is not a function or is undefined");
+    }
   };
 
   return (
     <div className="max-w-4xl p-6 mx-auto overflow-hidden bg-white rounded-lg shadow-xl">
       <h2 className="mb-6 text-2xl font-semibold text-center text-green-700">Add Raw Material</h2>
       <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        
         {/* Material Name */}
         <div>
           <label className="block mb-1 font-medium">Material Name</label>

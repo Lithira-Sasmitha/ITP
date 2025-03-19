@@ -8,10 +8,10 @@ const {
   deleteRawMaterial,
 } = require("../../controller/inventory/rawMaterialController");
 
-router.post("/", createRawMaterial);
+router.post("/createRawMaterial", createRawMaterial);
 router.get("/", getRawMaterials);
 router.get("/:id", getRawMaterialById);
-router.put("/:id", updateRawMaterial);
-router.delete("/:id", deleteRawMaterial);
+router.put("/updateRawMaterial/:id", updateRawMaterial);
+router.delete("/deleteRawMaterial/:id", deleteRawMaterial);
 
 module.exports = router;
