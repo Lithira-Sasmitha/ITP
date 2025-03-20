@@ -103,7 +103,7 @@ const ViewRawMaterials = () => {
                 <p className="text-gray-600">Quantity: {material.quantity}</p>
               </div>
               <button
-                onClick={() => sendEmail(material.supplier)}
+                onClick={() => sendEmail(material.supplier_email)}
                 className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-500"
               >
                 <FaEnvelope className="mr-2" /> Send Email

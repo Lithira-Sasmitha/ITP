@@ -1,103 +1,86 @@
-// src/pages/Dashboard.js
-
 import React from "react";
-import WarehouseLayout from "../../components/sidebar/warehouseLayout";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+  FaWarehouse,
+  FaBoxOpen,
+  FaCubes,
+  FaTruckLoading,
+} from "react-icons/fa";
+import { MdSpaceDashboard } from "react-icons/md";
+import WarehouseLayout from "../../components/sidebar/warehouseLayout";
 
-const Dashboard = () => {
-  const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#a4de6c"];
+const InventoryWelcome = () => {
+  return (
+    <div className="flex flex-col items-center justify-center h-full animate-fadeIn">
+      <div className="w-full max-w-5xl p-10 bg-white shadow-2xl rounded-3xl">
+        {/* Header with Icon */}
+        <h1 className="flex items-center justify-center gap-3 mb-6 text-5xl font-extrabold text-center text-green-800 drop-shadow-lg">
+          <FaWarehouse className="text-6xl text-green-700 animate-pulse" />
+          Welcome to Inventory Manager
+        </h1>
 
-  const rawMaterialsData = [
-    { name: "Coconut Husk", value: 400 },
-    { name: "Coir Fiber", value: 300 },
-    { name: "Dust", value: 300 },
-  ];
+        {/* Subheading */}
+        <p className="mb-10 text-lg text-center text-gray-700">
+          Organize and manage your stock, supplies, and storage efficiently — all in one place.
+        </p>
 
-  const packingMaterialsData = [
-    { name: "Bags", value: 200 },
-    { name: "Straps", value: 150 },
-    { name: "Pallets", value: 100 },
-  ];
+        {/* Feature Cards */}
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+          {/* Raw Materials */}
+          <div className="p-6 transition duration-300 transform bg-green-100 shadow-lg rounded-xl hover:scale-105">
+            <div className="flex items-center gap-3 mb-2">
+              <FaBoxOpen className="text-3xl text-green-700" />
+              <h3 className="text-2xl font-semibold text-green-900">Raw Materials</h3>
+            </div>
+            <p className="text-gray-600">
+              Monitor and track your raw materials inventory in real-time.
+            </p>
+          </div>
 
-  const finalProductsData = [
-    { name: "Coco Peat Blocks", value: 250 },
-    { name: "Grow Bags", value: 180 },
-    { name: "Coir Bricks", value: 120 },
-  ];
+          {/* Packing Materials */}
+          <div className="p-6 transition duration-300 transform bg-blue-100 shadow-lg rounded-xl hover:scale-105">
+            <div className="flex items-center gap-3 mb-2">
+              <FaCubes className="text-3xl text-blue-700" />
+              <h3 className="text-2xl font-semibold text-blue-900">Packing Materials</h3>
+            </div>
+            <p className="text-gray-600">
+              Keep tabs on your packaging supplies and automate reorder alerts.
+            </p>
+          </div>
 
-  const warehouseSpaceData = [
-    { name: "Used Space", value: 75 },
-    { name: "Available Space", value: 25 },
-  ];
+          {/* Final Products */}
+          <div className="p-6 transition duration-300 transform shadow-lg bg-rose-100 rounded-xl hover:scale-105">
+            <div className="flex items-center gap-3 mb-2">
+              <FaTruckLoading className="text-3xl text-rose-700" />
+              <h3 className="text-2xl font-semibold text-rose-900">Final Products</h3>
+            </div>
+            <p className="text-gray-600">
+              View finished product inventory and prepare for shipment.
+            </p>
+          </div>
 
-  const renderPieChart = (data, title) => (
-    <div className="w-full p-4 md:w-1/2 xl:w-1/4">
-      <div className="p-4 bg-white shadow rounded-2xl">
-        <h3 className="mb-2 text-xl font-semibold text-center">{title}</h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              outerRadius={80}
-              label
-              dataKey="value"
-            >
-              {data.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+          {/* Warehouse Space */}
+          <div className="p-6 transition duration-300 transform bg-yellow-100 shadow-lg rounded-xl hover:scale-105">
+            <div className="flex items-center gap-3 mb-2">
+              <MdSpaceDashboard className="text-3xl text-yellow-700" />
+              <h3 className="text-2xl font-semibold text-yellow-900">Warehouse Space</h3>
+            </div>
+            <p className="text-gray-600">
+              Check your storage capacity and optimize space usage.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
+};
 
+// Page with Layout
+const InventoryWelcomePage = () => {
   return (
     <WarehouseLayout>
-      <h1 className="mb-6 text-2xl font-bold">Inventory Dashboard</h1>
-
-      {/* Charts */}
-      <div className="flex flex-wrap justify-center mb-8 -mx-4">
-        {renderPieChart(rawMaterialsData, "Raw Materials")}
-        {renderPieChart(packingMaterialsData, "Packing Materials")}
-        {renderPieChart(finalProductsData, "Final Products")}
-        {renderPieChart(warehouseSpaceData, "Warehouse Space")}
-      </div>
-
-      {/* Staff Time Log */}
-      <div className="p-6 bg-white rounded-lg shadow-lg">
-        <h2 className="mb-4 text-lg font-semibold">Staff Activity Log</h2>
-        <ul>
-          <li className="p-3 mb-2 bg-gray-100 rounded-lg">
-            Checked Raw Material Stock - 1 Hour
-          </li>
-          <li className="p-3 mb-2 bg-gray-100 rounded-lg">
-            Updated Packing Material Usage - 1 Hour
-          </li>
-          <li className="p-3 mb-2 bg-gray-100 rounded-lg">
-            QR Code Generated for Final Product - 1 Hour
-          </li>
-          <li className="p-3 mb-2 bg-gray-100 rounded-lg">
-            Stock Movement Recorded - 1 Hour
-          </li>
-        </ul>
-      </div>
+      <InventoryWelcome />
     </WarehouseLayout>
   );
 };
 
-export default Dashboard;
+export default InventoryWelcomePage;

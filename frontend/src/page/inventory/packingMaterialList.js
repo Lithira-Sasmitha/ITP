@@ -100,7 +100,7 @@ useEffect(() => {
                 <p className="text-gray-600">Quantity: {material.quantity}</p>
               </div>
               <button
-                onClick={() => sendEmail(material.supplier)}
+                onClick={() => sendEmail(material.supplier_email)}
                 className="flex items-center px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-500"
               >
                 <FaEnvelope className="mr-2" /> Send Email
@@ -129,7 +129,7 @@ useEffect(() => {
           >
             <FaPlus className="mr-2" /> Add Packing Material
           </button>
-          <button className="flex items-center px-4 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-500">
+          <button onClick={generateReport} className="flex items-center px-4 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-500">
             <FaDownload className="mr-2" /> Download Report
           </button>
         </div>
@@ -171,12 +171,12 @@ useEffect(() => {
               <tr key={index} className="transition hover:bg-gray-100">
                 <td className="p-3">{material.name}</td>
                 <td className="p-3">{material.quantity}</td>
-                <td className="p-3">{material.supplier}</td>
+                <td className="p-3">{material.supplier_email}</td>
                 <td className="flex gap-3 p-3">
-                  <button onClick={() => navigate(`/inventory/updatePackingMaterial/${material.name}`)} className="text-blue-600 hover:text-blue-800">
+                  <button onClick={() => handleUpdate(material._id)} className="text-blue-600 hover:text-blue-800">
                     <FaEdit />
                   </button>
-                  <button onClick={() => alert(`Delete ${material.name}`)} className="text-red-600 hover:text-red-800">
+                  <button onClick={() => handleDelete(material._id)} className="text-red-600 hover:text-red-800">
                     <FaTrash />
                   </button>
                 </td>

@@ -17,7 +17,6 @@ require("./db");
 const rawMaterialRoutes = require("./routes/inventoryRoutes/rawMaterialRoutes");
 const packingMaterialRoutes = require("./routes/inventoryRoutes/packingMaterialRoutes");
 const finalProductRoutes = require("./routes/inventoryRoutes/finalProductRoutes");
-
 // Route Middleware
 app.use("/api/rawMaterial", rawMaterialRoutes);
 app.use("/api/packingMaterial", packingMaterialRoutes);

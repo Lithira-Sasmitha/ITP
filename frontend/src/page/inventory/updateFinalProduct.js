@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom"; // Import useNavigate
 
-const PackingMaterialUpdateForm = () => {
+const FinalProductUpdateForm = () => {
   const { id } = useParams(); // Get the ID from URL
   const navigate = useNavigate(); // Declare navigate function
   const [formData, setFormData] = useState({
     name: "",
-    quantity: 1,
+    quantity: "",
     unit: "",
-    reorder_level: 0,
-    unit_price: 0,
-    supplier_name: "",
-    supplier_email: "",
-    supplier_phone: "",
+    reorder_level: "",
+    unit_price: "",
     location: "Storage Room 2",
     received_date: "",
     expiry_date: "",
@@ -23,9 +20,9 @@ const PackingMaterialUpdateForm = () => {
 
   // Fetch data using the ID
   useEffect(() => {
-    const fetchPackingMaterialData = async () => {
+    const fetchFinalProductData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/packingMaterial/${id}`);
+        const response = await fetch(`http://localhost:5000/api/finalProduct/${id}`);
         const data = await response.json();
         if (data) {
           setFormData({
@@ -34,9 +31,6 @@ const PackingMaterialUpdateForm = () => {
             unit: data.unit,
             reorder_level: data.reorder_level,
             unit_price: data.unit_price,
-            supplier_name: data.supplier_name,
-            supplier_email: data.supplier_email,
-            supplier_phone: data.supplier_phone,
             location: data.location,
             received_date: data.received_date.split("T")[0], // Convert to YYYY-MM-DD format
             expiry_date: data.expiry_date.split("T")[0], // Convert to YYYY-MM-DD format
@@ -48,7 +42,7 @@ const PackingMaterialUpdateForm = () => {
       }
     };
 
-    fetchPackingMaterialData();
+    fetchFinalProductData();
   }, [id]);
 
   // Handle input change
@@ -68,7 +62,7 @@ const PackingMaterialUpdateForm = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/packingMaterial/updatePackingMaterial/${id}`, {
+      const response = await fetch(`http://localhost:5000/api/finalProduct/updateFinalProduct/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -78,11 +72,11 @@ const PackingMaterialUpdateForm = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Packing material updated successfully:", data);
-        // Redirect to the packing material list page using navigate
-        navigate("/inventory/packingMaterialList"); // Use navigate instead of history.push
+        console.log("Final product updated successfully:", data);
+        
+        navigate("/inventory/finalProductList"); 
       } else {
-        console.error("Failed to update packing material");
+        console.error("Failed to update final product");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -96,12 +90,6 @@ const PackingMaterialUpdateForm = () => {
     if (!formData.quantity || formData.quantity < 1) errors.quantity = "Quantity must be at least 1";
     if (!formData.unit) errors.unit = "Unit is required";
     if (formData.unit_price < 0) errors.unit_price = "Unit price cannot be negative";
-    if (formData.supplier_email && !/\S+@\S+\.\S+/.test(formData.supplier_email)) {
-      errors.supplier_email = "Please provide a valid email address";
-    }
-    if (formData.supplier_phone && !/^\d{10}$/.test(formData.supplier_phone)) {
-      errors.supplier_phone = "Supplier contact must be exactly 10 digits";
-    }
     if (formData.expiry_date && new Date(formData.expiry_date) <= new Date()) {
       errors.expiry_date = "Expiry date must be in the future";
     }
@@ -110,7 +98,7 @@ const PackingMaterialUpdateForm = () => {
 
   return (
     <div className="max-w-4xl p-8 mx-auto bg-white rounded-lg shadow-lg">
-      <h2 className="mb-6 text-3xl font-semibold text-center text-blue-900 transition duration-300 hover:text-blue-900">Update Packing Material</h2>
+      <h2 className="mb-6 text-3xl font-semibold text-center text-blue-900 transition duration-300 hover:text-blue-900">Update Raw Material</h2>
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Name */}
@@ -181,43 +169,6 @@ const PackingMaterialUpdateForm = () => {
             {errors.unit_price && <p className="text-sm text-red-500">{errors.unit_price}</p>}
           </div>
 
-          {/* Supplier Name */}
-          <div className="mb-4">
-            <label htmlFor="supplier_name" className="block text-sm font-medium text-gray-600">Supplier Name</label>
-            <input
-              type="text"
-              name="supplier_name"
-              value={formData.supplier_name}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-          </div>
-
-          {/* Supplier Email */}
-          <div className="mb-4">
-            <label htmlFor="supplier_email" className="block text-sm font-medium text-gray-600">Supplier Email</label>
-            <input
-              type="email"
-              name="supplier_email"
-              value={formData.supplier_email}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-            {errors.supplier_email && <p className="text-sm text-red-500">{errors.supplier_email}</p>}
-          </div>
-
-          {/* Supplier Phone */}
-          <div className="mb-4">
-            <label htmlFor="supplier_phone" className="block text-sm font-medium text-gray-600">Supplier Phone</label>
-            <input
-              type="text"
-              name="supplier_phone"
-              value={formData.supplier_phone}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-            {errors.supplier_phone && <p className="text-sm text-red-500">{errors.supplier_phone}</p>}
-          </div>
 
           {/* Location */}
           <div className="mb-4">
@@ -277,9 +228,9 @@ const PackingMaterialUpdateForm = () => {
           </div>
 
           <div className="mb-4 md:col-span-2">
-            <button type="submit" className="w-full px-6 py-2 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none">
-              Update
-            </button>
+          <button type="submit" className="w-full px-6 py-2 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none">
+            Update
+          </button>
           </div>
         </div>
       </form>
@@ -287,4 +238,4 @@ const PackingMaterialUpdateForm = () => {
   );
 };
 
-export default PackingMaterialUpdateForm;
+export default FinalProductUpdateForm;
