@@ -22,6 +22,7 @@ app.get("/", (req, res) => {
 
 // using routes 
 app.use(require('../backend/routes/financialRoute/expencesroute'));
+app.use(require('../backend/routes/financialRoute/incomeroute'));
 
 // Start Server
 const port = process.env.PORT || 5005;
