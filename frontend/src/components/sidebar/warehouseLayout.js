@@ -28,6 +28,16 @@ const WarehouseLayout = ({ children }) => {
           </div>
           <nav>
             <ul>
+
+            <li className="mb-4">
+                <button
+                  onClick={() => navigate("/inventory/inventoryPage")}
+                  className="flex items-center w-full p-3 rounded-lg hover:bg-green-700"
+                >
+                  <FaWarehouse className="mr-4" /> Inventory
+                </button>
+              </li>
+              
               <li className="mb-4">
                 <button
                   onClick={() => navigate("/inventory/dashboard")}
@@ -36,14 +46,7 @@ const WarehouseLayout = ({ children }) => {
                   <FaChartBar className="mr-4" /> Dashboard
                 </button>
               </li>
-              <li className="mb-4">
-                <button
-                  onClick={() => navigate("/inventory/inventoryPage")}
-                  className="flex items-center w-full p-3 rounded-lg hover:bg-green-700"
-                >
-                  <FaWarehouse className="mr-4" /> Inventory
-                </button>
-              </li>
+              
               <li className="mb-4">
                 <button
                   onClick={() => navigate("/inventory/stockMovements")}
@@ -54,7 +57,7 @@ const WarehouseLayout = ({ children }) => {
               </li>
               <li className="mb-4">
                 <button
-                  onClick={() => navigate("/qr-generator")}
+                  onClick={() => navigate("/inventory/finalProductQR")}
                   className="flex items-center w-full p-3 rounded-lg hover:bg-green-700"
                 >
                   <FaBarcode className="mr-4" /> QR Generator

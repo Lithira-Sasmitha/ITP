@@ -1,114 +1,66 @@
-import React, { useState } from "react";
-import WarehouseLayout from "../../components/sidebar/warehouseLayout";
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa"; // For actions
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import WarehouseLayout from '../../components/sidebar/warehouseLayout';
 
-const StockMovement = () => {
-  // Sample static data for stock movements
-  const [stockMovements, setStockMovements] = useState([
-    {
-      id: 1,
-      item: "Coconut Shell",
-      type: "Raw Material",
-      quantity: 100,
-      movementType: "In",
-      timestamp: "2025-03-15 12:30",
-    },
-    {
-      id: 2,
-      item: "Coconut Fiber",
-      type: "Raw Material",
-      quantity: 50,
-      movementType: "Out",
-      timestamp: "2025-03-16 14:45",
-    },
-    // Add more stock movements as required
-  ]);
+const StockMovementTable = () => {
+  const [stockMovements, setStockMovements] = useState([]);
 
-  // Handle adding a stock movement (In or Out)
-  const handleAddStockMovement = (movementData) => {
-    setStockMovements((prev) => [...prev, movementData]);
-  };
+  useEffect(() => {
+    const fetchStockMovements = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/stockMovement');
+        setStockMovements(response.data);
+      } catch (error) {
+        console.error('Error fetching stock movements:', error);
+      }
+    };
 
-  // Handle deleting a stock movement
-  const handleDeleteStockMovement = (movementId) => {
-    setStockMovements((prev) => prev.filter((movement) => movement.id !== movementId));
-  };
+    fetchStockMovements();
+  }, []);
 
-  // Handle updating a stock movement
-  const handleUpdateStockMovement = (movementId, newQuantity) => {
-    setStockMovements((prev) =>
-      prev.map((movement) =>
-        movement.id === movementId ? { ...movement, quantity: newQuantity } : movement
-      )
-    );
+  const getMovementTypeStyle = (type) => {
+    return type === 'In' ? 'bg-green-500' : 'bg-red-500';  // Green for 'In', Red for 'Out'
   };
 
   return (
     <WarehouseLayout>
-      <h1 className="mb-6 text-2xl font-bold">Stock Movement History</h1>
-      <div className="p-6 bg-white rounded-lg shadow-lg">
-        <table className="w-full border border-collapse border-gray-200">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-3 border border-gray-200">Item Name</th>
-              <th className="p-3 border border-gray-200">Type</th>
-              <th className="p-3 border border-gray-200">Quantity</th>
-              <th className="p-3 border border-gray-200">Movement Type</th>
-              <th className="p-3 border border-gray-200">Timestamp</th>
-              <th className="p-3 border border-gray-200">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stockMovements.map((movement) => (
-              <tr key={movement.id} className="text-center border border-gray-200">
-                <td className="p-3 border border-gray-200">{movement.item}</td>
-                <td className="p-3 border border-gray-200">{movement.type}</td>
-                <td className="p-3 border border-gray-200">{movement.quantity}</td>
-                <td
-                  className={`p-3 border border-gray-200 font-semibold ${
-                    movement.movementType === "In" ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {movement.movementType}
-                </td>
-                <td className="p-3 border border-gray-200">{movement.timestamp}</td>
-                <td className="p-3 border border-gray-200">
-                  <button
-                    onClick={() => handleUpdateStockMovement(movement.id, movement.quantity + 1)}
-                    className="text-yellow-600 hover:text-yellow-800"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteStockMovement(movement.id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <FaTrash />
-                  </button>
+    <div className="container p-4 mx-auto">
+      <h1 className="mb-4 text-2xl font-bold">Stock Movement History</h1>
+      <table className="w-full border-collapse table-auto">
+        <thead>
+          <tr>
+            <th className="px-4 py-2 border-b">Product Name</th>
+            <th className="px-4 py-2 border-b">Product Type</th>
+            <th className="px-4 py-2 border-b">Quantity</th>
+            <th className="px-4 py-2 border-b">Location</th>
+            <th className="px-4 py-2 border-b">Date</th>
+            <th className="px-4 py-2 border-b">Movement Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stockMovements.length > 0 ? (
+            stockMovements.map((movement, index) => (
+              <tr key={index} className="hover:bg-gray-100">
+                <td className="px-4 py-2 border-b">{movement.productName}</td>
+                <td className="px-4 py-2 border-b">{movement.productType}</td>
+                <td className="px-4 py-2 border-b">{movement.quantity}</td>
+                <td className="px-4 py-2 border-b">{movement.location}</td>
+                <td className="px-4 py-2 border-b">{new Date(movement.date).toLocaleDateString()}</td>
+                <td className={`px-4 py-2 border-b ${getMovementTypeStyle(movement.type)} text-white`}>
+                  {movement.type}
                 </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div className="mt-4">
-          <button
-            onClick={() => handleAddStockMovement({
-              id: stockMovements.length + 1,
-              item: "New Material",
-              type: "Raw Material",
-              quantity: 10,
-              movementType: "In",
-              timestamp: new Date().toISOString(),
-            })}
-            className="px-4 py-2 text-white bg-blue-500 rounded"
-          >
-            Add New Movement
-          </button>
-        </div>
-      </div>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="6" className="py-4 text-center">No stock movements available</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
     </WarehouseLayout>
   );
 };
 
-export default StockMovement;
+export default StockMovementTable;

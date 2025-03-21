@@ -15,6 +15,7 @@ import FinalProductList from './page/inventory/finalProductList';
 import AddFinalProduct from './page/inventory/addFinalProduct';
 import UpdateFinalProduct from './page/inventory/updateFinalProduct';
 import StockMovements from './page/inventory/stockMovements';
+import FinalProductQR from './page/inventory/finalProductQR';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/inventory/updatePackingMaterial/:id" element={<UpdatePackingMaterial />} />
         <Route path="/inventory/updateFinalProduct/:id" element={<UpdateFinalProduct />} />
         <Route path="/inventory/stockMovements" element={<StockMovements />} />
+        <Route path="/inventory/finalProductQR" element={<FinalProductQR />} />
       </Routes>
     </Router>
   );
