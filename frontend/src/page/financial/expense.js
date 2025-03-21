@@ -6,14 +6,15 @@ import Expencelist from "../../components/list/expencelist";
 
 function Expense() {
   return (
-    <div className="relative z-10  overflow-y-auto p-4"> 
+    <div className="relative z-10 overflow-y-auto p-4"> 
       <Header title={"Expenses"} />
 
-      <div className="grid grid-cols-3 md:grid-cols-3 gap-4 mt-16"> 
+      {/* First row: Transaction and Chart (2 columns) */}
+      <div className="grid md:grid-cols-2 gap-4 mt-16"> 
         {/* Transaction Form */}
-        <div className="overflow-y-auto px-4 sm:px-6"> 
+        <div className="col-span-1">
           <motion.div
-            className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
+            className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 h-full"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -24,33 +25,34 @@ function Expense() {
         </div>
 
         {/* Expense Chart */}
+        <div className="col-span-1">
+          <motion.div
+            className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 h-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <h2 className="text-lg font-medium mb-4 text-gray-100">Chart</h2>
+            <div className="flex justify-center">
+              <div className="w-full">
+                <ExpenceChart />
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Second row: Expense List (full width) */}
+      <div className="mt-4">
         <motion.div
           className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <h2 className="text-lg font-medium mb-4 text-gray-100">Chart</h2>
-          <div className="flex justify-center">
-            <div className="w-full max-w-md">
-              <ExpenceChart />
-            </div>
-          </div>
+          <Expencelist />
         </motion.div>
-        <div className="w-full mt-6"> 
-          <motion.div
-            className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Expencelist />
-          </motion.div>
-        </div>
-        </div>
-        {/* Transaction Labels */}
-       
-      
+      </div>
     </div>
   );
 }

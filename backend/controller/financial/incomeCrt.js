@@ -1,174 +1,202 @@
-const model = require("../../models/financialModel/incomemodel");
+const model = require('../../models/financialModel/incomemodel');
 
-const typeColors = {
-  Delivery_fee: "#DF09B2",
-  Sales: "#1A2ED3",
-};
+// Define color for income category
+const incomeColor = "#10B981FF"; // Emerald green
 
-async function create_Income(req, res) {
-  if (!req.body) return res.status(400).json("Post HTTP Data not Provided");
-  let { name, type, date, amount } = req.body;
+// Helper function to validate income input
+function validateIncomeInput({ name, amount, date }) {
+    let errors = [];
 
-  let category = await model.Categories.findOne({ type });
-  if (!category) {
+    if (!name || name.trim() === "") errors.push("Income name is required.");
+    if (amount === undefined || amount < 1 || amount > 100000) errors.push("Amount must be between 1 and 100,000.");
+    if (date && isNaN(Date.parse(date))) errors.push("Invalid date format.");
+
+    return errors;
+}
+
+// Post income categories
+async function create_Categories(req, res) {
     try {
-      // Get the color based on the type
-      const color = typeColors[type];
+        // For income, we only have one category type
+        const create = new model.Categories({
+            type: "Income",
+            color: incomeColor,
+        });
 
-      // Create the category with the specified color
-      category = await new model.Categories({ type, color }).save();
+        await create.save();
+        return res.json(create);
     } catch (err) {
-      return res
-        .status(400)
-        .json({ message: `Error while creating category: ${err}` });
+        return res.status(400).json({ message: `Error while creating income category: ${err}` });
     }
-  }
-
-  try {
-    const create = await new model.Income({
-      name,
-      type,
-      date,
-      amount,
-    }).save();
-
-    return res.json(create);
-  } catch (err) {
-    return res
-      .status(400)
-      .json({ message: `Error while creating product ${err}` });
-  }
 }
 
-async function create_incomeCategories(req, res) {
-  let { type, color } = req.body;
-
-  try {
-    const Create = await new model.Categories({
-      type,
-      color,
-    }).save();
-
-    return res.json(Create);
-  } catch (err) {
-    return res
-      .status(400)
-      .json({ message: `Error while creating product categories ${err}` });
-  }
+// Get income categories
+async function get_Categories(req, res) {
+    try {
+        let data = await model.Categories.find({ type: "Income" });
+        let filter = data.map(v => ({ type: v.type, color: v.color }));
+        return res.json(filter);
+    } catch (err) {
+        return res.status(500).json({ message: `Error fetching income categories: ${err}` });
+    }
 }
 
-async function get_incomeCategories(req, res) {
-  let data = await model.Categories.find({});
+// Post income transaction with validation
+async function create_Transaction(req, res) {
+    try {
+        if (!req.body) return res.status(400).json({ message: "Request body is missing." });
 
-  let filter = await data.map((v) =>
-    Object.assign(
-      {},
-      {
-        type: v.type,
-        name: v.name,
-        date: v.date,
-        color: v.color,
-        amount: v.amount,
-      }
-    )
-  );
-  return res.json(filter);
+        let { name, amount, date } = req.body;
+        const type = "Income"; // Always set type to Income
+
+        // Validate input
+        const errors = validateIncomeInput({ name, amount, date });
+        if (errors.length > 0) return res.status(400).json({ errors });
+
+        // Check if Income category exists, create if not
+        let category = await model.Categories.findOne({ type });
+        if (!category) {
+            try {
+                category = await new model.Categories({ type, color: incomeColor }).save();
+            } catch (error) {
+                return res.status(400).json({ message: `Error while creating income category: ${error}` });
+            }
+        }
+
+        const create = new model.Transaction({
+            name,
+            type,
+            amount,
+            date: date ? new Date(date) : new Date(), // Use provided date or default to today
+        });
+
+        await create.save();
+        return res.json(create);
+
+    } catch (err) {
+        return res.status(400).json({ message: `Error while creating income transaction: ${err}` });
+    }
 }
 
-//get income
-async function get_income(req, res) {
-  let data = await model.Income.find({});
-  return res.json(data);
+// Get income transactions with date formatting
+async function get_Transaction(req, res) {
+    try {
+        let data = await model.Transaction.find({ type: "Income" });
+
+        // Format date before sending response
+        let formattedData = data.map(transaction => ({
+            ...transaction._doc,
+            date: transaction.date.toISOString().split('T')[0] // Stores only YYYY-MM-DD
+        }));
+
+        return res.json(formattedData);
+    } catch (err) {
+        return res.status(500).json({ message: `Error fetching income transactions: ${err}` });
+    }
 }
 
-//delete income
-async function delete_income(req, res) {
-  if (!req.body) {
-    return res.status(400).json({ message: "Request body not found" });
-  }
+// Edit income transaction
+async function edit_Transaction(req, res) {
+    const _id = req.params.id; // Access the ID from URL params
+    const { name, amount, date } = req.body; // Get updated fields from request body
+    const type = "Income"; // Always set type to Income
 
-  try {
-    await model.Income.deleteOne(req.body);
-    return res.json("Record Deleted...!");
-  } catch (err) {
-    return res
-      .status(500)
-      .json({ message: "Error while deleting Transaction Record" });
-  }
+    if (!_id) {
+        return res.status(400).json({ message: "Transaction ID is required" });
+    }
+
+    // Validate input
+    const errors = validateIncomeInput({ name, amount, date });
+    if (errors.length > 0) return res.status(400).json({ errors });
+
+    try {
+        // First check if the transaction is an income transaction
+        const existingTransaction = await model.Transaction.findById(_id);
+        if (!existingTransaction) {
+            return res.status(404).json({ message: "Income transaction not found" });
+        }
+        
+        if (existingTransaction.type !== "Income") {
+            return res.status(400).json({ message: "Can only edit income transactions in this endpoint" });
+        }
+
+        // Update the transaction record, including the date
+        const updatedTransaction = await model.Transaction.findByIdAndUpdate(
+            _id,
+            { name, type, amount, date: date ? new Date(date) : undefined }, // Update date if provided
+            { new: true } // Return the updated transaction
+        );
+
+        return res.json(updatedTransaction);
+    } catch (err) {
+        return res.status(400).json({ message: `Error while updating income transaction: ${err.message}` });
+    }
 }
-//get labelsPacking
+
+// Delete income transaction
+async function delete_Transaction(req, res) {
+    try {
+        const { id } = req.params;
+        if (!id) return res.status(400).json({ message: "Transaction ID is required." });
+
+        // First check if the transaction is an income transaction
+        const existingTransaction = await model.Transaction.findById(id);
+        if (!existingTransaction) {
+            return res.status(404).json({ message: "Income transaction not found." });
+        }
+        
+        if (existingTransaction.type !== "Income") {
+            return res.status(400).json({ message: "Can only delete income transactions in this endpoint" });
+        }
+
+        const deletedTransaction = await model.Transaction.findByIdAndDelete(id);
+        return res.json({ message: "Income transaction deleted successfully." });
+    } catch (err) {
+        return res.status(500).json({ message: "Error while deleting income transaction." });
+    }
+}
+
+// Get income labels
 async function get_Labels(req, res) {
-  model.Income.aggregate([
-    {
-      $lookup: {
-        from: "categories",
-        localField: "type",
-        foreignField: "type",
-        as: "categories_info",
-      },
-    },
-    {
-      $unwind: "$categories_info",
-    },
-  ])
-    .then((result) => {
-      let data = result.map((v) =>
-        Object.assign(
-          {},
-          {
+    try {
+        let result = await model.Transaction.aggregate([
+            {
+                $match: { type: "Income" } // Only get Income transactions
+            },
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: 'type',
+                    foreignField: "type",
+                    as: "categories_info"
+                }
+            },
+            {
+                $unwind: "$categories_info"
+            }
+        ]);
+
+        let data = result.map(v => ({
             _id: v._id,
             name: v.name,
             type: v.type,
-            date: v.date,
             amount: v.amount,
-            color: v.categories_info["color"],
-          }
-        )
-      );
-      res.json(data);
-    })
-    .catch((error) => {
-      res.status(400).json("Looup Collection Error");
-    });
-}
+            date: v.date.toISOString().split('T')[0], // Format date
+            color: v.categories_info.color
+        }));
 
-//edit product
-async function edit_income(req, res) {
-  if (!req.body) {
-    return res.status(400).json({ message: "Post HTTP Data not provided" });
-  }
-
-  const _id = req.params._id;
-  const { name, type, date, amount } = req.body.recordId.data;
-
-  try {
-    const updatedIncome = await model.Income.findByIdAndUpdate(
-      _id,
-      { type, date, amount, name },
-      { new: true }
-    );
-
-    if (!updatedIncome) {
-      return res.status(404).json({ message: "Product not found" });
+        return res.json(data);
+    } catch (error) {
+        return res.status(400).json({ message: "Lookup Collection Error", error });
     }
-
-    return res.json(updatedIncome);
-  } catch (err) {
-    return res
-      .status(400)
-      .json({ message: `Error while updating Product: ${err}` });
-  }
 }
-
-
-
 
 module.exports = {
-  create_Income,
-  create_incomeCategories,
-  get_income,
-  get_incomeCategories,
-  get_Labels,
-  edit_income,
-  delete_income,
+    create_Categories,
+    get_Categories,
+    create_Transaction,
+    get_Transaction,
+    edit_Transaction,
+    delete_Transaction,
+    get_Labels
 };

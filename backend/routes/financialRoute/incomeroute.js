@@ -1,22 +1,26 @@
-const routes = require('express').Router();
+const incomeroutes = require('income').Router();
 const controller = require('../../controller/financial/incomeCrt');
+const { default: route } = require('./const');
 
+// Income categories routes
+incomeroutes.route(route.income.apiIncome)
+  .post(controller.create_Categories)
+  .get(controller.get_Categories)
 
-incomeroute
-  .route("/api/income")
-  .post(controller.create_Income)
-  .get(controller.get_income)
-  .delete(controller.delete_income);
-incomeroute.route("/api/income/:_id")
-    .put(controller.edit_income);
+// Income transaction routes
+incomeroutes.route(route.income.apiTransaction)
+  .post(controller.create_Transaction)
+  .get(controller.get_Transaction)
+  .delete(controller.delete_Transaction)
+  .put(controller.edit_Transaction);
 
-incomeroute
-  .route("/api/incomecategories")
-  .post(controller.create_incomeCategories)
-  .get(controller.get_incomeCategories);
+// Income transaction by ID
+incomeroutes.route('/api/income-transaction/:id')
+  .put(controller.edit_Transaction)
+  .delete(controller.delete_Transaction);
 
-incomeroute
-  .route("/api/labels") 
-  .get(controller.get_Labels);
+// Income labels route
+incomeroutes.route('/api/income-labels')
+  .get(controller.get_Labels)
 
-  module.exports = incomeroute;   
+module.exports = incomeroutes;
