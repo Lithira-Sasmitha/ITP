@@ -54,6 +54,8 @@ const IncomeTransaction = mongoose.model('income_transactions', income_transacti
 
 // Export the models
 module.exports = {
-    Categories: IncomeCategories,   // Keeping same property names for compatibility
-    Transaction: IncomeTransaction  // with the controller code
+    income: {
+        apiIncome: '/api/income-categories',
+        apiTransaction: '/api/income-transaction'
+      }
 };

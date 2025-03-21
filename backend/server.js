@@ -1,31 +1,27 @@
-require("dotenv").config(); // Load environment variables
-
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-
-// Initialize Express App
+// Add this to your server.js or index.js file where you set up your Express server
+const express = require('express');
 const app = express();
+const cors = require('cors');
+
+// Import your route modules
+const expenseRoutes = require('./routes/financial/expenseRoutes');
+const incomeRoutes = require('./routes/financial/incomeRoutes');
 
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(bodyParser.json());
 
-// Import Database Connection
-require("./db");
+// Use routes
+app.use('/', expenseRoutes);  // This will handle all your existing expense routes
+app.use('/', incomeRoutes);   // This will handle all your new income routes
 
-// Define Routes (Example)
-app.get("/", (req, res) => {
-  res.send( "Server is running!");
+// Add a simple test route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working!' });
 });
 
-// using routes 
-app.use(require('../backend/routes/financialRoute/expencesroute'));
-app.use(require('../backend/routes/financialRoute/incomeroute'));
-
-// Start Server
-const port = process.env.PORT || 5005;
-app.listen(port, () => {
-  console.log(`Server is running on: http://localhost:${port}`);
+// Start server
+const PORT = process.env.PORT || 5005;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

@@ -1,15 +1,15 @@
 import React from 'react';
 import { Doughnut } from 'react-chartjs-2';
-import { Chart, ArcElement } from 'chart.js';
-import { getTotal } from '../helper/helper';
+import { Chart, ArcElement, Tooltip } from 'chart.js';
 import { default as api } from '../../store/apiSLice';
 
-Chart.register(ArcElement);
+// Register required Chart.js components
+Chart.register(ArcElement, Tooltip);
 
-// Modified chart data function to only use green colors for income
+// Modified chart data function with enhanced tooltips
 const income_chart_Data = (data) => {
-  // Filter only income transactions
-  const incomeData = data.filter(v => v.type === 'Income');
+  // Filter only income transactions (currently using Investment as placeholder)
+  const incomeData = data.filter(v => v.type === 'Investment');
   
   // Create single color gradient for income
   const colorShades = [
@@ -25,12 +25,15 @@ const income_chart_Data = (data) => {
     return colorShades[i++ % colorShades.length];
   });
 
+  // Calculate total for percentage
+  const total = incomeData.reduce((sum, item) => sum + item.amount, 0);
+
   return {
     data: {
       datasets: [{
         data: incomeData.map(v => v.amount),
         backgroundColor: bgColor,
-        hoverOffset: 4,
+        hoverOffset: 8, // Increased for better visual feedback on touch
         borderRadius: 30,
         spacing: 10
       }],
@@ -38,19 +41,46 @@ const income_chart_Data = (data) => {
     },
     options: {
       cutout: 115,
+      responsive: true,
+      maintainAspectRatio: true,
       plugins: {
         tooltip: {
+          enabled: true,
+          position: 'nearest',
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleFont: {
+            size: 16,
+            weight: 'bold'
+          },
+          bodyFont: {
+            size: 14
+          },
+          padding: 12,
+          displayColors: true, // Show color boxes
           callbacks: {
+            title: function(tooltipItems) {
+              return tooltipItems[0].label || 'Unknown';
+            },
             label: function(context) {
-              const label = context.label || '';
               const value = context.parsed || 0;
-              const total = context.chart.getDatasetMeta(0).total;
-              const percentage = (value * 100 / total).toFixed(2) + '%';
-              return `${label}: $${value} (${percentage})`;
+              const percentage = total > 0 ? (value * 100 / total).toFixed(1) + '%' : '0%';
+              return [
+                `Amount: $${value.toLocaleString()}`, 
+                `Percentage: ${percentage}`
+              ];
             }
           }
+        },
+        legend: {
+          display: false // Hide default legend since we're creating custom labels
         }
-      }
+      },
+      animation: {
+        animateRotate: true,
+        animateScale: true
+      },
+      // Improve touch interactions
+      events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove']
     }
   };
 };
@@ -58,7 +88,8 @@ const income_chart_Data = (data) => {
 // Get total of only income transactions
 const getIncomeTotal = (data) => {
   if (!data) return 0;
-  const incomeData = data.filter(v => v.type === 'Income');
+  // Currently using Investment as placeholder for Income
+  const incomeData = data.filter(v => v.type === 'Investment');
   return incomeData.reduce((prev, curr) => prev + curr.amount, 0);
 };
 
@@ -66,8 +97,8 @@ const getIncomeTotal = (data) => {
 function IncomeLabels({data}) {
   if (!data) return <></>;
   
-  // Filter only income transactions
-  const incomeData = data.filter(v => v.type === 'Income');
+  // Filter only income transactions (currently using Investment as placeholder)
+  const incomeData = data.filter(v => v.type === 'Investment');
   
   if (incomeData.length === 0) {
     return <div className="text-center text-gray-400">No income transactions found</div>;
@@ -76,12 +107,12 @@ function IncomeLabels({data}) {
   return (
     <>
       {incomeData.map((v, i) => (
-        <div className="flex justify-between mb-2" key={i}>
-          <div className="flex gap-2">
-            <div className="w-2 h-2 rounded py-3" style={{ background: `#10b981` }}></div>
+        <div className="flex justify-between mb-2 p-2 hover:bg-gray-800 hover:bg-opacity-40 rounded-md transition-colors" key={i}>
+          <div className="flex gap-2 items-center">
+            <div className="w-3 h-3 rounded-full" style={{ background: `#10b981` }}></div>
             <h3 className="text-md">{v.name ?? ''}</h3>
           </div>
-          <span className="text-green-400 font-bold">${v.amount ?? 0}</span>
+          <span className="text-green-400 font-bold">${v.amount?.toLocaleString() ?? 0}</span>
         </div>
       ))}
     </>
@@ -94,18 +125,20 @@ export default function IncomeChart() {
   let graphData;
   
   if (isFetching) {
-    graphData = <div>Fetching...</div>;
+    graphData = <div className="flex items-center justify-center h-40">
+      <div className="animate-pulse text-green-500">Loading chart data...</div>
+    </div>;
   } else if (isSuccess) {
-    // Filter only income data before passing to chart
-    const incomeData = data.filter(v => v.type === 'Income');
+    // Filter only income data before passing to chart (using Investment as placeholder)
+    const incomeData = data.filter(v => v.type === 'Investment');
     
-    if (incomeData.length === 0) {
+    if (!incomeData || incomeData.length === 0) {
       graphData = <div className="text-center text-gray-400 py-10">No income data to display</div>;
     } else {
       graphData = <Doughnut {...income_chart_Data(data)}></Doughnut>;
     }
   } else if (isError) {
-    graphData = <div>Error loading income data</div>;
+    graphData = <div className="text-red-400 text-center py-10">Error loading income data</div>;
   }
 
   return (
@@ -118,15 +151,13 @@ export default function IncomeChart() {
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <h3 className="mb-2 font-bold text-lg">Total Income</h3>
             <span className="text-3xl font-bold text-green-400">
-              ${getIncomeTotal(data) ?? 0}
+              ${(getIncomeTotal(data) || 0).toLocaleString()}
             </span>
           </div>
         </div>
         
-        {/* Labels Section - Only showing income transactions */}
-        <div className="flex flex-col py-10 gap-4">
-          <IncomeLabels data={data} />
-        </div>
+       
+      
       </div>
     </div>
   );

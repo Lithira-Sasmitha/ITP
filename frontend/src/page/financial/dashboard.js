@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
-import { getTotal } from '../../components/helper/helper';
+import { getTotal, getIncomeTotal, getExpenseTotal } from '../../components/helper/helper';
 import StatCard from "../../components/statCard/statCard"; 
 import Header from "../../components/header/header";
 import { default as api } from '../../store/apiSLice'; 
@@ -26,11 +26,31 @@ const salesData = [
 
 const Dashboard = () => {
   const { data, isFetching, isSuccess } = api.useGetLabelsQuery();
+  const [stats, setStats] = useState({
+    totalIncome: '$0',
+    totalExpense: '$0',
+    conversionRate: '0%'
+  });
 
-  // Default values while loading
-  const totalIncome = isSuccess ? `$${getTotal(data).toLocaleString()}` : '$0';
-  const totalExpense = isSuccess ? `$${data.reduce((acc, item) => acc + item.amount, 0).toLocaleString()}` : '$0';
-  const conversionRate = isSuccess ? `${((getTotal(data) / 10000) * 100).toFixed(2)}%` : '0%';
+  // Update statistics when data changes
+  useEffect(() => {
+    if (isSuccess && data && data.length > 0) {
+      // Use the helper functions to calculate totals
+      const totalIncomeValue = getIncomeTotal(data);
+      const totalExpenseValue = getExpenseTotal(data);
+      
+      // Calculate conversion rate (income to expense ratio)
+      const conversionRateValue = totalExpenseValue > 0 
+        ? ((totalIncomeValue / totalExpenseValue) * 100).toFixed(2) 
+        : 0;
+
+      setStats({
+        totalIncome: `$${totalIncomeValue.toLocaleString()}`,
+        totalExpense: `$${totalExpenseValue.toLocaleString()}`,
+        conversionRate: `${conversionRateValue}%`
+      });
+    }
+  }, [data, isSuccess]);
 
   return (
     <div className="flex-1 overflow-auto relative z-10">
@@ -45,13 +65,13 @@ const Dashboard = () => {
           transition={{ duration: 0.6 }}
         >
           <div className="w-full">
-            <StatCard name="Total Income" icon={FiZap} value={totalIncome} color="#6366F1" />
+            <StatCard name="Total Income" icon={FiZap} value={stats.totalIncome} color="#10B981" />
           </div>
           <div className="w-full">
-            <StatCard name="Expense" icon={FiUsers} value={totalExpense} color="#8B5CF6" />
+            <StatCard name="Total Expense" icon={FiUsers} value={stats.totalExpense} color="#EF4444" />
           </div>
           <div className="w-full sm:col-span-2 lg:col-span-1">
-            <StatCard name="Conversion Rate" icon={FiBarChart2} value={conversionRate} color="#10B981" />
+            <StatCard name="Income/Expense Ratio" icon={FiBarChart2} value={stats.conversionRate} color="#6366F1" />
           </div>
         </motion.div>
 

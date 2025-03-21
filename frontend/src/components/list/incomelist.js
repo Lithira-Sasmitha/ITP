@@ -4,7 +4,10 @@ import { default as api } from '../../store/apiSLice';
 import { useForm } from 'react-hook-form';
 
 export default function IncomeList() {
+  // For now, use the regular labels endpoint
+  // Once backend is ready, switch to: const { data, isFetching, isSuccess, isError } = api.useGetIncomeLabelsQuery();
   const { data, isFetching, isSuccess, isError } = api.useGetLabelsQuery();
+  
   const [deleteTransaction] = api.useDeleteTransactionMutation();
   const [updateTransaction] = api.useUpdateTransactionMutation();
   const [showPopup, setShowPopup] = useState(false);
@@ -44,7 +47,7 @@ export default function IncomeList() {
     const updatedData = {
       _id: selectedIncome._id,
       name: formData.name || updatedName,
-      type: 'Income', // Hardcoded as Income
+      type: selectedIncome.type, // Keep original type
       amount: formData.amount || updatedAmount,
       date: formData.date || updatedDate,
     };
@@ -66,8 +69,9 @@ export default function IncomeList() {
   if (isFetching) {
     Incomes = <div>Fetching...</div>;
   } else if (isSuccess) {
-    // Filter only Income transactions
-    const incomeData = data.filter(item => item.type === 'Income');
+    // Filter for transactions that relate to income - since we're using Investment as a placeholder
+    // Modify this when you have proper Income type
+    const incomeData = data.filter(item => item.type === 'Investment');
     
     if (incomeData.length === 0) {
       Incomes = <div className="text-center text-gray-400 py-4">No income transactions found</div>;
