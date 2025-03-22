@@ -4,12 +4,14 @@ const app = express();
 const cors = require('cors');
 
 // Import your route modules
-const expenseRoutes = require('./routes/financial/expenseRoutes');
-const incomeRoutes = require('./routes/financial/incomeRoutes');
+const expenseRoutes = require('./routes/financialRoute/expencesroute');
+const incomeRoutes = require('./routes/financialRoute/incomeroute');
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+
 
 // Use routes
 app.use('/', expenseRoutes);  // This will handle all your existing expense routes
