@@ -9,6 +9,11 @@ import Settings from "./page/order/Settings";
 import Logout from "./page/order/Logout";
 import DeliverAdminProfile from "./page/order/DeliverAdminProfile";
 import DeliverHome from "./page/order/DeliverHome";
+import Product from "./page/order/Product";
+import PlaceOrder from "./page/order/PlaceOrder";
+import Orderhistorys from "./page/order/Orderhistorys";
+import OrderConfirmation from "./page/order/OrderConfirmation";
+import OrderTracking from "./page/order/OrderTracking"; // Import the new component
 
 function App() {
   return (
@@ -24,8 +29,16 @@ function App() {
             path="drivervehicledetails"
             element={<DrivervehicleDetails />}
           />
+          <Route path="pendingorders" element={<Orderhistorys />} />
           <Route path="settings" element={<Settings />} />
           <Route path="logout" element={<Logout />} />
+          <Route path="product" element={<Product />} />
+          {/* Route to handle place order */}
+          <Route path="placeorder" element={<PlaceOrder />} />
+          <Route path="/order-confirmation" element={<OrderConfirmation />} />
+          {/* New route for order tracking */}
+          <Route path="/orders/track" element={<OrderTracking />} />
+          <Route path="adddelivery/:orderId" element={<AddDelivery />} />
         </Route>
       </Routes>
     </Router>

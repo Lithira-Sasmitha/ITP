@@ -1,9 +1,12 @@
+// server.js
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("./db");
 const cors = require("cors");
 
 const driverRoutes = require("./routes/driverRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const deliveryRoutes = require("./routes/deliveryRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,6 +17,8 @@ app.use(cors());
 
 // Routes
 app.use("/api/drivers", driverRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/deliveries", deliveryRoutes);
 
 app.get("/", (req, res) => {
   res.send("🚀 Server is running!");

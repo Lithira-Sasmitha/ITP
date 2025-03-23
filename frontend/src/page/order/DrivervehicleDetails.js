@@ -116,231 +116,415 @@ const DrivervehicleDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 p-6">
-      {/* Form Section */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-5">Add New Driver</h1>
-        <form onSubmit={handleCreateOrUpdate} className="space-y-4">
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Name (English letters only)
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={formValues.name}
-              onChange={handleInputChange}
-              placeholder="Enter name"
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Date of Birth */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              name="dob"
-              value={formValues.dob}
-              onChange={handleInputChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* NIC */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              NIC
-            </label>
-            <input
-              type="text"
-              name="nic"
-              value={formValues.nic}
-              onChange={handleInputChange}
-              placeholder="20XXXXXXXXXX"
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Telephone/Mobile Number */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Telephone/Mobile Number
-            </label>
-            <input
-              type="text"
-              name="telephone"
-              value={formValues.telephone}
-              onChange={handleInputChange}
-              placeholder="07X-XXXXXXX"
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Vehicle */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Vehicle
-            </label>
-            <input
-              type="text"
-              name="vehicle"
-              value={formValues.vehicle}
-              onChange={handleInputChange}
-              placeholder="Enter vehicle"
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Vehicle Registration Number */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Vehicle Registration Number
-            </label>
-            <input
-              type="text"
-              name="vehicleRegNo"
-              value={formValues.vehicleRegNo}
-              onChange={handleInputChange}
-              placeholder="12-1234 or AB-1234 or ABC-1234"
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Driver License Number */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Driver License Number
-            </label>
-            <input
-              type="text"
-              name="licenseNo"
-              value={formValues.licenseNo}
-              onChange={handleInputChange}
-              placeholder="A1234567"
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          </div>
-
-          {/* Buttons */}
-          <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              {editingDriver ? "Update Driver" : "Add Driver"}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Driver List Section */}
-      <div>
-        <h1 className="text-3xl font-bold mb-5">Driver List</h1>
-        <div className="flex justify-between mb-4">
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by NIC..."
-            className="border rounded-md px-4 py-2 w-full max-w-md"
-          />
-          <button
-            type="button"
-            onClick={handleDownloadPDF}
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          >
-            Download PDF
-          </button>
-        </div>
-        <table className="min-w-full border-collapse border border-gray-200">
-          <thead>
-            <tr>
-              <th className="border border-gray-200 px-4 py-2">NIC</th>
-              <th className="border border-gray-200 px-4 py-2">Name</th>
-              <th className="border border-gray-200 px-4 py-2">DOB</th>
-              <th className="border border-gray-200 px-4 py-2">Telephone</th>
-              <th className="border border-gray-200 px-4 py-2">Vehicle</th>
-              <th className="border border-gray-200 px-4 py-2">
-                Vehicle Reg No
-              </th>
-              <th className="border border-gray-200 px-4 py-2">
-                Driver License No
-              </th>
-              <th className="border border-gray-200 px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {drivers &&
-              drivers
-                .filter(
-                  (driver) =>
-                    driver.nic &&
-                    driver.nic.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((driver) => (
-                  <tr key={driver.nic}>
-                    <td className="border border-gray-200 px-4 py-2">
-                      {driver.nic}
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      {driver.name}
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      {driver.dob}
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      {driver.telephone}
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      {driver.vehicle}
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      {driver.vehicleRegNo}
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      {driver.licenseNo}
-                    </td>
-                    <td className="border border-gray-200 px-4 py-2">
-                      <button
-                        onClick={() => handleEditDriver(driver.nic)}
-                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteDriver(driver._id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-          </tbody>
-        </table>
-      </div>
-
+    <div className="min-h-screen bg-gray-50 text-gray-900 p-6">
       {/* Success/Error Messages */}
       {message.text && (
         <div
-          className={`mt-4 p-3 rounded-md text-white ${
-            message.type === "success" ? "bg-green-500" : "bg-red-500"
+          className={`mb-6 p-4 rounded-md shadow-sm flex items-center ${
+            message.type === "success"
+              ? "bg-green-50 border-l-4 border-green-500"
+              : "bg-red-50 border-l-4 border-red-500"
           }`}
         >
-          {message.text}
+          <div
+            className={`mr-3 ${
+              message.type === "success" ? "text-green-500" : "text-red-500"
+            }`}
+          >
+            {message.type === "success" ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            )}
+          </div>
+          <span
+            className={`${
+              message.type === "success" ? "text-green-700" : "text-red-700"
+            } font-medium`}
+          >
+            {message.text}
+          </span>
         </div>
       )}
+
+      <div className="max-w-7xl mx-auto">
+        {/* Form Section */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h1 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-3">
+            {editingDriver ? "Update Driver Information" : "Add New Driver"}
+          </h1>
+          <form
+            onSubmit={handleCreateOrUpdate}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          >
+            {/* Name */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Name{" "}
+                <span className="text-gray-500">(English letters only)</span>
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formValues.name}
+                onChange={handleInputChange}
+                placeholder="Enter name"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                required
+              />
+            </div>
+
+            {/* Date of Birth */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                name="dob"
+                value={formValues.dob}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                required
+              />
+            </div>
+
+            {/* NIC */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                NIC
+              </label>
+              <input
+                type="text"
+                name="nic"
+                value={formValues.nic}
+                onChange={handleInputChange}
+                placeholder="20XXXXXXXXXX"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                required
+              />
+            </div>
+
+            {/* Telephone/Mobile Number */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Telephone/Mobile Number
+              </label>
+              <input
+                type="text"
+                name="telephone"
+                value={formValues.telephone}
+                onChange={handleInputChange}
+                placeholder="07X-XXXXXXX"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                required
+              />
+            </div>
+
+            {/* Vehicle */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Vehicle
+              </label>
+              <input
+                type="text"
+                name="vehicle"
+                value={formValues.vehicle}
+                onChange={handleInputChange}
+                placeholder="Enter vehicle"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                required
+              />
+            </div>
+
+            {/* Vehicle Registration Number */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Vehicle Registration Number
+              </label>
+              <input
+                type="text"
+                name="vehicleRegNo"
+                value={formValues.vehicleRegNo}
+                onChange={handleInputChange}
+                placeholder="12-1234 or AB-1234 or ABC-1234"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                required
+              />
+            </div>
+
+            {/* Driver License Number */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Driver License Number
+              </label>
+              <input
+                type="text"
+                name="licenseNo"
+                value={formValues.licenseNo}
+                onChange={handleInputChange}
+                placeholder="A1234567"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                required
+              />
+            </div>
+
+            {/* Buttons - span full width on the grid */}
+            <div className="md:col-span-2 flex justify-end space-x-3 mt-4">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+              >
+                {editingDriver ? "Update Driver" : "Add Driver"}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Driver List Section */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h1 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-3">
+            Driver List
+          </h1>
+
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div className="relative w-full md:w-auto flex-grow">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  className="h-5 w-5 text-gray-400"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by NIC..."
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleDownloadPDF}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+              Download PDF
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    NIC
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    DOB
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Telephone
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Vehicle
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Vehicle Reg No
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Driver License No
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {drivers &&
+                  drivers
+                    .filter(
+                      (driver) =>
+                        driver.nic &&
+                        driver.nic
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase())
+                    )
+                    .map((driver) => (
+                      <tr key={driver.nic} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {driver.nic}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {driver.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {driver.dob}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {driver.telephone}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {driver.vehicle}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {driver.vehicleRegNo}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {driver.licenseNo}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            onClick={() => handleEditDriver(driver.nic)}
+                            className="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 rounded-md px-3 py-1.5 mr-2 inline-flex items-center transition duration-150"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4 mr-1"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                              />
+                            </svg>
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteDriver(driver._id)}
+                            className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 rounded-md px-3 py-1.5 inline-flex items-center transition duration-150"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4 mr-1"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+              </tbody>
+            </table>
+
+            {/* Empty state handling */}
+            {(!drivers || drivers.length === 0) && (
+              <div className="text-center py-10">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-12 w-12 mx-auto text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
+                </svg>
+                <p className="mt-2 text-sm text-gray-500">No drivers found</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

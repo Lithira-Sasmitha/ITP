@@ -4,16 +4,13 @@ import {
   FaTruck,
   FaCog,
   FaSignOutAlt,
-  FaListAlt,
   FaPlusCircle,
   FaTasks,
   FaMoon,
   FaSun,
-  FaEnvelope,
-  FaPhone,
-  FaClock,
+  FaHistory,
 } from "react-icons/fa";
-import logo from "../../assets/logo.png"; // ✅ Corrected import path
+import logo from "../../assets/logo.png";
 
 function Layout() {
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
@@ -41,9 +38,9 @@ function Layout() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex h-screen">
       {/* Sidebar */}
-      <div className="h-screen w-64 p-5 flex flex-col justify-between bg-green-700 text-white shadow-lg">
+      <div className="h-full w-64 p-5 flex flex-col justify-between bg-green-700 text-white shadow-lg">
         <div>
           {/* Logo Section */}
           <div className="flex justify-center mb-8">
@@ -54,7 +51,7 @@ function Layout() {
             />
           </div>
 
-          {/* Menu Section (Blends with Sidebar, No White Background) */}
+          {/* Menu Section */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold mb-6 text-white">Menu</h2>
             <nav>
@@ -64,7 +61,6 @@ function Layout() {
                     onClick={() => handleNavigate("/dashboard")}
                     className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-600 hover:bg-green-500"
                   >
-                    <FaListAlt className="h-6 w-6 mr-4 text-white" />
                     Dashboard
                   </button>
                 </li>
@@ -106,8 +102,17 @@ function Layout() {
                     onClick={() => handleNavigate("drivervehicledetails")}
                     className="flex items-center rounded-lg px-4 py-3 transition-all duration-300 bg-green-600 hover:bg-green-500"
                   >
-                    <FaTasks className="h-6 w-6 mr-4 text-white" />
-                    D & V Details
+                    <FaTasks className="h-6 w-6 mr-4 text-white" />D & V Details
+                  </button>
+                </li>
+
+                <li className="mb-4">
+                  <button
+                    onClick={() => handleNavigate("pendingorders")}
+                    className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-500 hover:bg-green-400"
+                  >
+                    <FaHistory className="h-6 w-6 mr-4 text-white" />
+                    Order History
                   </button>
                 </li>
               </ul>
@@ -156,25 +161,14 @@ function Layout() {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-8 pt-4 border-t border-white">
-          <div className="flex items-center mb-2 text-white">
-            <FaEnvelope className="mr-2" />
-            <span className="text-sm">info@jayasinghe.com</span>
-          </div>
-          <div className="flex items-center mb-2 text-white">
-            <FaPhone className="mr-2" />
-            <span className="text-sm">+94 11 234 5678</span>
-          </div>
-          <div className="flex items-center text-white">
-            <FaClock className="mr-2" />
-            <span className="text-sm">{currentTime.toLocaleTimeString()}</span>
-          </div>
+        {/* Time Display */}
+        <div className="text-white text-center mt-4">
+          <p>{currentTime.toLocaleTimeString()}</p>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-grow bg-green-50 text-black">
+      <div className="flex-grow bg-green-50 text-black overflow-y-auto">
         <Outlet />
       </div>
     </div>

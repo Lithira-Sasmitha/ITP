@@ -1,4 +1,3 @@
-// This is dashboard
 import React, { useState, useEffect } from "react";
 import {
   FaBox,
@@ -10,8 +9,13 @@ import {
   FaUser,
   FaMoon,
   FaSun,
+  FaHistory,
 } from "react-icons/fa";
 import { useGetDriversQuery } from "../../page/order/redux/api/driverApiSlice";
+import axios from "axios";
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+
 export default function Delivery() {
   const [deliveries, setDeliveries] = useState([]);
   const [pendingDeliveries, setPendingDeliveries] = useState(0);
@@ -22,6 +26,13 @@ export default function Delivery() {
   const [totalDrivers, setTotalDrivers] = useState(0);
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
+
+  // Order history earnings
+  const [orderHistoryData, setOrderHistoryData] = useState({
+    totalDeliveryEarnings: 0,
+    totalItemEarnings: 0,
+    totalEarnings: 0,
+  });
 
   // Price formatter for LKR
   const priceFormatter = new Intl.NumberFormat("en-LK", {
@@ -90,9 +101,42 @@ export default function Delivery() {
     }
   };
 
+  const fetchOrderHistory = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/orders/pending`);
+      const orders = response.data;
+
+      // Calculate earnings from order history
+      const deliveryEarnings = orders.reduce((sum, order) => {
+        return sum + (parseFloat(order.deliveryPrice) || 0);
+      }, 0);
+
+      const itemEarnings = orders.reduce((sum, order) => {
+        const itemTotal = order.products.reduce((productSum, product) => {
+          return (
+            productSum + (parseFloat(product.price) * product.quantity || 0)
+          );
+        }, 0);
+        return sum + itemTotal;
+      }, 0);
+
+      const totalEarnings = deliveryEarnings + itemEarnings;
+
+      setOrderHistoryData({
+        totalDeliveryEarnings: deliveryEarnings,
+        totalItemEarnings: itemEarnings,
+        totalEarnings: totalEarnings,
+      });
+    } catch (error) {
+      console.error("Error fetching order history:", error);
+      setError("Failed to load order history earnings data.");
+    }
+  };
+
   useEffect(() => {
     fetchDeliveries();
     fetchDrivers();
+    fetchOrderHistory();
   }, []);
 
   const toggleDarkMode = () => {
@@ -132,16 +176,6 @@ export default function Delivery() {
         </div>
       </header>
 
-      {error && (
-        <div
-          className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-8"
-          role="alert"
-        >
-          <p className="font-bold">Error</p>
-          <p>{error}</p>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <DashboardCard
           key="total-deliveries"
@@ -179,33 +213,56 @@ export default function Delivery() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <DashboardCard
-          icon={<FaMoneyBill />}
-          title="Total Delivery Earnings"
-          value={priceFormatter.format(totalEarnings)}
-          color="green"
-          darkMode={darkMode}
-        />
-        <DashboardCard
-          icon={<FaMoneyBill />}
-          title="Total Item Earnings"
-          value={priceFormatter.format(totalDeliveredItems)}
-          color="blue"
-          darkMode={darkMode}
-        />
-        <DashboardCard
-          icon={<FaMoneyBill />}
-          title="Total Earnings"
-          value={priceFormatter.format(totalEarnings + totalDeliveredItems)}
-          color="indigo"
-          darkMode={darkMode}
-        />
-        <DashboardCard
           icon={<FaUser />}
           title="Total Drivers"
           value={totalDrivers}
           color="purple"
           darkMode={darkMode}
         />
+      </div>
+
+      {/* Order History Earnings Section */}
+      <div
+        className={`mb-8 p-6 rounded-lg shadow-lg ${
+          darkMode ? "bg-gray-800 text-white" : "bg-white"
+        }`}
+      >
+        <div className="flex items-center mb-4">
+          <FaHistory className="text-2xl text-indigo-500 mr-2" />
+          <h2
+            className={`text-xl font-semibold ${
+              darkMode ? "text-white" : "text-gray-800"
+            }`}
+          >
+            Order History Earnings
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <EarningsCard
+            title="Order Delivery Earnings"
+            value={priceFormatter.format(
+              orderHistoryData.totalDeliveryEarnings
+            )}
+            icon={<FaMoneyBill />}
+            color="green"
+            darkMode={darkMode}
+          />
+          <EarningsCard
+            title="Order Item Earnings"
+            value={priceFormatter.format(orderHistoryData.totalItemEarnings)}
+            icon={<FaMoneyBill />}
+            color="blue"
+            darkMode={darkMode}
+          />
+          <EarningsCard
+            title="Order Total Earnings"
+            value={priceFormatter.format(orderHistoryData.totalEarnings)}
+            icon={<FaMoneyBill />}
+            color="indigo"
+            darkMode={darkMode}
+          />
+        </div>
       </div>
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
@@ -270,7 +327,7 @@ export default function Delivery() {
           darkMode ? "bg-gray-800 text-white" : "bg-blue-600 text-white"
         } py-4 rounded-lg text-center shadow-md`}
       >
-        <h3 className="text-lg font-bold">NBcoir</h3>
+        <h3 className="text-lg font-bold">CEYCOIR</h3>
         <p className="text-sm">
           Delivering quality coir products to local and global markets.
         </p>
@@ -350,6 +407,30 @@ function DashboardCard({ icon, title, value, color, darkMode }) {
             {title}
           </p>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function EarningsCard({ title, value, icon, color, darkMode }) {
+  return (
+    <div
+      className={`${
+        darkMode ? "bg-gray-700" : "bg-gray-50"
+      } p-6 rounded-lg shadow transition-all duration-300 hover:shadow-md`}
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <p
+            className={`${
+              darkMode ? "text-gray-300" : "text-gray-600"
+            } text-sm mb-1`}
+          >
+            {title}
+          </p>
+          <h3 className={`text-xl font-bold text-${color}-500`}>{value}</h3>
+        </div>
+        <div className={`text-3xl text-${color}-500`}>{icon}</div>
       </div>
     </div>
   );
