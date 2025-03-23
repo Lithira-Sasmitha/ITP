@@ -11,8 +11,6 @@ const incomeRoutes = require('./routes/financialRoute/incomeroute');
 app.use(cors());
 app.use(express.json());
 
-
-
 // Use routes
 app.use('/', expenseRoutes);  // This will handle all your existing expense routes
 app.use('/', incomeRoutes);   // This will handle all your new income routes
@@ -23,7 +21,7 @@ app.get('/api/test', (req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5005;
+const PORT = process.env.PORT || 5055;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
