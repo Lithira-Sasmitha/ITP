@@ -8,6 +8,7 @@ function Layout() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showProductSubMenu, setShowProductSubMenu] = useState(false);
   const [showMachineSubMenu, setShowMachineSubMenu] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true); // State to control sidebar visibility
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,21 +24,25 @@ function Layout() {
     setShowMachineSubMenu(!showMachineSubMenu);
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
-    <div className="flex h-full bg-gray-150">
+    <div className="flex h-screen bg-gray-150">
       {/* Sidebar */}
-      <div className="w-64 bg-green-900 text-white p-5 flex flex-col justify-between shadow-lg">
+      <div
+        className={`w-64 bg-green-900 text-white p-5 flex flex-col justify-between shadow-lg fixed top-0 bottom-0 transition-all duration-300 ease-in-out ${
+          sidebarOpen ? "left-0" : "-left-64"
+        }`}
+      >
         <div>
           <div className="flex justify-center mb-6">
             <img src={logo} alt="Logo" className="w-16 h-16 rounded-full" />
           </div>
           <nav>
             <ul>
-              <li className="mb-4">
-                <button onClick={() => navigate("/menu")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
-                  Menu
-                </button>
-              </li>
+              <li className="mb-4 text-lg font-bold text-center">Menu</li>
               <li className="mb-4">
                 <button onClick={() => navigate("/dashboard")} className="flex items-center w-full p-3 rounded-lg hover:bg-green-700">
                   Dashboard
@@ -54,11 +59,7 @@ function Layout() {
                         Product Details
                       </button>
                     </li>
-                    <li>
-                      <button onClick={() => navigate("/add-product")} className="w-full p-2 rounded-lg hover:bg-green-600">
-                        Add Product
-                      </button>
-                    </li>
+                    
                   </ul>
                 )}
               </li>
@@ -101,8 +102,16 @@ function Layout() {
         </div>
       </div>
 
+      {/* Button to toggle sidebar */}
+      <button
+        className="fixed top-4 left-4 bg-green-600 text-white p-3 rounded-full z-10"
+        onClick={toggleSidebar}
+      >
+        {sidebarOpen ? "<" : ">"}
+      </button>
+
       {/* Main Content */}
-      <div className="flex-grow p-8">
+      <div className="flex-grow ml-64 p-8 overflow-y-auto">
         <Outlet />
       </div>
     </div>
