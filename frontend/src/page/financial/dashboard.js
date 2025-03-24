@@ -54,7 +54,7 @@ const Dashboard = () => {
 
   return (
     <div className="flex-1 overflow-auto relative z-10">
-      <Header title="Dashboard" />
+      {/* <Header title="Dashboard" /> */}
       
       <main className="w-full px-2 sm:px-4 lg:px-6 py-6 sm:py-10 lg:py-20">
         {/* STATS SECTION - Responsive at all breakpoints */}
@@ -65,13 +65,13 @@ const Dashboard = () => {
           transition={{ duration: 0.6 }}
         >
           <div className="w-full">
-            <StatCard name="Total Income" icon={FiZap} value={stats.totalIncome} color="#10B981" />
+            <StatCard name="Total Income" icon={FiZap} value={stats.totalIncome} color="#972C2CFF" />
           </div>
           <div className="w-full">
-            <StatCard name="Total Expense" icon={FiUsers} value={stats.totalExpense} color="#EF4444" />
+            <StatCard name="Total Expense" icon={FiUsers} value={stats.totalExpense} color="#000000" />
           </div>
           <div className="w-full sm:col-span-2 lg:col-span-1">
-            <StatCard name="Income/Expense Ratio" icon={FiBarChart2} value={stats.conversionRate} color="#6366F1" />
+            <StatCard name="Income/Expense Ratio" icon={FiBarChart2} value={stats.conversionRate} color="#000000" />
           </div>
         </motion.div>
 
@@ -79,12 +79,12 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* Sales Overview Box */}
           <motion.div
-            className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-4 sm:p-5 lg:p-6 border border-gray-700 w-full h-full"
+            className="bg-white border border-black rounded-xl shadow-lg p-4 sm:p-5 lg:p-6 w-full h-full"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 text-gray-100">Sales Overview</h2>
+            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 text-black">Sales Overview</h2>
 
             <div className="h-60 sm:h-72 lg:h-80">
               <ResponsiveContainer width="100%" height="100%">
@@ -92,12 +92,12 @@ const Dashboard = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
                   <XAxis 
                     dataKey="name" 
-                    stroke="#9ca3af" 
+                    stroke="#000000" 
                     tick={{ fontSize: 12 }}
                     tickMargin={8}
                   />
                   <YAxis 
-                    stroke="#9ca3af" 
+                    stroke="#000000" 
                     tick={{ fontSize: 12 }}
                     tickMargin={8}
                   />
@@ -106,7 +106,7 @@ const Dashboard = () => {
                       backgroundColor: "rgba(31, 41, 55, 0.8)",
                       borderColor: "#4B5563",
                     }}
-                    itemStyle={{ color: "#E5E7EB" }}
+                    itemStyle={{ color: "#000000" }}
                   />
                   <Line
                     type="monotone"
@@ -123,14 +123,14 @@ const Dashboard = () => {
 
           {/* Category Distribution Box */}
           <motion.div
-            className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-4 sm:p-5 lg:p-6 border border-gray-700 w-full h-full"
+            className="bg-white border border-black rounded-xl shadow-lg p-4 sm:p-5 lg:p-6 w-full h-full"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
           >
-            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 text-gray-100">Category Distribution</h2>
+            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 text-black">Category Distribution</h2>
             <div className="h-60 sm:h-72 lg:h-80 flex items-center justify-center">
-              <p className="text-gray-400">Category data visualization will appear here</p>
+              <p className="text-black">Category data visualization will appear here</p>
             </div>
           </motion.div>
         </div>
@@ -139,4 +139,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Dashboard; 

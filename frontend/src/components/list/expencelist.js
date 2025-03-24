@@ -71,34 +71,35 @@ export default function Expencelist() {
 
   return (
     <div className="flex flex-col py-6 w-full gap-3">
-      <h1 className="font-bold pb-4 text-xl">History</h1>
+      <h1 className="font-bold pb-4 text-xl  text-black">History</h1>
+      
+
       {Transactions}
 
       {showPopup && selectedCategory && (
         <div className="popup-overlay fixed inset-0 bg-gray-800 bg-opacity-80 flex justify-center items-center">
-          <div className="popup-container bg-blue-900 bg-opacity-65 backdrop-blur-lg p-5 rounded-2xl">
-            <h2 className="font-bold text-xl mb-4">Update Transaction</h2>
+          <div className="popup-container bg-white bg-opacity-65 backdrop-blur-lg p-5 rounded-2xl">
+            <h2 className="font-bold text-black text-xl mb-4 ">Update Transaction</h2>
             <form onSubmit={handleSubmit(handleSubmitUpdate)}>
               <div className="mb-4">
-              <label htmlFor="name" className="text-white font-medium">Category Name</label>
-             
+                <label htmlFor="name" className="text-black font-medium">Category Name</label>
                 <input
                   type="text"
                   id="name"
                   defaultValue={updatedName}
                   {...register('name')}
-                  className="  bg-transparent outline-none text-white placeholder-gray-400 px-2 w-full"
+                  className="bg-transparent outline-none text-black placeholder-gray-400 px-2 w-full"
                 />
               </div>
 
               <div className="mb-4">
-                <label htmlFor="type" className="text-white font-medium">Category Type</label>
+                <label htmlFor="type" className="text-black font-medium">Category Type</label>
                 <select
-    id="type"
-    defaultValue={updatedType}
-    {...register('type')}
-    className="bg-gray-800 bg-opacity-50  rounded-lg  py-2 w-full "
-  >
+                  id="type"
+                  defaultValue={updatedType}
+                  {...register('type')}
+                  className="bg-gray-800 bg-opacity-50  rounded-lg  py-2 w-full "
+                >
                   <option value="Investment">Investment</option>
                   <option value="Saving">Saving</option>
                   <option value="Expense">Expense</option>
@@ -106,13 +107,13 @@ export default function Expencelist() {
               </div>
 
               <div className="mb-4">
-                <label htmlFor="amount" className="text-white font-medium">Amount</label>
+                <label htmlFor="amount" className="text-black font-medium">Amount</label>
                 <input
                   type="number"
                   id="amount"
                   defaultValue={updatedAmount}
                   {...register('amount')}
-                  className="bg-transparent outline-none text-white placeholder-gray-400 px-2 w-full"
+                  className="bg-transparent outline-none text-black placeholder-gray-400 px-2 w-full"
                   min="0"
                   max="20000"
                   onChange={(e) => setUpdatedAmount(e.target.value)}
@@ -121,8 +122,8 @@ export default function Expencelist() {
 
               {/* Date Input with Validation */}
               <div className="mb-4 ">
-                <label htmlFor="date" className="text-white font-medium">Transaction Date</label>
-                <input 
+                <label htmlFor="date" className="text-black font-medium">Transaction Date</label>
+                <input
                   type="date"
                   id="date"
                   defaultValue={updatedDate}
@@ -131,7 +132,7 @@ export default function Expencelist() {
                       value <= today || 'Future dates are not allowed!',
                   })}
                   max={today} // Restrict future dates
-                  className="bg-transparent outline-none text-white placeholder-gray-400 px-2 w-full "
+                  className="bg-transparent outline-none text-black placeholder-gray-400 px-2 w-full "
                 />
               </div>
 
@@ -145,7 +146,7 @@ export default function Expencelist() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-700 text-white px-4 py-2 rounded"
+                  className="bg-green-700 text-white px-4 py-2 rounded"
                 >
                   Update
                 </button>
@@ -162,7 +163,7 @@ function Transaction({ category, handler, onUpdate }) {
   if (!category) return null;
   return (
     <div
-      className="item flex justify-center py-2 rounded-r text-white bg-transparent"
+      className="item flex justify-center py-2 rounded-r text-black bg-transparent"
       style={{ borderRight: `8px solid ${category.color ?? "#e5e5e5"}` }}
     >
       <button className="px-3" onClick={handler}>

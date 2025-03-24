@@ -7,7 +7,7 @@ function Payment() {
 
   return (
     <div className="relative z-10">
-    <Header title='Payment' />
+    
     
   </div>
   );

@@ -30,7 +30,7 @@ export default function ExpenceChart() {
 
       {/* Centered Total Value */}
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <h3 className="mb-2 font-bold text-lg">Total</h3>
+        <h3 className="mb-2 font-bold text-black text-lg">Total</h3>
         <span className="text-3xl font-bold text-emerald-400">
           ${getTotal(data) ?? 0}
         </span>
