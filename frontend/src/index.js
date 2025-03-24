@@ -5,19 +5,20 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';
 import store from './page/machine/redux/store';  // Use default import
-import reportWebVitals from './reportWebVitals'
-import  {storefinancial} from './store/store'
-import { Provider } from 'react-redux';
+import { store as storefinancial } from './store/store';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
 
   <React.StrictMode>
-    <Provider store={store && storefinancial}>
-      <App />
-    </Provider>
-  </React.StrictMode>
+<Provider store={store}>
+  <Provider store={storefinancial}>
+    <App />
+  </Provider>
+</Provider>
+</React.StrictMode>
 
 );
 

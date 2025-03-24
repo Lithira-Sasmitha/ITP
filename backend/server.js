@@ -10,7 +10,6 @@ const machinepartRoutes = require("./routes/machinepartRoutes");
 
 const app = express();
 // Add this to your server.js or index.js file where you set up your Express server
-const express = require('express');
 
 
 // Import database connection
@@ -35,20 +34,6 @@ app.use("/api/products", productRoutes);
 app.use("/api/machines", machineRoutes);
 app.use("/api/machineparts", machinepartRoutes);
 
-app.get("/", (req, res) => {
-  res.send("🚀 Server is running!");
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(`Error: ${err.message}`);
-  res.status(500).json({ message: "Server Error", error: err.message });
-});
-
-// Start server
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
 
 
 // Use routes
