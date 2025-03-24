@@ -26,9 +26,26 @@ const DrivervehicleDetails = () => {
   const [message, setMessage] = useState({ type: "", text: "" });
 
   const handleInputChange = (e) => {
+    const { name, value } = e.target;
+
+    // Validation patterns
+    const validations = {
+      name: /^[A-Za-z\s]*$/, // Only English letters and spaces
+      nic: /^\d{0,12}$/, // Up to 12 digits
+      telephone: /^07[0-8]{0,1}-?\d{0,7}$/, // 07X-XXXXXXX format
+      vehicle: /^[A-Za-z0-9\s-]*$/, // Letters, numbers, spaces, and hyphens
+      vehicleRegNo: /^[A-Za-z0-9-]*$/, // Letters, numbers, and hyphens
+      licenseNo: /^[A-Za-z]\d{0,7}$/, // Letter followed by up to 7 digits
+    };
+
+    // Check if value matches the pattern (if pattern exists for this field)
+    if (validations[name] && value && !validations[name].test(value)) {
+      return; // Don't update if validation fails
+    }
+
     setFormValues({
       ...formValues,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
   };
 
@@ -195,6 +212,8 @@ const DrivervehicleDetails = () => {
                 value={formValues.name}
                 onChange={handleInputChange}
                 placeholder="Enter name"
+                pattern="[A-Za-z\s]+"
+                title="Please use English letters and spaces only"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
                 required
               />
@@ -210,6 +229,7 @@ const DrivervehicleDetails = () => {
                 name="dob"
                 value={formValues.dob}
                 onChange={handleInputChange}
+                max={new Date().toISOString().split("T")[0]} // Prevents future dates
                 className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
                 required
               />
@@ -226,6 +246,9 @@ const DrivervehicleDetails = () => {
                 value={formValues.nic}
                 onChange={handleInputChange}
                 placeholder="20XXXXXXXXXX"
+                pattern="\d{12}"
+                title="NIC must be 12 digits"
+                maxLength="12"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
                 required
               />
@@ -242,6 +265,8 @@ const DrivervehicleDetails = () => {
                 value={formValues.telephone}
                 onChange={handleInputChange}
                 placeholder="07X-XXXXXXX"
+                pattern="07[0-8]-?\d{7}"
+                title="Format: 07X-XXXXXXX (X: 0-8)"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
                 required
               />
@@ -258,6 +283,8 @@ const DrivervehicleDetails = () => {
                 value={formValues.vehicle}
                 onChange={handleInputChange}
                 placeholder="Enter vehicle"
+                pattern="[A-Za-z0-9\s-]+"
+                title="Use letters, numbers, spaces, and hyphens only"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
                 required
               />
@@ -274,6 +301,8 @@ const DrivervehicleDetails = () => {
                 value={formValues.vehicleRegNo}
                 onChange={handleInputChange}
                 placeholder="12-1234 or AB-1234 or ABC-1234"
+                pattern="^([0-9]{2}-[0-9]{4}|[A-Z]{2}-[0-9]{4}|[A-Z]{3}-[0-9]{4})$"
+                title="Format: 12-1234 or AB-1234 or ABC-1234"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
                 required
               />
@@ -290,6 +319,9 @@ const DrivervehicleDetails = () => {
                 value={formValues.licenseNo}
                 onChange={handleInputChange}
                 placeholder="A1234567"
+                pattern="[A-Za-z]\d{7}"
+                title="Format: One letter followed by 7 digits"
+                maxLength="8"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
                 required
               />

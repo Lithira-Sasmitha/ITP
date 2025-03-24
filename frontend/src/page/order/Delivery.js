@@ -321,18 +321,6 @@ export default function Delivery() {
         </div>
       </div>
 
-      {/* New NBcoir Section */}
-      <div
-        className={`${
-          darkMode ? "bg-gray-800 text-white" : "bg-blue-600 text-white"
-        } py-4 rounded-lg text-center shadow-md`}
-      >
-        <h3 className="text-lg font-bold">CEYCOIR</h3>
-        <p className="text-sm">
-          Delivering quality coir products to local and global markets.
-        </p>
-      </div>
-
       <style jsx>{`
         @keyframes gradientAnimation {
           0% {

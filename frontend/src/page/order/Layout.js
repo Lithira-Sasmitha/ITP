@@ -9,6 +9,7 @@ import {
   FaMoon,
   FaSun,
   FaHistory,
+  FaTachometerAlt,
 } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 
@@ -40,7 +41,7 @@ function Layout() {
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <div className="h-full w-64 p-5 flex flex-col justify-between bg-green-700 text-white shadow-lg">
+      <div className="h-full w-[15%] p-5 flex flex-col justify-between bg-green-900 text-white shadow-lg">
         <div>
           {/* Logo Section */}
           <div className="flex justify-center mb-8">
@@ -52,15 +53,16 @@ function Layout() {
           </div>
 
           {/* Menu Section */}
-          <div className="mb-8">
+          <div className="mb-4">
             <h2 className="text-2xl font-bold mb-6 text-white">Menu</h2>
             <nav>
               <ul>
                 <li className="mb-4">
                   <button
                     onClick={() => handleNavigate("/dashboard")}
-                    className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-600 hover:bg-green-500"
+                    className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-900 hover:bg-green-700"
                   >
+                    <FaTachometerAlt className="h-6 w-6 mr-4 text-white" />
                     Dashboard
                   </button>
                 </li>
@@ -68,17 +70,17 @@ function Layout() {
                 <li className="mb-4">
                   <button
                     onClick={toggleDeliveryDropdown}
-                    className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-600 hover:bg-green-500"
+                    className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-900 hover:bg-green-700"
                   >
                     <FaTruck className="h-6 w-6 mr-4 text-white" />
                     Deliveries
                   </button>
                   {isDeliveryOpen && (
-                    <ul className="ml-4 mt-2 space-y-1 bg-green-500 rounded-lg">
+                    <ul className="ml-4 mt-2 space-y-1 bg-green-900 rounded-lg">
                       <li>
                         <button
                           onClick={() => handleNavigate("deliverydetail")}
-                          className="flex items-center rounded-lg px-4 py-2 transition-all duration-300 hover:bg-green-400"
+                          className="w-full flex items-center rounded-lg px-4 py-2 transition-all duration-300 hover:bg-green-700"
                         >
                           <FaPlusCircle className="h-6 w-6 mr-4 text-white" />
                           Delivery Details
@@ -87,7 +89,7 @@ function Layout() {
                       <li>
                         <button
                           onClick={() => handleNavigate("adddelivery")}
-                          className="flex items-center rounded-lg px-4 py-2 transition-all duration-300 hover:bg-green-400"
+                          className="w-full flex items-center rounded-lg px-4 py-2 transition-all duration-300 hover:bg-green-700"
                         >
                           <FaPlusCircle className="h-6 w-6 mr-4 text-white" />
                           Add Delivery
@@ -100,7 +102,7 @@ function Layout() {
                 <li className="mb-4">
                   <button
                     onClick={() => handleNavigate("drivervehicledetails")}
-                    className="flex items-center rounded-lg px-4 py-3 transition-all duration-300 bg-green-600 hover:bg-green-500"
+                    className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-900 hover:bg-green-700"
                   >
                     <FaTasks className="h-6 w-6 mr-4 text-white" />D & V Details
                   </button>
@@ -109,7 +111,7 @@ function Layout() {
                 <li className="mb-4">
                   <button
                     onClick={() => handleNavigate("pendingorders")}
-                    className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-500 hover:bg-green-400"
+                    className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-900 hover:bg-green-700"
                   >
                     <FaHistory className="h-6 w-6 mr-4 text-white" />
                     Order History
@@ -126,44 +128,30 @@ function Layout() {
                 <li className="mb-4">
                   <button
                     onClick={() => handleNavigate("settings")}
-                    className="flex items-center rounded-lg px-4 py-3 transition-all duration-300 bg-green-600 hover:bg-green-500"
+                    className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 bg-green-900 hover:bg-green-700"
                   >
                     <FaCog className="h-6 w-6 mr-4 text-white" />
                     Settings
                   </button>
                 </li>
 
-                <li className="mb-4">
-                  <button
-                    onClick={() => handleNavigate("logout")}
-                    className="flex items-center rounded-lg px-4 py-3 transition-all duration-300 bg-red-500 hover:bg-red-600"
-                  >
-                    <FaSignOutAlt className="h-6 w-6 mr-4 text-white" />
-                    Logout
-                  </button>
-                </li>
-
-                <li className="mb-4">
-                  <button
-                    onClick={toggleDarkMode}
-                    className="flex items-center w-full rounded-lg px-4 py-3 transition-all duration-300 bg-green-500 hover:bg-green-400 text-white"
-                  >
-                    {darkMode ? (
-                      <FaSun className="h-6 w-6 mr-4" />
-                    ) : (
-                      <FaMoon className="h-6 w-6 mr-4" />
-                    )}
-                    {darkMode ? "Light Mode" : "Dark Mode"}
-                  </button>
-                </li>
+                <div className="fix-bottom ">
+                  <li className="mb-4">
+                    <button
+                      onClick={() => handleNavigate("logout")}
+                      className="flex w-full items-center justify-center rounded-lg mt-28 px-4 py-3 transition-all duration-300 bg-red-500 hover:bg-red-600"
+                    >
+                      <FaSignOutAlt className="h-6 w-6 mr-4 text-white" />
+                      Logout
+                    </button>
+                  </li>
+                  <div className="text-white text-center mt-4">
+                    <p>{currentTime.toLocaleTimeString()}</p>
+                  </div>
+                </div>
               </ul>
             </nav>
           </div>
-        </div>
-
-        {/* Time Display */}
-        <div className="text-white text-center mt-4">
-          <p>{currentTime.toLocaleTimeString()}</p>
         </div>
       </div>
 

@@ -173,9 +173,9 @@ const DeliveryDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-full mx-auto">
-        <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen min-w-[85%] bg-gray-50 p-6">
+      <div className="max-w-[85%] mx-auto">
+        <div className="flex items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">
             Delivery Management
           </h1>

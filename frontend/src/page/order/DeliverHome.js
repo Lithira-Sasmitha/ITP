@@ -31,7 +31,7 @@ const DeliverHome = () => {
         alignItems: "center",
         justifyContent: "center",
         height: "100vh",
-        background: "linear-gradient(135deg, #1e3c72, #2a5298)",
+        background: "linear-gradient(135deg, #2d3748, #4a5568)", // Professional gray gradient
         color: "#fff",
         textAlign: "center",
         overflow: "hidden",

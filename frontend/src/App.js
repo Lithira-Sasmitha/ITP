@@ -9,7 +9,7 @@ import Settings from "./page/order/Settings";
 import Logout from "./page/order/Logout";
 import DeliverAdminProfile from "./page/order/DeliverAdminProfile";
 import DeliverHome from "./page/order/DeliverHome";
-import Product from "./page/order/Product";
+
 import PlaceOrder from "./page/order/PlaceOrder";
 import Orderhistorys from "./page/order/Orderhistorys";
 import OrderConfirmation from "./page/order/OrderConfirmation";
@@ -32,7 +32,7 @@ function App() {
           <Route path="pendingorders" element={<Orderhistorys />} />
           <Route path="settings" element={<Settings />} />
           <Route path="logout" element={<Logout />} />
-          <Route path="product" element={<Product />} />
+
           {/* Route to handle place order */}
           <Route path="placeorder" element={<PlaceOrder />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
