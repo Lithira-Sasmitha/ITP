@@ -1,8 +1,8 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 
-// MongoDB Connection URL
-const mongoURL = process.env.MONGO_URL || "your_fallback_mongodb_url";
+// MongoDB Connection URL from .env file
+const mongoURL = process.env.MONGO_URL;
 
 mongoose
   .connect(mongoURL, { useNewUrlParser: true, useUnifiedTopology: true })

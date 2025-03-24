@@ -9,7 +9,17 @@ const machineRoutes = require("./routes/machineRoutes");
 const machinepartRoutes = require("./routes/machinepartRoutes");
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+// Add this to your server.js or index.js file where you set up your Express server
+const express = require('express');
+
+
+// Import database connection
+const db = require('./db');
+
+// Import your route modules
+const expenseRoutes = require('./routes/financialRoute/expencesroute');
+const incomeRoutes = require('./routes/financialRoute/incomeroute');
+
 
 // Middleware
 app.use(express.json());
@@ -40,13 +50,19 @@ const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
 
-server.on("error", (err) => {
-  if (err.code === "EADDRINUSE") {
-    console.log(`⚠ Port ${PORT} is in use. Trying another port...`);
-    app.listen(0, () => {
-      console.log(`Server started on a random port`);
-    });
-  } else {
-    console.error(`Server error: ${err.message}`);
-  }
+
+// Use routes
+app.use('/', expenseRoutes);  // This will handle all your existing expense routes
+app.use('/', incomeRoutes);
+   
+
+// Add a simple test route
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API is working!' });
+});
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
