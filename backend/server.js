@@ -1,7 +1,16 @@
-// Add this to your server.js or index.js file where you set up your Express server
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("./db");
+const cors = require("cors");
+const path = require("path");
+
+const productRoutes = require("./routes/productRoutes");
+const machineRoutes = require("./routes/machineRoutes");
+const machinepartRoutes = require("./routes/machinepartRoutes");
+
 const app = express();
-const cors = require('cors');
+// Add this to your server.js or index.js file where you set up your Express server
+
 
 // Import database connection
 const db = require('./db');
@@ -12,8 +21,19 @@ const incomeRoutes = require('./routes/financialRoute/incomeroute');
 
 
 // Middleware
-app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // For parsing form data
+app.use(cors());
+
+// Serve static files from the uploads directory
+// This makes files accessible via http://localhost:5000/uploads/...
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Routes
+app.use("/api/products", productRoutes);
+app.use("/api/machines", machineRoutes);
+app.use("/api/machineparts", machinepartRoutes);
+
 
 
 // Use routes
