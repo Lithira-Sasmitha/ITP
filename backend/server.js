@@ -3,17 +3,23 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 
+// Import database connection
+const db = require('./db');
+
 // Import your route modules
 const expenseRoutes = require('./routes/financialRoute/expencesroute');
 const incomeRoutes = require('./routes/financialRoute/incomeroute');
+
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
+
 // Use routes
 app.use('/', expenseRoutes);  // This will handle all your existing expense routes
-app.use('/', incomeRoutes);   // This will handle all your new income routes
+app.use('/', incomeRoutes);
+   
 
 // Add a simple test route
 app.get('/api/test', (req, res) => {

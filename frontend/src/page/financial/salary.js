@@ -1,208 +1,160 @@
-import { useState, useEffect } from "react";
-import { FaEnvelope, FaPlus, FaDownload, FaTrash, FaEdit } from "react-icons/fa";
-import Header from "../../components/header/header";
+// import React, { useState, useEffect } from 'react';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { 
+//   useGetSalariesQuery, 
+//   useDeleteSalaryMutation 
+// } from '../../store/apiSlice';
+// import { 
+//   selectAllSalaries, 
+//   selectSalaryStatus, 
+//   selectSalaryError,
+//   selectCurrentSalary,
+//   setCurrentSalary,
+//   clearCurrentSalary 
+// } from '../../store/salarySlice';
+// import SalaryForm from '../../components/SalaryForm'; 
 
-function Salary() {
-  const [salaries, setSalaries] = useState([
-    { id: 1, employee: "John Doe", amount: 3500, date: "2025-03-01", section: "Engineering" },
-    { id: 2, employee: "Jane Smith", amount: 4200, date: "2025-03-01", section: "Marketing" },
-    { id: 3, employee: "Robert Johnson", amount: 3800, date: "2025-03-01", section: "HR" },
-  ]);
+// const Salary = () => {
+//   const dispatch = useDispatch();
+//   const [isFormOpen, setIsFormOpen] = useState(false);
   
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newSalary, setNewSalary] = useState({
-    employee: "",
-    amount: "",
-    date: "",
-    section: ""
-  });
+//   // Get salaries from API
+//   const { refetch } = useGetSalariesQuery();
   
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewSalary({
-      ...newSalary,
-      [name]: value
-    });
-  };
+//   // Get salaries from state
+//   const salaries = useSelector(selectAllSalaries);
+//   const status = useSelector(selectSalaryStatus);
+//   const error = useSelector(selectSalaryError);
+//   const currentSalary = useSelector(selectCurrentSalary);
   
-  const handleAddSalary = () => {
-    const salaryToAdd = {
-      id: salaries.length + 1,
-      ...newSalary,
-      amount: parseFloat(newSalary.amount)
-    };
-    
-    setSalaries([...salaries, salaryToAdd]);
-    setNewSalary({
-      employee: "",
-      amount: "",
-      date: "",
-      section: ""
-    });
-    setShowAddModal(false);
-  };
+//   // Delete mutation
+//   const [deleteSalary] = useDeleteSalaryMutation();
   
-  const handleDownloadCSV = () => {
-    // Create CSV content
-    const headers = ["ID", "Employee", "Amount", "Date", "Section"];
-    const csvContent = [
-      headers.join(","),
-      ...salaries.map(salary => [
-        salary.id,
-        salary.employee,
-        salary.amount,
-        salary.date,
-        salary.section
-      ].join(","))
-    ].join("\n");
-    
-    // Create download link
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "salary_data.csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+//   // Handle opening form in add mode
+//   const handleAddSalary = () => {
+//     dispatch(clearCurrentSalary());
+//     setIsFormOpen(true);
+//   };
   
-  return (
-    <div className="relative z-10">
-      <Header title='Salary' />
+//   // Handle opening form in edit mode
+//   const handleEditSalary = (salary) => {
+//     dispatch(setCurrentSalary(salary));
+//     setIsFormOpen(true);
+//   };
+  
+//   // Handle delete salary
+//   const handleDeleteSalary = async (id) => {
+//     if (window.confirm('Are you sure you want to delete this salary?')) {
+//       try {
+//         await deleteSalary(id).unwrap();
+//       } catch (err) {
+//         console.error('Failed to delete salary:', err);
+//       }
+//     }
+//   };
+  
+//   // Handle form close
+//   const handleFormClose = () => {
+//     setIsFormOpen(false);
+//     dispatch(clearCurrentSalary());
+//   };
+  
+//   // Handle salary change (add or update)
+//   const handleSalaryChange = () => {
+//     refetch();
+//   };
+  
+//   return (
+//     <div className="container mx-auto p-4">
+//       <div className="flex justify-between items-center mb-6">
+//         <h1 className="text-2xl font-bold">Salary Management</h1>
+//         <button
+//           onClick={handleAddSalary}
+//           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+//         >
+//           Add New Salary
+//         </button>
+//       </div>
       
-      <div className="container mx-auto px-4 py-6 mt-8">
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex space-x-3">
-            <button 
-              onClick={() => setShowAddModal(true)} 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
-            >
-              <FaPlus className="mr-2" /> Add Salary
-            </button>
-            <button 
-              onClick={handleDownloadCSV} 
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center"
-            >
-              <FaDownload className="mr-2" /> Download
-            </button>
-          </div>
-        </div>
-        
-        {/* Salary List */}
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {salaries.map((salary) => (
-                  <tr key={salary.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{salary.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{salary.employee}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${salary.amount.toLocaleString()}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{salary.date}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{salary.section}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button className="text-indigo-600 hover:text-indigo-900 mr-3">
-                        <FaEdit />
-                      </button>
-                      <button className="text-red-600 hover:text-red-900">
-                        <FaTrash />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+//       {status === 'loading' && <p>Loading...</p>}
       
-      {/* Add Salary Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-xl font-semibold mb-4">Add New Salary</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Employee Name</label>
-                <input
-                  type="text"
-                  name="employee"
-                  value={newSalary.employee}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Amount</label>
-                <input
-                  type="number"
-                  name="amount"
-                  value={newSalary.amount}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Date</label>
-                <input
-                  type="date"
-                  name="date"
-                  value={newSalary.date}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Section</label>
-                <select
-                  name="section"
-                  value={newSalary.section}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">Select Section</option>
-                  <option value="Engineering">Engineering</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="HR">HR</option>
-                  <option value="Finance">Finance</option>
-                  <option value="Operations">Operations</option>
-                </select>
-              </div>
-            </div>
-            
-            <div className="mt-6 flex justify-end space-x-3">
-              <button 
-                onClick={() => setShowAddModal(false)}
-                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleAddSalary}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-              >
-                Add Salary
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+//       {status === 'failed' && (
+//         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+//           Error: {error}
+//         </div>
+//       )}
+      
+//       {status === 'succeeded' && salaries.length === 0 && (
+//         <p>No salaries found. Add one to get started.</p>
+//       )}
+      
+//       {status === 'succeeded' && salaries.length > 0 && (
+//         <div className="overflow-x-auto">
+//           <table className="min-w-full bg-white rounded-lg shadow-md">
+//             <thead className="bg-gray-100">
+//               <tr>
+//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                   Employee
+//                 </th>
+//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                   Section
+//                 </th>
+//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                   Amount
+//                 </th>
+//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                   Date
+//                 </th>
+//                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+//                   Actions
+//                 </th>
+//               </tr>
+//             </thead>
+//             <tbody className="divide-y divide-gray-200">
+//               {salaries.map((salary) => (
+//                 <tr key={salary._id}>
+//                   <td className="px-6 py-4 whitespace-nowrap">
+//                     {salary.employeeName}
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap">
+//                     {salary.section}
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap">
+//                     ${parseFloat(salary.amount).toFixed(2)}
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap">
+//                     {new Date(salary.date).toLocaleDateString()}
+//                   </td>
+//                   <td className="px-6 py-4 whitespace-nowrap text-sm">
+//                     <button
+//                       onClick={() => handleEditSalary(salary)}
+//                       className="text-indigo-600 hover:text-indigo-900 mr-3"
+//                     >
+//                       Edit
+//                     </button>
+//                     <button
+//                       onClick={() => handleDeleteSalary(salary._id)}
+//                       className="text-red-600 hover:text-red-900"
+//                     >
+//                       Delete
+//                     </button>
+//                   </td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         </div>
+//       )}
+      
+//       {isFormOpen && (
+//         <SalaryForm
+//           onClose={handleFormClose}
+//           onSalaryChange={handleSalaryChange}
+//           salaryToEdit={currentSalary}
+//         />
+//       )}
+//     </div>
+//   );
+// };
 
-export default Salary;
+// export default Salary;
