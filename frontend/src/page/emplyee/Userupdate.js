@@ -21,7 +21,7 @@ const Userupdate = () => {
     async function getUser() {
       try {
         const response = (
-          await axios.post(`http://localhost:5055/api/users/getuser/${userid}`)
+          await axios.post(`http://localhost:5000/api/users/getuser/${userid}`)
         ).data;
 
         setid(response.user._id);
@@ -49,7 +49,7 @@ const Userupdate = () => {
     try {
       const response = (
         await axios.put(
-          `http://localhost:5055/api/users/updateuser/${userid}`,
+          `http://localhost:5000/api/users/updateuser/${userid}`,
           updateuser
         )
       ).data;

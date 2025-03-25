@@ -22,7 +22,7 @@ function LoginForm() {
     const userCredentials = { email, password };
 
     try {
-      const result = await axios.post("http://localhost:5055/api/users/login", userCredentials);
+      const result = await axios.post("http://localhost:5000/api/users/login", userCredentials);
       setLoading(false);
 
       localStorage.setItem("currentuser", JSON.stringify(result.data.user));

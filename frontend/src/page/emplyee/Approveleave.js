@@ -58,8 +58,8 @@ function Approveleave() {
       setLoading(true);
 
       const [leavesRes, usersRes] = await Promise.all([
-        axios.get("http://localhost:5055/api/leaves/getallleaves"),
-        axios.get("http://localhost:5055/api/users/getallusers"),
+        axios.get("http://localhost:5000/api/leaves/getallleaves"),
+        axios.get("http://localhost:5000/api/users/getallusers"),
       ]);
 
       setApproveleaves(leavesRes.data);
@@ -161,14 +161,14 @@ function Approveleave() {
   const approve = (requestId) => 
     updateLeaveStatus(
       requestId, 
-      "http://localhost:5055/api/leaves/approverequest", 
+      "http://localhost:5000/api/leaves/approverequest", 
       "Leave request approved successfully"
     );
 
   const disapprove = (requestId) => 
     updateLeaveStatus(
       requestId, 
-      "http://localhost:5055/api/leaves/cancelrequest", 
+      "http://localhost:5000/api/leaves/cancelrequest", 
       "Leave request rejected successfully"
     );
 

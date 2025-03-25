@@ -89,7 +89,7 @@ function Requestedleave() {
 
     try {
       setLoading(true);
-      await axios.post("http://localhost:5055/api/leaves/leaverequest", requestDetails);
+      await axios.post("http://localhost:5000/api/leaves/leaverequest", requestDetails);
       
       Swal.fire({
         icon: 'success',
@@ -131,7 +131,7 @@ function Requestedleave() {
     try {
       setLoading(true);
       const currentUser = JSON.parse(localStorage.getItem("currentuser"));
-      const res = await axios.post("http://localhost:5055/api/leaves/getleaverequestedbyuserid", {
+      const res = await axios.post("http://localhost:5000/api/leaves/getleaverequestedbyuserid", {
         userid: currentUser._id,
       });
       setLeaves(res.data.sort((a, b) => new Date(b.fromdate) - new Date(a.fromdate)));
