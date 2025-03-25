@@ -22,9 +22,10 @@ import Expense from "./page/financial/expense";
 import Salary from "./page/financial/salary";
 import Payment from "./page/financial/payment";
 import Message from "./page/financial/message";
-import { FiMenu } from "react-icons/fi"; // Import menu icon
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Layout from "./page/order/Layout";
+import { FiMenu } from "react-icons/fi"; 
+
+// import Layout from "./page/order/Layout";
+
 import Delivery from "./page/order/Delivery";
 import DeliveryDetail from "./page/order/Deliverydetail";
 import AddDelivery from "./page/order/AddDelivery";
@@ -60,16 +61,9 @@ function App() {
         </Routes>
       </Router>
     </Provider>
-      <div className="flex h-screen bg-white-100 text-gray-100 overflow-hidden">
-        {/* Background Effects */}
-
         <Router>
 
-          {/* Mobile Toggle Button */}
-
-
-          {/* Main Content */}
-          <div>
+          
             <Routes>
               <Route path="/financialdashboard" element={<Dashboard />} />
               <Route path="/income" element={<Income />} />
@@ -78,14 +72,14 @@ function App() {
               <Route path="/payment" element={<Payment />} />
               <Route path="/message" element={<Message />} />
             </Routes>
-          </div>
+          
 
         </Router>
-      </div></><Router>
+      </><Router>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<DeliverHome />} />
-            <Route path="dashboard" element={<Delivery />} />
+            <Route path="/dashboard" element={<Delivery />} />
             <Route path="deliverydetail" element={<DeliveryDetail />} />
             <Route path="adddelivery" element={<AddDelivery />} />
             <Route path="profile" element={<DeliverAdminProfile />} />

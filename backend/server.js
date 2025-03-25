@@ -30,6 +30,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/products", productRoutes);
 app.use("/api/machines", machineRoutes);
 app.use("/api/machineparts", machinepartRoutes);
+
 app.use('/', expenseRoutes);
 app.use('/', incomeRoutes);
 
