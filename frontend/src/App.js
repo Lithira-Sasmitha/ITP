@@ -57,28 +57,29 @@ function App() {
     <>
     <Router>
       <Routes>
-      <Route path="/financialdashboard" element={<Dashboard />} />
+        <Route path="/financialdashboard" element={<Dashboard />} />
         <Route path="/income" element={<Income />} />
         <Route path="/expense" element={<Expense />} />
         <Route path="/salary" element={<Salary />} />
         <Route path="/payment" element={<Payment />} />
         <Route path="/message" element={<Message />} />
+
+
+        <Route path="/home" element={<Home />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/allusers" element={<Allusers />} />
+        <Route path="/e_updates/:userid" element={<Userupdate />} />
+        <Route path="/requestedleave" element={<Requestedleave />} />
+        <Route path="/approveleave" element={<Approveleave />} />
+
       </Routes>
     </Router>
     <Provider store={store} > 
     <Router>
       <Routes>
 
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/home" element={<Home />} />
-        <Route path="/allusers" element={<Allusers />} />
-        <Route path="/e_updates/:userid" element={<Userupdate />} />
-        <Route path="/requestedleave" element={<Requestedleave />} />
-        <Route path="/approveleave" element={<Approveleave />} />
-
-
-        <Route path="/" element={<Layout />}>
+          <Route path="/" element={<Layout />}>
           <Route path="/dashboard" element={<MachineDashboard />} />
           <Route path="/add-machine" element={<AddMachine />} />
           <Route path="/product-details" element={<Prodetails />} />
@@ -105,11 +106,6 @@ function App() {
           <Route path="adddelivery/:orderId" element={<AddDelivery />} />
 
         </Route>
-
-
-       
-
-
 
       </Routes>
     </Router>

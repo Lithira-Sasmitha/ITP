@@ -1,56 +1,103 @@
 import { motion } from "framer-motion";
 import Expenseform from "../../components/form/expenseform";
-
 import ExpenceChart from "../../components/Chart/expencechart";
 import Expencelist from "../../components/list/expencelist";
+import Fin_sidebar from "../../components/sidebar/fin_sidebar";
+import { CreditCard, TrendingUp, Layers, Settings } from "lucide-react";
 
 function Expense() {
+  // Animated variants for smooth transitions
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        delayChildren: 0.3,
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
   return (
-    <div className="relative z-10 overflow-y-auto p-4"> 
-    
+    <div className="flex h-screen bg-gradient-to-br from-green-50 to-green-100">
+      {/* Sidebar */}
+      <Fin_sidebar />
 
-      {/* First row: Transaction and Chart (2 columns) */}
-      <div className="grid md:grid-cols-2 gap-4 mt-16"> 
-        {/* Transaction Form */}
-        <div className="col-span-1">
-          <motion.div
-            className="bg-gray-400 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 h-full"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <h1 className="font-bold pb-4 text-black text-xl">Transaction</h1>
-            <Expenseform />
-          </motion.div>
-        </div>
-
-        {/* Expense Chart */}
-        <div className="col-span-1">
-          <motion.div
-            className="bg-gray-400 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 h-full"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <h2 className="text-lg font-medium font-bold mb-4 text-black">Chart</h2>
-
-            <div className="flex justify-center">
-              <div className="w-full">
-                <ExpenceChart />
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Second row: Expense List (full width) */}
-      <div className="mt-4">
-        <motion.div
-          className="bg-gray-400 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
-          initial={{ opacity: 0, y: 20 }}
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto p-6">
+        {/* Page Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          className="flex justify-between items-center mb-8"
         >
+          <div>
+            <h1 className="text-3xl font-bold text-green-900">Expense</h1>
+            <p className="text-green-600 mt-2">Manage your finances with ease</p>
+          </div>
+          
+        </motion.div>
+
+        {/* Main Content Grid */}
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid md:grid-cols-2 gap-6"
+        >
+          {/* Transaction Form Column */}
+          <motion.div 
+  variants={itemVariants}
+  className="md:col-span-1 space-y-6"
+>
+  <div className="bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-6 border-2 border-green-100 h-full flex flex-col">
+    <div className="flex items-center mb-4">
+      <CreditCard className="mr-3 text-green-600" />
+      <h2 className="text-xl font-semibold text-green-900">Add Transaction</h2>
+    </div>
+    <div className="flex-grow">
+      <Expenseform />
+    </div>
+  </div>
+</motion.div>
+
+{/* Chart Column */}
+        <motion.div 
+        variants={itemVariants}
+        className="md:col-span-1 space-y-6"
+        >
+        <div className="bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-6 border-2 border-green-100 h-full flex flex-col">
+        <div className="flex items-center mb-4">
+        <TrendingUp className="mr-3 text-green-600" />
+          <h2 className="text-xl font-semibold text-green-900">Expense Overview</h2>
+        </div>
+    <div className="flex-grow flex justify-center items-center">
+      <ExpenceChart />
+    </div>
+  </div>
+</motion.div>
+        </motion.div>
+
+        {/* Expense List */}
+        <motion.div 
+          variants={itemVariants}
+          className="mt-6 bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-6 border-2 border-green-100"
+        >
+          <div className="flex items-center mb-4">
+            <Layers className="mr-3 text-green-600" />
+            <h2 className="text-xl font-semibold text-green-900">Transaction History</h2>
+          </div>
           <Expencelist />
         </motion.div>
       </div>

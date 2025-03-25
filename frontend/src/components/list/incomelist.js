@@ -166,14 +166,13 @@ export default function IncomeList() {
     <div className="py-4 w-full">
       {/* Header with filters and search (can be expanded later) */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        <h1 className="font-bold text-xl text-white mb-4 md:mb-0">Income History</h1>
         
         <div className="flex space-x-2">
           <div className="relative">
             <input 
               type="text" 
               placeholder="Search income..." 
-              className="bg-black bg-opacity-30 border border-green-500/20 rounded-xl px-4 py-2 pl-10 text-sm outline-none text-white placeholder-gray-500 w-full md:w-auto"
+              className="bg-black bg-opacity-30 border border-green-500/20 rounded-xl px-4 py-2 pl-10 text-sm outline-none text-black placeholder-gray-500 w-full md:w-auto"
             />
             <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
               <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -182,7 +181,7 @@ export default function IncomeList() {
             </div>
           </div>
           
-          <select className="bg-black bg-opacity-30 border border-green-500/20 rounded-xl px-4 py-2 text-sm outline-none text-white">
+          <select className="bg-black bg-opacity-30 border border-green-500/20 rounded-xl px-4 py-2 text-sm outline-none text-black">
             <option value="">All Time</option>
             <option value="this-month">This Month</option>
             <option value="last-month">Last Month</option>
@@ -192,7 +191,7 @@ export default function IncomeList() {
       </div>
       
       {/* Table header */}
-      <div className="hidden md:grid md:grid-cols-12 text-sm text-gray-400 px-4 py-2 rounded-t-xl bg-black bg-opacity-30">
+      <div className="hidden md:grid md:grid-cols-12 text-sm text-black px-4 py-2 rounded-t-xl bg-black bg-opacity-30">
         <div className="col-span-1"></div>
         <div className="col-span-5">Description</div>
         <div className="col-span-3 text-right">Amount</div>
@@ -347,17 +346,17 @@ function Transaction({ income, handler, onUpdate, formatDate, variants }) {
       </div>
       
       {/* Description */}
-      <div className="col-span-12 md:col-span-5 truncate font-medium text-white mb-1 md:mb-0">
+      <div className="col-span-12 md:col-span-5 truncate font-medium text-black mb-1 md:mb-0">
         {income.name ?? "Unnamed"}
       </div>
       
       {/* Amount */}
-      <div className="col-span-6 md:col-span-3 text-right md:text-right text-green-400 font-bold">
+      <div className="col-span-6 md:col-span-3 text-right md:text-right text-black font-bold">
         ${parseFloat(income.amount).toFixed(2)}
       </div>
       
       {/* Date */}
-      <div className="col-span-6 md:col-span-3 text-right text-gray-300 flex items-center justify-end">
+      <div className="col-span-6 md:col-span-3 text-right text-black flex items-center justify-end">
         <box-icon name="time" size="18px" color="#d1d5db" className="mr-1 opacity-70"></box-icon>
         {formatDate(income.date)}
       </div>

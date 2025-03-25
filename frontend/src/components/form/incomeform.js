@@ -102,7 +102,7 @@ export default function IncomeForm() {
             <input
               type="text"
               {...register('name', { required: 'Income source is required' })}
-              placeholder="Salary, Freelance, Investments"
+              placeholder=" Income Details"
               className="w-full bg-gray-800/50 border border-gray-700 rounded-xl pl-11 pr-4 py-3 text-white placeholder-gray-500 focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all outline-none"
             />
           </div>
