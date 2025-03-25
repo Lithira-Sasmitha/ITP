@@ -1,17 +1,31 @@
-require("dotenv").config(); // Load environment variables
-
+// server.js
+require("dotenv").config();
 const express = require("express");
+const mongoose = require("./db");
 const cors = require("cors");
+const path = require("path");
 
-// Initialize Express App
 const app = express();
+const db = require('./db');
+
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json()); // Built-in body parser
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Import Database Connection
-require("./db");
+
+// Import your route modules
+const expenseRoutes = require('./routes/financialRoute/expencesroute');
+const incomeRoutes = require('./routes/financialRoute/incomeroute');
+const salaryroute = require('./routes/financialRoute/salaryroute')
+
+const usersRoute = require("./routes/usersRoute");
+const leaveRoute= require("./routes/leavesRoutes")
+
+app.use("/api/users", usersRoute);
+app.use("/api/leaves", leaveRoute);
 
 // Route Imports
 const rawMaterialRoutes = require("./routes/inventoryRoutes/rawMaterialRoutes");
@@ -23,19 +37,30 @@ app.use("/api/rawMaterial", rawMaterialRoutes);
 app.use("/api/packingMaterial", packingMaterialRoutes);
 app.use("/api/finalProduct", finalProductRoutes);
 
+const driverRoutes = require("./routes/driverRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const deliveryRoutes = require("./routes/deliveryRoutes");
 
-// Root Route
-app.get("/", (req, res) => {
-  res.send("inventory Server is Running!");
+const productRoutes = require("./routes/productRoutes");
+const machineRoutes = require("./routes/machineRoutes");
+const machinepartRoutes = require("./routes/machinepartRoutes");
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Routes
+app.use("/api/products", productRoutes);
+app.use("/api/machines", machineRoutes);
+app.use("/api/machineparts", machinepartRoutes);
+
+app.use('/', expenseRoutes);
+app.use('/', incomeRoutes);
+app.use('/',salaryroute);
+
+app.use("/api/drivers", driverRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/deliveries", deliveryRoutes);
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
-// Error handling for unknown routes (optional but good)
-app.use((req, res) => {
-  res.status(404).json({ message: "Route Not Found" });
-});
-
-// Start Server
-const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  console.log(`Server is running at: http://localhost:${port}`);
-});
