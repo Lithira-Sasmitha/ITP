@@ -11,6 +11,7 @@ import Salarylist from "../../components/list/salarylist";
 import AddSalary from "../../components/form/addsalary";
 import { default as api } from "../../store/apiSLice";
 import EditSallary from "../../components/form/editsallary";
+import Fin_sidebar from "../../components/sidebar/fin_sidebar";
 
 // Define the PDF styles outside the component
 const styles = StyleSheet.create({
@@ -185,10 +186,9 @@ function Salary() {
   };
 
   return (
-    <div className="flex flex-col md:flex-row relative">
-      <div className="absolute inset-y-0 left-0 z-10">
-
-      </div>
+    <div className="flex  ">
+      <Fin_sidebar />
+      
       <div className="flex-1 flex flex-col justify-center">
         <div className="text-center drop-shadow-lg text-gray-800">
           <div></div>

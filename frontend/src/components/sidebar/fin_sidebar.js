@@ -8,7 +8,7 @@ const SIDEBAR_ITEMS = [
   { name: "Income", icon: ShoppingBag, color: "#ffffff", href: "/income" },
   { name: "Expense", icon: DollarSign, color: "#ffffff", href: "/expense" },
   { name: "Salary", icon: ShoppingCart, color: "#ffffff", href: "/salary" },
-  { name: "Payment", icon: TrendingUp, color: "#ffffff", href: "/payment" },
+  { name: "Payment", icon: TrendingUp, color: "#ffffff", href: "" },
   
 ];
 
