@@ -16,6 +16,17 @@ app.use(cors());
 const expenseRoutes = require('./routes/financialRoute/expencesroute');
 const incomeRoutes = require('./routes/financialRoute/incomeroute');
 
+const usersRoute = require("./routes/usersRoute");
+const leaveRoute= require("./routes/leavesRoutes")
+
+app.use("/api/users", usersRoute);
+app.use("/api/leaves", leaveRoute);
+
+// Define Routes (Example)
+app.get("/", (req, res) => {
+  res.send( "Server is running!");
+});
+
 const driverRoutes = require("./routes/driverRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const deliveryRoutes = require("./routes/deliveryRoutes");
