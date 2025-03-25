@@ -11,7 +11,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import autoTable from 'jspdf-autotable';
 import { useNavigate } from "react-router-dom";
-import Sidebar from "./sidebar";
+import Sidebar from "../../components/sidebar/user_sidebar";
 
 AOS.init({
   duration: 2500,
@@ -297,20 +297,7 @@ function Allusers() {
               >
                 Add
               </button>
-              
-              <button
-                className="text-white bg-[#25D366] hover:bg-[#1DA851] font-medium rounded-full px-6 py-2 shadow-md transition-all duration-300 ease-in-out transform hover:scale-105"
-                onClick={() => navigate("/requestedleave")}
-              >
-                Request Leave
-              </button>
-              
-              <button
-                className="text-white bg-[#25D366] hover:bg-[#1DA851] font-medium rounded-full px-6 py-2 shadow-md transition-all duration-300 ease-in-out transform hover:scale-105"
-                onClick={() => navigate("/approveleave")}
-              >
-                Manage Leave
-              </button>
+            
             </div>
           </div>
           

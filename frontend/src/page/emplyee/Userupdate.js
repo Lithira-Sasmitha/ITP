@@ -143,10 +143,8 @@ const Userupdate = () => {
             >
               <option value="User">User</option>
               <option value="Employee manager">Employee manager</option>
-              <option value="Tunnel manager">Tunnel manager</option>
               <option value="Financial manager">Financial manager</option>
-              <option value="Target manager">Target manager</option>
-              <option value="Courier service">Courier service</option>
+              <option value="Oder manager">Oder manager</option>
               <option value="Inventory manager">Inventory manager</option>
               <option value="Machine manager">Machine manager</option>
             </select>
