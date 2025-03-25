@@ -88,7 +88,40 @@ export const apiSlice = createApi({
                 method: "DELETE"
             }),
             invalidatesTags: ['incomeTransaction']
-        })
+        }),
+        //Sallary
+        addSallary: builder.mutation({
+            query: (initialSallary) => ({
+            url: "/api/empsallary",
+            method: "POST",
+            body: initialSallary,
+            }),
+            invalidatesTags: ["sallary"],
+        }),
+    
+        getSallary: builder.query({
+            query: () => "/api/empsallary",
+            providesTags: ["sallary"],
+        }),
+    
+        editSallary: builder.mutation({
+            query: (recordId) => ({
+            
+            url: `/api/empsallary/${recordId._id}`,
+            method: "PUT",
+            body: { recordId }, // Pass the updated properties in the body
+            }),
+            invalidatesTags: ["sallary"],
+        }),
+        deleteSallary: builder.mutation({
+            query: (recordId) => ({
+            
+            url: "/api/empsallary",
+            method: "DELETE",
+            body: recordId,
+            }),
+            invalidatesTags: ["sallary"],
+        }),
     })
 });
 

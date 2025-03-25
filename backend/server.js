@@ -15,6 +15,7 @@ app.use(cors());
 // Import your route modules
 const expenseRoutes = require('./routes/financialRoute/expencesroute');
 const incomeRoutes = require('./routes/financialRoute/incomeroute');
+const salaryroute = require('./routes/financialRoute/salaryroute')
 
 const usersRoute = require("./routes/usersRoute");
 const leaveRoute= require("./routes/leavesRoutes")
@@ -44,6 +45,7 @@ app.use("/api/machineparts", machinepartRoutes);
 
 app.use('/', expenseRoutes);
 app.use('/', incomeRoutes);
+app.use('/',salaryroute);
 
 app.use("/api/drivers", driverRoutes);
 app.use("/api/orders", orderRoutes);
