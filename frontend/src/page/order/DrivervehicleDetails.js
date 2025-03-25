@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import {
   useCreateDriverMutation,
   useGetDriversQuery,
@@ -9,7 +10,44 @@ import jsPDF from "jspdf";
 
 const DrivervehicleDetails = () => {
   const [editingDriver, setEditingDriver] = useState(null);
-  const { data: drivers, refetch } = useGetDriversQuery();
+  
+  // RTK Query hooks
+  const { 
+    data: driversFromRTK, 
+    isLoading: isLoadingRTK,
+    isError: isErrorRTK 
+  } = useGetDriversQuery();
+  
+  // Axios fallback state
+  const [driversFromAxios, setDriversFromAxios] = useState([]);
+  const [isLoadingAxios, setIsLoadingAxios] = useState(false);
+  const [isAxiosFallback, setIsAxiosFallback] = useState(false);
+  
+  // Determine which data source to use
+  const drivers = isAxiosFallback ? driversFromAxios : driversFromRTK;
+  const isLoading = isAxiosFallback ? isLoadingAxios : isLoadingRTK;
+  
+  // Fallback to Axios if RTK Query fails
+  useEffect(() => {
+    const fetchWithAxios = async () => {
+      if (isErrorRTK || !driversFromRTK) {
+        setIsAxiosFallback(true);
+        setIsLoadingAxios(true);
+        try {
+          const response = await axios.get('http://localhost:5000/api/drivers');
+          setDriversFromAxios(response.data.data || response.data);
+        } catch (error) {
+          console.error("Axios error fetching drivers:", error);
+        } finally {
+          setIsLoadingAxios(false);
+        }
+      }
+    };
+    
+    fetchWithAxios();
+  }, [isErrorRTK, driversFromRTK]);
+  
+  // Form state
   const [formValues, setFormValues] = useState({
     name: "",
     dob: "",
@@ -20,10 +58,29 @@ const DrivervehicleDetails = () => {
     licenseNo: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // RTK Query mutations
   const [createDriver] = useCreateDriverMutation();
   const [updateDriver] = useUpdateDriverMutation();
   const [deleteDriver] = useDeleteDriverMutation();
+  
+  // UI state
   const [message, setMessage] = useState({ type: "", text: "" });
+
+  // Custom refetch function that handles both RTK and Axios
+  const refetch = async () => {
+    if (isAxiosFallback) {
+      setIsLoadingAxios(true);
+      try {
+        const response = await axios.get('http://localhost:5000/api/drivers');
+        setDriversFromAxios(response.data.data || response.data);
+      } catch (error) {
+        console.error("Error refetching drivers with axios:", error);
+      } finally {
+        setIsLoadingAxios(false);
+      }
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -66,17 +123,33 @@ const DrivervehicleDetails = () => {
     e.preventDefault();
 
     try {
-      if (editingDriver) {
-        await updateDriver({
-          id: editingDriver._id,
-          ...formValues,
-        }).unwrap();
-        setMessage({ type: "success", text: "Driver updated successfully" });
+      if (isAxiosFallback) {
+        // Using Axios for mutations if RTK Query failed
+        if (editingDriver) {
+          await axios.put(
+            `http://localhost:5000/api/drivers/${editingDriver._id}`,
+            formValues
+          );
+        } else {
+          await axios.post('http://localhost:5000/api/drivers', formValues);
+        }
       } else {
-        await createDriver(formValues).unwrap();
-        setMessage({ type: "success", text: "Driver added successfully" });
+        // Using RTK Query mutations
+        if (editingDriver) {
+          await updateDriver({
+            id: editingDriver._id,
+            ...formValues,
+          }).unwrap();
+        } else {
+          await createDriver(formValues).unwrap();
+        }
       }
 
+      setMessage({ 
+        type: "success", 
+        text: editingDriver ? "Driver updated successfully" : "Driver added successfully" 
+      });
+      
       setFormValues({
         name: "",
         dob: "",
@@ -88,26 +161,52 @@ const DrivervehicleDetails = () => {
       });
       setEditingDriver(null);
       refetch();
+      
+      // Auto-dismiss message after 3 seconds
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 3000);
+      
     } catch (error) {
       console.error("Error adding/updating driver:", error);
       setMessage({
         type: "error",
-        text: "Adding/unsubmitting unsuccessful. Please try again.",
+        text: "Adding/updating unsuccessful. Please try again.",
       });
+      
+      // Auto-dismiss error message after 5 seconds
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 5000);
     }
   };
 
   const handleDeleteDriver = async (id) => {
     try {
-      await deleteDriver(id).unwrap();
+      if (isAxiosFallback) {
+        await axios.delete(`http://localhost:5000/api/drivers/${id}`);
+      } else {
+        await deleteDriver(id).unwrap();
+      }
+      
       setMessage({ type: "success", text: "Driver deleted successfully" });
       refetch();
+      
+      // Auto-dismiss message after 3 seconds
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 3000);
     } catch (error) {
       console.error("Error deleting driver:", error);
       setMessage({
         type: "error",
         text: "Error deleting driver. Please try again.",
       });
+      
+      // Auto-dismiss error message after 5 seconds
+      setTimeout(() => {
+        setMessage({ type: "", text: "" });
+      }, 5000);
     }
   };
 
@@ -121,13 +220,17 @@ const DrivervehicleDetails = () => {
     const doc = new jsPDF();
     doc.text("Driver List", 20, 20);
 
-    drivers.forEach((driver, index) => {
-      doc.text(
-        `${index + 1}. ${driver.name} - ${driver.nic}`,
-        20,
-        30 + index * 10
-      );
-    });
+    if (drivers && drivers.length > 0) {
+      drivers.forEach((driver, index) => {
+        doc.text(
+          `${index + 1}. ${driver.name} - ${driver.nic}`,
+          20,
+          30 + index * 10
+        );
+      });
+    } else {
+      doc.text("No drivers found", 20, 30);
+    }
 
     doc.save("drivers.pdf");
   };

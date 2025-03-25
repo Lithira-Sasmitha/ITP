@@ -12,10 +12,6 @@ import Approveleave from "./page/emplyee/Approveleave.js";
 
 
 
-
- 
-
-
 import { Provider } from "react-redux";
 import store from "./page/machine/redux/store";
 import Layout from "./page/machine/Layout";
@@ -57,9 +53,21 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <><Router>
-      <Routes>
 
+    <>
+    <Router>
+      <Routes>
+      <Route path="/financialdashboard" element={<Dashboard />} />
+        <Route path="/income" element={<Income />} />
+        <Route path="/expense" element={<Expense />} />
+        <Route path="/salary" element={<Salary />} />
+        <Route path="/payment" element={<Payment />} />
+        <Route path="/message" element={<Message />} />
+      </Routes>
+    </Router>
+    <Provider store={store} > 
+    <Router>
+      <Routes>
 
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<Signup />} />
@@ -70,63 +78,48 @@ function App() {
         <Route path="/approveleave" element={<Approveleave />} />
 
 
+        <Route path="/" element={<Layout />}>
+          <Route path="/dashboard" element={<MachineDashboard />} />
+          <Route path="/add-machine" element={<AddMachine />} />
+          <Route path="/product-details" element={<Prodetails />} />
+          <Route path="/machine-parts" element={<AddMachineParts />} />
+          <Route path="/maintenance" element={<MachineMaintenance />} />
+          <Route path="/product" element={<Product />} />
+          <Route index element={<DeliverHome />} />
+          <Route path="/dashboard" element={<Delivery />} />
+          <Route path="deliverydetail" element={<DeliveryDetail />} />
+          <Route path="adddelivery" element={<AddDelivery />} />
+          <Route path="profile" element={<DeliverAdminProfile />} />
+          <Route
+            path="/drivervehicledetails"
+            element={<DrivervehicleDetails />} />
+          <Route path="/pendingorders" element={<Orderhistorys />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="logout" element={<Logout />} />
+
+          {/* Route to handle place order */}
+          <Route path="placeorder" element={<PlaceOrder />} />
+          <Route path="/order-confirmation" element={<OrderConfirmation />} />
+          {/* New route for order tracking */}
+          <Route path="/orders/track" element={<OrderTracking />} />
+          <Route path="adddelivery/:orderId" element={<AddDelivery />} />
+
+        </Route>
+
+
+       
+
+
 
       </Routes>
-    </Router><><><Provider store={store}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route path="/dashboard" element={<MachineDashboard />} />
-            <Route path="/add-machine" element={<AddMachine />} />
-            <Route path="/product-details" element={<Prodetails />} />
-            <Route path="/machine-parts" element={<AddMachineParts />} />
-            <Route path="/maintenance" element={<MachineMaintenance />} />
-            <Route path="/product" element={<Product />} />
+    </Router>
 
+    </Provider> 
+    </>
+     
+     
 
-
-          </Route>
-        </Routes>
-      </Router>
-    </Provider>
-      <Router>
-
-
-        <Routes>
-          <Route path="/financialdashboard" element={<Dashboard />} />
-          <Route path="/income" element={<Income />} />
-          <Route path="/expense" element={<Expense />} />
-          <Route path="/salary" element={<Salary />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route path="/message" element={<Message />} />
-        </Routes>
-
-
-      </Router>
-    </><Router>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<DeliverHome />} />
-              <Route path="/dashboard" element={<Delivery />} />
-              <Route path="deliverydetail" element={<DeliveryDetail />} />
-              <Route path="adddelivery" element={<AddDelivery />} />
-              <Route path="profile" element={<DeliverAdminProfile />} />
-              <Route
-                path="drivervehicledetails"
-                element={<DrivervehicleDetails />} />
-              <Route path="pendingorders" element={<Orderhistorys />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="logout" element={<Logout />} />
-
-              {/* Route to handle place order */}
-              <Route path="placeorder" element={<PlaceOrder />} />
-              <Route path="/order-confirmation" element={<OrderConfirmation />} />
-              {/* New route for order tracking */}
-              <Route path="/orders/track" element={<OrderTracking />} />
-              <Route path="adddelivery/:orderId" element={<AddDelivery />} />
-            </Route>
-          </Routes>
-        </Router></></>
+   
   );
 }
 
