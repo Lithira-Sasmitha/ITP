@@ -1,6 +1,6 @@
 
 import './App.css';
-import React from 'react';
+import { useState } from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './page/inventory/dashboard';
@@ -34,7 +34,7 @@ import MachineDashboard from "./page/machine/MachineDashboard";
 import MachineMaintenance from "./page/machine/MachineMaintenance";
 import Product from "./page/machine/Product";
 
-import Dashboard from "./page/financial/dashboard";
+import FinancialDashboard from "./page/financial/dashboard";
 import Sidebar from "./components/sidebar/sidebar";
 
 // Financial Management Pages
@@ -83,7 +83,7 @@ function App() {
     </Router><>
         <Router>
           <Routes>
-            <Route path="/financialdashboard" element={<Dashboard />} />
+            <Route path="/financialdashboard" element={<FinancialDashboard />} />
             <Route path="/income" element={<Income />} />
             <Route path="/expense" element={<Expense />} />
             <Route path="/salary" element={<Salary />} />
