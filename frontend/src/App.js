@@ -23,12 +23,27 @@ import Salary from "./page/financial/salary";
 import Payment from "./page/financial/payment";
 import Message from "./page/financial/message";
 import { FiMenu } from "react-icons/fi"; // Import menu icon
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Layout from "./page/order/Layout";
+import Delivery from "./page/order/Delivery";
+import DeliveryDetail from "./page/order/Deliverydetail";
+import AddDelivery from "./page/order/AddDelivery";
+import DrivervehicleDetails from "./page/order/DrivervehicleDetails";
+import Settings from "./page/order/Settings";
+import Logout from "./page/order/Logout";
+import DeliverAdminProfile from "./page/order/DeliverAdminProfile";
+import DeliverHome from "./page/order/DeliverHome";
+
+import PlaceOrder from "./page/order/PlaceOrder";
+import Orderhistorys from "./page/order/Orderhistorys";
+import OrderConfirmation from "./page/order/OrderConfirmation";
+import OrderTracking from "./page/order/OrderTracking"; // Import the new component
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <><Provider store={store}>
+    <><><Provider store={store}>
       <Router>
         <Routes>
           <Route path="/" element={<Layout />}>
@@ -45,28 +60,51 @@ function App() {
         </Routes>
       </Router>
     </Provider>
-    <div className="flex h-screen bg-white-100 text-gray-100 overflow-hidden">
+      <div className="flex h-screen bg-white-100 text-gray-100 overflow-hidden">
         {/* Background Effects */}
 
         <Router>
 
-            {/* Mobile Toggle Button */}
+          {/* Mobile Toggle Button */}
 
 
-            {/* Main Content */}
-            <div >
-              <Routes>
-                <Route path="/financialdashboard" element={<Dashboard />} />
-                <Route path="/income" element={<Income />} />
-                <Route path="/expense" element={<Expense />} />
-                <Route path="/salary" element={<Salary />} />
-                <Route path="/payment" element={<Payment />} />
-                <Route path="/message" element={<Message />} />
-              </Routes>
-            </div>
-          
+          {/* Main Content */}
+          <div>
+            <Routes>
+              <Route path="/financialdashboard" element={<Dashboard />} />
+              <Route path="/income" element={<Income />} />
+              <Route path="/expense" element={<Expense />} />
+              <Route path="/salary" element={<Salary />} />
+              <Route path="/payment" element={<Payment />} />
+              <Route path="/message" element={<Message />} />
+            </Routes>
+          </div>
+
         </Router>
-      </div></>
+      </div></><Router>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<DeliverHome />} />
+            <Route path="dashboard" element={<Delivery />} />
+            <Route path="deliverydetail" element={<DeliveryDetail />} />
+            <Route path="adddelivery" element={<AddDelivery />} />
+            <Route path="profile" element={<DeliverAdminProfile />} />
+            <Route
+              path="drivervehicledetails"
+              element={<DrivervehicleDetails />} />
+            <Route path="pendingorders" element={<Orderhistorys />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="logout" element={<Logout />} />
+
+            {/* Route to handle place order */}
+            <Route path="placeorder" element={<PlaceOrder />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            {/* New route for order tracking */}
+            <Route path="/orders/track" element={<OrderTracking />} />
+            <Route path="adddelivery/:orderId" element={<AddDelivery />} />
+          </Route>
+        </Routes>
+      </Router></>
   );
 }
 

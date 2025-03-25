@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@react-three/drei": "^10.0.4",
     "@reduxjs/toolkit": "^2.6.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -26,6 +27,8 @@
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.1",
     "web-vitals": "^4.2.4"
+
+  
   },
   "scripts": {
     "start": "react-scripts start",
