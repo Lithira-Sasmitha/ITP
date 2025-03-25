@@ -90,7 +90,7 @@ function App() {
           <Route path="/dashboard" element={<Delivery />} />
           <Route path="deliverydetail" element={<DeliveryDetail />} />
           <Route path="adddelivery" element={<AddDelivery />} />
-          <Route path="profile" element={<DeliverAdminProfile />} />
+          <Route path="/profile" element={<DeliverAdminProfile />} />
           <Route
             path="/drivervehicledetails"
             element={<DrivervehicleDetails />} />
