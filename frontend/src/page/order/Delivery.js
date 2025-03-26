@@ -1,3 +1,4 @@
+import Oderslidebar from "../../components/sidebar/oderslidebar";
 import React, { useState, useEffect } from "react";
 import {
   FaBox,
@@ -26,22 +27,18 @@ export default function Delivery() {
   const [totalDrivers, setTotalDrivers] = useState(0);
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
-
-  // Order history earnings
   const [orderHistoryData, setOrderHistoryData] = useState({
     totalDeliveryEarnings: 0,
     totalItemEarnings: 0,
     totalEarnings: 0,
   });
 
-  // Price formatter for LKR
   const priceFormatter = new Intl.NumberFormat("en-LK", {
     style: "decimal",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
 
-  //count driver function call driver api
   const { data: drivers } = useGetDriversQuery();
 
   useEffect(() => {
@@ -55,48 +52,31 @@ export default function Delivery() {
       const response = await fetch("/api/deliveries");
       if (!response.ok) throw new Error("Network response was not ok");
       const data = await response.json();
-      console.log(data);
       setDeliveries(data);
 
-      const pending = data.filter((d) => d.deliveryStatus === "Pending").length;
-      const completed = data.filter(
-        (d) => d.deliveryStatus === "Completed"
-      ).length;
-      const delayed = data.filter((d) => d.deliveryStatus === "Delayed").length;
+      setPendingDeliveries(
+        data.filter((d) => d.deliveryStatus === "Pending").length
+      );
+      setCompletedDeliveries(
+        data.filter((d) => d.deliveryStatus === "Completed").length
+      );
+      setDelayedDeliveries(
+        data.filter((d) => d.deliveryStatus === "Delayed").length
+      );
 
-      setPendingDeliveries(pending);
-      setCompletedDeliveries(completed);
-      setDelayedDeliveries(delayed);
+      const totalDeliveryEarnings = data.reduce(
+        (sum, d) => sum + (parseFloat(d.deliveryPrice) || 0),
+        0
+      );
+      const totalItemEarnings = data.reduce(
+        (sum, d) => sum + (parseFloat(d.itemsPrice) || 0),
+        0
+      );
 
-      const totalDeliveryEarnings = data.reduce((sum, delivery) => {
-        const deliveryPrice = delivery.deliveryPrice
-          ? parseFloat(delivery.deliveryPrice)
-          : 0;
-        return sum + deliveryPrice;
-      }, 0);
       setTotalEarnings(totalDeliveryEarnings);
-
-      const totalItemEarnings = data.reduce((sum, delivery) => {
-        const itemsPrice = delivery.itemsPrice
-          ? parseFloat(delivery.itemsPrice)
-          : 0;
-        return sum + itemsPrice;
-      }, 0);
       setTotalDeliveredItems(totalItemEarnings);
     } catch (error) {
       console.error("Error fetching deliveries:", error);
-      setError(error.message);
-    }
-  };
-
-  const fetchDrivers = async () => {
-    try {
-      const response = await fetch("/api/drivers");
-      if (!response.ok) throw new Error("Network response was not ok");
-      const data = await response.json();
-      setTotalDrivers(data.length);
-    } catch (error) {
-      console.error("Error fetching drivers:", error);
       setError(error.message);
     }
   };
@@ -106,26 +86,21 @@ export default function Delivery() {
       const response = await axios.get(`${API_URL}/orders/pending`);
       const orders = response.data;
 
-      // Calculate earnings from order history
-      const deliveryEarnings = orders.reduce((sum, order) => {
-        return sum + (parseFloat(order.deliveryPrice) || 0);
-      }, 0);
-
-      const itemEarnings = orders.reduce((sum, order) => {
-        const itemTotal = order.products.reduce((productSum, product) => {
-          return (
-            productSum + (parseFloat(product.price) * product.quantity || 0)
-          );
-        }, 0);
-        return sum + itemTotal;
-      }, 0);
-
-      const totalEarnings = deliveryEarnings + itemEarnings;
+      const deliveryEarnings = orders.reduce(
+        (sum, o) => sum + (parseFloat(o.deliveryPrice) || 0),
+        0
+      );
+      const itemEarnings = orders.reduce(
+        (sum, o) =>
+          sum +
+          o.products.reduce((ps, p) => ps + (p.price * p.quantity || 0), 0),
+        0
+      );
 
       setOrderHistoryData({
         totalDeliveryEarnings: deliveryEarnings,
         totalItemEarnings: itemEarnings,
-        totalEarnings: totalEarnings,
+        totalEarnings: deliveryEarnings + itemEarnings,
       });
     } catch (error) {
       console.error("Error fetching order history:", error);
@@ -135,241 +110,192 @@ export default function Delivery() {
 
   useEffect(() => {
     fetchDeliveries();
-    fetchDrivers();
     fetchOrderHistory();
   }, []);
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
+  const toggleDarkMode = () => setDarkMode(!darkMode);
 
   return (
     <div
-      className={`min-h-screen p-6 lg:p-8 ${
-        darkMode ? "dark bg-gray-900" : "bg-gradient-animate"
-      }`}
+      className={`flex h-screen ${
+        darkMode
+          ? "bg-gradient-to-br from-gray-900 to-gray-800 text-white"
+          : "bg-gradient-to-br from-gray-100 to-gray-50 text-gray-900"
+      } transition-all duration-500`}
     >
-      <header
-        className={`${
-          darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
-        } shadow-md rounded-lg p-6 mb-8`}
+      <div
+        className={`w-[260px] h-screen shadow-2xl z-10 ${
+          darkMode ? "bg-gray-800" : "bg-white"
+        } transition-colors duration-300`}
       >
-        <div className="flex justify-between items-center">
+        <Oderslidebar />
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-8 space-y-8">
+        {/* Header */}
+        <div
+          className={`flex justify-between items-center p-6 rounded-3xl shadow-2xl transition-all duration-500 ${
+            darkMode
+              ? "bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700"
+              : "bg-gradient-to-r from-white to-gray-50 border border-gray-200"
+          }`}
+        >
           <div>
-            <h1 className="text-3xl font-bold">Welcome back, Buddhi</h1>
+            <h1 className="text-4xl font-extrabold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
+              Order & Deliver Dashboard
+            </h1>
             <p
-              className={`${darkMode ? "text-gray-300" : "text-gray-600"} mt-2`}
+              className={`text-md transition-colors duration-300 ${
+                darkMode ? "text-gray-400" : "text-gray-500"
+              }`}
             >
-              Track and manage your deliveries efficiently
+              Order & Delivery Management Overview
             </p>
           </div>
-          <button
-            onClick={toggleDarkMode}
-            className={`p-2 rounded-full ${
-              darkMode
-                ? "bg-yellow-400 text-gray-900"
-                : "bg-gray-200 text-gray-600"
-            }`}
-          >
-            {darkMode ? <FaSun size={24} /> : <FaMoon size={24} />}
-          </button>
-        </div>
-      </header>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <DashboardCard
-          key="total-deliveries"
-          icon={<FaBox />}
-          title="Total Deliveries"
-          value={deliveries.length}
-          color="green"
-          darkMode={darkMode}
-        />
-        <DashboardCard
-          key="pending-deliveries"
-          icon={<FaClock />}
-          title="Pending Deliveries"
-          value={pendingDeliveries}
-          color="yellow"
-          darkMode={darkMode}
-        />
-        <DashboardCard
-          key="completed-deliveries"
-          icon={<FaCheck />}
-          title="Completed Deliveries"
-          value={completedDeliveries}
-          color="blue"
-          darkMode={darkMode}
-        />
-        <DashboardCard
-          key="delayed-deliveries"
-          icon={<FaExclamationCircle />}
-          title="Delayed Deliveries"
-          value={delayedDeliveries}
-          color="red"
-          darkMode={darkMode}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <DashboardCard
-          icon={<FaUser />}
-          title="Total Drivers"
-          value={totalDrivers}
-          color="purple"
-          darkMode={darkMode}
-        />
-      </div>
-
-      {/* Order History Earnings Section */}
-      <div
-        className={`mb-8 p-6 rounded-lg shadow-lg ${
-          darkMode ? "bg-gray-800 text-white" : "bg-white"
-        }`}
-      >
-        <div className="flex items-center mb-4">
-          <FaHistory className="text-2xl text-indigo-500 mr-2" />
-          <h2
-            className={`text-xl font-semibold ${
-              darkMode ? "text-white" : "text-gray-800"
-            }`}
-          >
-            Order History Earnings
-          </h2>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={toggleDarkMode}
+              className={`p-3 rounded-full transition-all duration-300 transform hover:rotate-12 hover:scale-110 ${
+                darkMode
+                  ? "bg-yellow-500 text-gray-900 hover:bg-yellow-400"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              {darkMode ? <FaSun size={24} /> : <FaMoon size={24} />}
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <EarningsCard
-            title="Order Delivery Earnings"
-            value={priceFormatter.format(
-              orderHistoryData.totalDeliveryEarnings
-            )}
-            icon={<FaMoneyBill />}
-            color="green"
+        {/* Dashboard Statistics */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <DashboardCard
+            icon={<FaBox />}
+            title="Total Deliveries"
+            value={deliveries.length}
+            color="emerald"
             darkMode={darkMode}
           />
-          <EarningsCard
-            title="Order Item Earnings"
-            value={priceFormatter.format(orderHistoryData.totalItemEarnings)}
-            icon={<FaMoneyBill />}
+          <DashboardCard
+            icon={<FaClock />}
+            title="Pending"
+            value={pendingDeliveries}
+            color="amber"
+            darkMode={darkMode}
+          />
+          <DashboardCard
+            icon={<FaCheck />}
+            title="Completed"
+            value={completedDeliveries}
             color="blue"
             darkMode={darkMode}
           />
-          <EarningsCard
-            title="Order Total Earnings"
-            value={priceFormatter.format(orderHistoryData.totalEarnings)}
-            icon={<FaMoneyBill />}
-            color="indigo"
+          <DashboardCard
+            icon={<FaExclamationCircle />}
+            title="Delayed"
+            value={delayedDeliveries}
+            color="rose"
             darkMode={darkMode}
           />
         </div>
-      </div>
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8">
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Recent Deliveries
-          </h2>
+        {/* Earnings Section */}
+        <div
+          className={`p-6 rounded-3xl shadow-2xl transition-all duration-500 ${
+            darkMode
+              ? "bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700"
+              : "bg-gradient-to-r from-white to-gray-50 border border-gray-200"
+          }`}
+        >
+          <div className="flex items-center mb-6 space-x-3">
+            <FaHistory className="text-2xl text-indigo-500" />
+            <h2 className="text-2xl font-semibold">Earnings Overview</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <EarningsCard
+              title="Delivery Earnings"
+              value={priceFormatter.format(
+                orderHistoryData.totalDeliveryEarnings
+              )}
+              icon={<FaMoneyBill />}
+              color="green"
+              darkMode={darkMode}
+            />
+            <EarningsCard
+              title="Item Earnings"
+              value={priceFormatter.format(orderHistoryData.totalItemEarnings)}
+              icon={<FaMoneyBill />}
+              color="blue"
+              darkMode={darkMode}
+            />
+            <EarningsCard
+              title="Total Earnings"
+              value={priceFormatter.format(orderHistoryData.totalEarnings)}
+              icon={<FaMoneyBill />}
+              color="indigo"
+              darkMode={darkMode}
+            />
+          </div>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full table-auto">
-            <thead className="bg-gray-50">
-              <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <th className="px-6 py-3">Delivery No</th>
-                <th className="px-6 py-3">Items Price</th>
-                <th className="px-6 py-3">Delivery Price</th>
-                <th className="px-6 py-3">Total Price</th>
-                <th className="px-6 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {deliveries
-                .slice(-5)
-                .reverse()
-                .map((delivery) => (
-                  <tr
-                    key={delivery._id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {delivery._id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {priceFormatter.format(delivery.itemsPrice || 0)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {priceFormatter.format(delivery.deliveryPrice || 0)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {priceFormatter.format(
-                        (delivery.itemsPrice || 0) +
-                          (delivery.deliveryPrice || 0)
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        className="text-red-500 hover:text-red-700"
-                        // onClick={() => handleDelete(delivery._id)}
-                      >
-                        <FaTrash />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
+
+        {/* Recent Deliveries Table */}
+        <div
+          className={`rounded-3xl shadow-2xl overflow-hidden transition-all duration-500 ${
+            darkMode
+              ? "bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700"
+              : "bg-gradient-to-r from-white to-gray-50 border border-gray-200"
+          }`}
+        >
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-2xl font-semibold">Recent Deliveries</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className={`${darkMode ? "bg-gray-700" : "bg-gray-100"}`}>
+                <tr className="text-xs uppercase tracking-wider text-left">
+                  <th className="p-4">Delivery No</th>
+                  <th className="p-4">Items Price</th>
+                  <th className="p-4">Delivery Price</th>
+                  <th className="p-4">Total Price</th>
+                  <th className="p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {deliveries
+                  .slice(-5)
+                  .reverse()
+                  .map((d) => (
+                    <tr
+                      key={d._id}
+                      className={`border-b transition-colors duration-300 hover:${
+                        darkMode
+                          ? "bg-gray-700 bg-opacity-50"
+                          : "bg-gray-50 bg-opacity-70"
+                      }`}
+                    >
+                      <td className="p-4">{d._id}</td>
+                      <td className="p-4">
+                        {priceFormatter.format(d.itemsPrice || 0)}
+                      </td>
+                      <td className="p-4">
+                        {priceFormatter.format(d.deliveryPrice || 0)}
+                      </td>
+                      <td className="p-4">
+                        {priceFormatter.format(
+                          (d.itemsPrice || 0) + (d.deliveryPrice || 0)
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <button className="text-red-500 hover:text-red-700 transition-colors transform hover:scale-125">
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes gradientAnimation {
-          0% {
-            background-position: 0% 50%;
-          }
-          50% {
-            background-position: 100% 50%;
-          }
-          100% {
-            background-position: 0% 50%;
-          }
-        }
-
-        .bg-gradient-animate {
-          background: linear-gradient(
-            -45deg,
-            #ee7752,
-            #e73c7e,
-            #23a6d5,
-            #23d5ab
-          );
-          background-size: 400% 400%;
-          animation: gradientAnimation 15s ease infinite;
-        }
-
-        .dark {
-          color: #ffffff;
-        }
-
-        .dark .bg-white {
-          background-color: #1a202c;
-        }
-
-        .dark .text-gray-600 {
-          color: #a0aec0;
-        }
-
-        .dark .text-gray-800 {
-          color: #e2e8f0;
-        }
-
-        .dark .bg-gray-50 {
-          background-color: #2d3748;
-        }
-
-        .dark .hover:bg-gray-50:hover {
-          background-color: #4a5568;
-        }
-      `}</style>
     </div>
   );
 }
@@ -377,20 +303,20 @@ export default function Delivery() {
 function DashboardCard({ icon, title, value, color, darkMode }) {
   return (
     <div
-      className={`${
-        darkMode ? "bg-gray-800" : "bg-white"
-      } p-6 rounded-lg shadow-md transition-all duration-300 hover:shadow-lg transform hover:scale-105`}
+      className={`p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 ${
+        darkMode
+          ? `bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700`
+          : `bg-gradient-to-r from-white to-gray-50 border border-gray-200`
+      }`}
     >
-      <div className="flex items-center">
-        <div className={`text-4xl text-${color}-500 mr-4`}>{icon}</div>
+      <div className="flex items-center space-x-4">
+        <div className={`text-4xl text-${color}-500`}>{icon}</div>
         <div>
-          <h2 className={`text-2xl font-semibold text-${color}-600`}>
-            {value}
-          </h2>
+          <h2 className={`text-3xl font-bold text-${color}-600`}>{value}</h2>
           <p
-            className={`${
-              darkMode ? "text-gray-300" : "text-gray-600"
-            } text-sm mt-1`}
+            className={`text-sm transition-colors duration-300 ${
+              darkMode ? "text-gray-400" : "text-gray-600"
+            }`}
           >
             {title}
           </p>
@@ -403,20 +329,24 @@ function DashboardCard({ icon, title, value, color, darkMode }) {
 function EarningsCard({ title, value, icon, color, darkMode }) {
   return (
     <div
-      className={`${
-        darkMode ? "bg-gray-700" : "bg-gray-50"
-      } p-6 rounded-lg shadow transition-all duration-300 hover:shadow-md`}
+      className={`p-6 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 ${
+        darkMode
+          ? `bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700`
+          : `bg-gradient-to-r from-white to-gray-50 border border-gray-200`
+      }`}
     >
       <div className="flex items-center justify-between">
         <div>
           <p
-            className={`${
-              darkMode ? "text-gray-300" : "text-gray-600"
-            } text-sm mb-1`}
+            className={`text-sm mb-2 transition-colors duration-300 ${
+              darkMode ? "text-gray-400" : "text-gray-500"
+            }`}
           >
             {title}
           </p>
-          <h3 className={`text-xl font-bold text-${color}-500`}>{value}</h3>
+          <h3 className={`text-2xl font-bold text-${color}-500`}>
+            Rs. {value}
+          </h3>
         </div>
         <div className={`text-3xl text-${color}-500`}>{icon}</div>
       </div>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
- 
-import background from "../../assets/DeliverAdminbackground.jpg";    
+
+import background from "../../assets/DeliverAdminbackground.jpg";
 
 const DeliverAdminProfile = () => {
   const [name, setName] = useState("Buddhi");

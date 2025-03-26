@@ -7,6 +7,7 @@ import {
   useDeleteDriverMutation,
 } from "../../page/order/redux/api/apiSlice";
 import jsPDF from "jspdf";
+import Oderslidebar from "../../components/sidebar/oderslidebar";
 
 const DrivervehicleDetails = () => {
   const [editingDriver, setEditingDriver] = useState(null);
@@ -236,8 +237,8 @@ const DrivervehicleDetails = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 p-6">
-      {/* Success/Error Messages */}
+    <div className="flex min-h-screen bg-gradient-to-br from-green-50 to-green-100">
+      <Oderslidebar />
       {message.text && (
         <div
           className={`mb-6 p-4 rounded-md shadow-sm flex items-center ${

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Oderslidebar from "../../components/sidebar/oderslidebar";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -8,6 +9,7 @@ const DeliveryDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [deliveries, setDeliveries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -18,19 +20,29 @@ const DeliveryDetail = () => {
     location.state?.newDeliveryId || ""
   );
 
-  useEffect(() => {
-    const fetchDeliveries = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/deliveries`);
-        setDeliveries(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching deliveries:", error);
-        setError("Failed to load deliveries. Please try again later.");
-        setLoading(false);
-      }
-    };
+  // Define fetchDeliveries outside of useEffect
+  const fetchDeliveries = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_URL}/deliveries`);
+      setDeliveries(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching deliveries:", error);
+      setError("Failed to load deliveries. Please try again later.");
+      setLoading(false);
+    }
+  };
 
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  useEffect(() => {
     fetchDeliveries();
 
     // Clear success message and highlighted delivery after 5 seconds
@@ -68,7 +80,6 @@ const DeliveryDetail = () => {
   };
 
   const handleDelete = async (deliveryId) => {
-    // Show confirmation dialog
     if (!window.confirm("Are you sure you want to delete this delivery?")) {
       return;
     }
@@ -92,101 +103,95 @@ const DeliveryDetail = () => {
     navigate("/orders");
   };
 
-  const filteredDeliveries = deliveries.filter((delivery) =>
-    delivery.orderId.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredDeliveries = useMemo(() => {
+    return deliveries.filter((delivery) =>
+      delivery.orderId.toLowerCase().includes(debouncedSearch.toLowerCase())
+    );
+  }, [deliveries, debouncedSearch]);
 
   const getRowColor = (deliveryStatus, deliveryId) => {
-    // If this is the newly created delivery, highlight it
     if (highlightedDeliveryId && deliveryId === highlightedDeliveryId) {
       return "bg-green-300";
     }
 
-    // Regular status-based coloring
     if (deliveryStatus === "Pending") return "bg-yellow-100";
     if (deliveryStatus === "Delayed") return "bg-blue-100";
     if (deliveryStatus === "Completed") return "bg-green-100";
     return "";
   };
 
+  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen p-6 bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-700 font-medium">
-            Loading deliveries...
-          </p>
+      <div className="flex min-h-screen bg-gradient-to-br from-green-50 to-green-100">
+        <Oderslidebar />
+        <div className="flex-1 p-6 flex items-center justify-center ml-64">
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center w-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+            <p className="mt-4 text-gray-700 font-medium">
+              Loading deliveries...
+            </p>
+          </div>
         </div>
       </div>
     );
   }
 
+  // Error state
   if (error) {
     return (
-      <div className="min-h-screen p-6 bg-gray-50">
-        <div className="bg-red-50 border border-red-300 text-red-700 px-6 py-4 rounded-lg shadow-sm max-w-4xl mx-auto">
-          <div className="flex items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+      <div className="flex min-h-screen bg-gradient-to-br from-green-50 to-green-100">
+        <Oderslidebar />
+        <div className="flex-1 p-6 flex items-center justify-center ml-64">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
+            <div className="flex items-center bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+              <svg
+                className="h-6 w-6 text-red-500 mr-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <p className="text-sm text-red-700 font-medium">{error}</p>
+            </div>
+            <button
+              onClick={() => {
+                setError("");
+                setLoading(true);
+                fetchDeliveries(); // Now accessible
+              }}
+              className="mt-4 w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 text-sm font-medium transition duration-150"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <p className="font-medium">{error}</p>
+              Retry
+            </button>
           </div>
-          <button
-            onClick={() => {
-              setError("");
-              setLoading(true);
-              window.location.reload();
-            }}
-            className="mt-4 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors shadow-sm font-medium flex items-center"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            Retry
-          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen min-w-[85%] bg-gray-50 p-6">
-      <div className="max-w-[85%] mx-auto">
-        <div className="flex items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">
-            Delivery Management
-          </h1>
-        </div>
-
-        {successMessage && (
-          <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-md shadow-sm mb-6 animate-pulse">
-            <div className="flex">
+    <div className="flex min-h-screen bg-gradient-to-br from-green-50 to-green-100">
+      <Oderslidebar />
+      <div className="flex-1 p-6 overflow-y-auto ml-64">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-3xl font-bold text-gray-800">
+              Delivery Management
+            </h1>
+            <button
+              onClick={handleAddNewDelivery}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition duration-150 flex items-center"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 mr-3"
+                className="h-5 w-5 mr-2"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -195,196 +200,212 @@ const DeliveryDetail = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  d="M12 4v16m8-8H4"
                 />
               </svg>
-              <p className="font-medium">{successMessage}</p>
-            </div>
+              Add New Delivery
+            </button>
           </div>
-        )}
 
-        <div className="mb-6">
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+          {successMessage && (
+            <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-md shadow-sm mb-6 animate-pulse">
+              <div className="flex">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 mr-3"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <p className="font-medium">{successMessage}</p>
+              </div>
             </div>
-            <input
-              type="text"
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-              placeholder="Search Deliveries by Order ID"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <p className="text-sm text-gray-600 mt-2 pl-1">
-            {filteredDeliveries.length} deliveries found
-          </p>
-        </div>
+          )}
 
-        <div className="bg-white rounded-lg shadow-md border border-gray-200">
-          <div className="w-full">
-            <table className="w-full table-fixed border-collapse">
-              <thead>
-                <tr className="bg-indigo-600 text-white">
-                  <th className="p-2 text-left font-semibold text-xs w-1/12">
-                    Order ID
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/12">
-                    Date
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/12">
-                    Customer
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/12">
-                    Address
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/12">
-                    Postal
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/12">
-                    Tel
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/24">
-                    Qty
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/12">
-                    Items $
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/12">
-                    Del $
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/12">
-                    Total
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/12">
-                    Order
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/12">
-                    Delivery
-                  </th>
-                  <th className="p-2 text-left font-semibold text-xs w-1/6">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredDeliveries.length > 0 ? (
-                  filteredDeliveries.map((delivery) => (
-                    <tr
-                      key={delivery._id}
-                      className={`hover:bg-gray-50 transition-colors ${getRowColor(
-                        delivery.deliveryStatus,
-                        delivery._id
-                      )}`}
-                    >
-                      <td className="p-2 border-t border-gray-200 text-xs truncate">
-                        {delivery.orderId}
-                      </td>
-                      <td className="p-2 border-t border-gray-200 text-xs truncate">
-                        {delivery.confirmOrderDate}
-                      </td>
-                      <td className="p-2 border-t border-gray-200 text-xs font-medium truncate">
-                        {delivery.customerName}
-                      </td>
-                      <td className="p-2 border-t border-gray-200 text-xs truncate">
-                        {delivery.address}
-                      </td>
-                      <td className="p-2 border-t border-gray-200 text-xs truncate">
-                        {delivery.postalCode}
-                      </td>
-                      <td className="p-2 border-t border-gray-200 text-xs truncate">
-                        {delivery.telephone}
-                      </td>
-                      <td className="p-2 border-t border-gray-200 text-xs text-center">
-                        {delivery.quantity}
-                      </td>
-                      <td className="p-2 border-t border-gray-200 text-xs truncate">
-                        {delivery.itemsPrice}
-                      </td>
-                      <td className="p-2 border-t border-gray-200 text-xs truncate">
-                        {delivery.deliveryPrice}
-                      </td>
-                      <td className="p-2 border-t border-gray-200 text-xs font-medium truncate">
-                        {delivery.totalPrice}
-                      </td>
-                      <td className="p-2 border-t border-gray-200 text-xs">
-                        <span className="px-1 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-800 inline-block truncate max-w-full">
-                          {delivery.orderStatus || "Not Assigned"}
-                        </span>
-                      </td>
-                      <td className="p-2 border-t border-gray-200 text-xs">
-                        <span
-                          className={`px-1 py-1 rounded text-xs font-medium inline-block truncate max-w-full
-                            ${
+          <div className="mb-6">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              <input
+                type="text"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                placeholder="Search Deliveries by Order ID"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <p className="text-sm text-gray-600 mt-2 pl-1">
+              {filteredDeliveries.length} deliveries found
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-md border border-gray-200">
+            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-indigo-600 text-white sticky top-0 z-10">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Order ID
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Customer
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Address
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Postal
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Tel
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Qty
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Items $
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Del $
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Total
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Order
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Delivery
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {filteredDeliveries.length > 0 ? (
+                    filteredDeliveries.map((delivery) => (
+                      <tr
+                        key={delivery._id}
+                        className={`hover:bg-gray-50 transition-colors ${getRowColor(
+                          delivery.deliveryStatus,
+                          delivery._id
+                        )}`}
+                      >
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                          {delivery.orderId}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                          {delivery.confirmOrderDate}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {delivery.customerName}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                          {delivery.address}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                          {delivery.postalCode}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                          {delivery.telephone}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 text-center">
+                          {delivery.quantity}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                          ${delivery.itemsPrice}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                          ${delivery.deliveryPrice}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                          ${delivery.totalPrice}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm">
+                          <span className="px-2 py-1 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                            {delivery.orderStatus || "Not Assigned"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm">
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${
                               delivery.deliveryStatus === "Pending"
                                 ? "bg-yellow-100 text-yellow-800"
                                 : delivery.deliveryStatus === "Delayed"
                                 ? "bg-blue-100 text-blue-800"
                                 : "bg-green-100 text-green-800"
                             }`}
-                        >
-                          {delivery.deliveryStatus || "Not Assigned"}
-                        </span>
-                      </td>
-                      <td className="p-2 border-t border-gray-200">
-                        <div className="flex flex-wrap gap-1">
-                          <button
-                            onClick={() =>
-                              handleStatusChange(delivery._id, "Pending")
-                            }
-                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-1 py-1 rounded text-xs font-medium transition-colors shadow-sm"
                           >
-                            Pending
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleStatusChange(delivery._id, "Delayed")
-                            }
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-1 py-1 rounded text-xs font-medium transition-colors shadow-sm"
-                          >
-                            Delayed
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleStatusChange(delivery._id, "Completed")
-                            }
-                            className="bg-green-500 hover:bg-green-600 text-white px-1 py-1 rounded text-xs font-medium transition-colors shadow-sm"
-                          >
-                            Completed
-                          </button>
-                          <button
-                            onClick={() => handleDelete(delivery._id)}
-                            className="bg-red-500 hover:bg-red-600 text-white px-1 py-1 rounded text-xs font-medium transition-colors shadow-sm"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan="13"
-                      className="p-8 text-center text-gray-500 border-t border-gray-200"
-                    >
-                      <div className="flex flex-col items-center">
+                            {delivery.deliveryStatus || "Not Assigned"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm">
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              onClick={() =>
+                                handleStatusChange(delivery._id, "Pending")
+                              }
+                              className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm"
+                            >
+                              Pending
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleStatusChange(delivery._id, "Delayed")
+                              }
+                              className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm"
+                            >
+                              Delayed
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleStatusChange(delivery._id, "Completed")
+                              }
+                              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm"
+                            >
+                              Completed
+                            </button>
+                            <button
+                              onClick={() => handleDelete(delivery._id)}
+                              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="13" className="text-center py-10">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          className="h-12 w-12 text-gray-400 mb-4"
+                          className="h-12 w-12 mx-auto text-gray-400"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -392,20 +413,31 @@ const DeliveryDetail = () => {
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            strokeWidth={1}
+                            strokeWidth={2}
                             d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                           />
                         </svg>
-                        <p className="font-medium">No deliveries found</p>
-                        <p className="text-sm">
+                        <p className="mt-2 text-sm text-gray-500">
+                          No deliveries found
+                        </p>
+                        <p className="text-sm text-gray-500">
                           {search ? "Try changing your search criteria." : ""}
                         </p>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                        <button
+                          onClick={() => {
+                            setLoading(true);
+                            fetchDeliveries(); // Now accessible
+                          }}
+                          className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 text-sm font-medium transition duration-150"
+                        >
+                          Refresh
+                        </button>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

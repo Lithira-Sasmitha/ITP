@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FaSignOutAlt, FaTimesCircle, FaExclamationTriangle } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  FaSignOutAlt,
+  FaTimesCircle,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 
 export default function Logout() {
   const navigate = useNavigate();
@@ -19,8 +23,8 @@ export default function Logout() {
   };
 
   const handleConfirmLogout = () => {
-    console.log('User logged out');
-    navigate('/adminlogin');
+    console.log("User logged out");
+    navigate("/adminlogin");
   };
 
   const handleCancel = () => {
@@ -28,13 +32,14 @@ export default function Logout() {
   };
 
   return (
-    <div 
+    <div
       className="flex items-center justify-center min-h-screen relative overflow-hidden"
       style={{
-        backgroundImage: 'linear-gradient(45deg, #ff0000, #0000ff, #ff0000, #0000ff)',
-        backgroundSize: '400% 400%',
+        backgroundImage:
+          "linear-gradient(45deg, #ff0000, #0000ff, #ff0000, #0000ff)",
+        backgroundSize: "400% 400%",
         backgroundPosition: `${bgPosition}% ${bgPosition}%`,
-        transition: 'background-position 0.5s ease'
+        transition: "background-position 0.5s ease",
       }}
     >
       <div className="bg-white p-10 rounded-2xl shadow-2xl text-center max-w-md mx-auto z-10 transform transition-all duration-300 hover:scale-105">
@@ -46,7 +51,9 @@ export default function Logout() {
         </h2>
         {showConfirmation ? (
           <>
-            <p className="text-gray-600 mb-8 text-lg">Are you sure you want to log out?</p>
+            <p className="text-gray-600 mb-8 text-lg">
+              Are you sure you want to log out?
+            </p>
             <div className="flex justify-around">
               <button
                 onClick={handleConfirmLogout}

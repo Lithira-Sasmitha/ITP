@@ -1,158 +1,260 @@
-import React, { useState, useEffect } from "react";
-import { FaWrench, FaTools, FaChartLine, FaMoon, FaSun } from "react-icons/fa";
+import React, { useState } from "react";
+import {
+  FaWrench,
+  FaTools,
+  FaChartLine,
+  FaMoon,
+  FaSun,
+  FaClipboardList,
+  FaIndustry,
+} from "react-icons/fa";
 import { useGetMachinesQuery } from "../../page/machine/redux/api/machineapiSlice";
+import Machinesidebar from "../../components/sidebar/Machinesidebar";
 
-export default function Dashboard() {
-  // Use Redux query hook to get machine data
-  const { data: machines = [], isLoading, isError } = useGetMachinesQuery();
-  
+export default function MachineDashboard() {
+  const { data: machines = [], isLoading } = useGetMachinesQuery();
   const [darkMode, setDarkMode] = useState(false);
-  const [colorIndex, setColorIndex] = useState(0);
-  const colors = ["bg-red-500", "bg-blue-500", "bg-green-500", "bg-yellow-500", "bg-purple-500"];
 
-  // Filter machines with "Active" status
-  const activeMachines = machines.filter(m => m.status === "Active").length;
-  
-  // Calculate maintenance due machines
-  const maintenanceDue = machines.filter(m => {
+  const activeMachines = machines.filter((m) => m.status === "Active").length;
+  const inactiveMachines = machines.length - activeMachines;
+
+  const maintenanceDue = machines.filter((m) => {
     if (!m.warrantyDate) return false;
     const warrantyDate = new Date(m.warrantyDate);
     const currentDate = new Date();
-    // Consider maintenance due if within 30 days of warranty expiration
-    return warrantyDate > currentDate && 
-           (warrantyDate - currentDate) / (1000 * 60 * 60 * 24) <= 30;
+    return (
+      warrantyDate > currentDate &&
+      (warrantyDate - currentDate) / (1000 * 60 * 60 * 24) <= 30
+    );
   }).length;
-  
-  // Calculate machine utilization (assuming this data would come from your API)
-  const machineUtilization = machines.map(m => ({
-    name: m.name,
-    utilization: m.utilizationPercentage || 0 // Fallback to 0 if not available
-  }));
 
-  const averageUtilization = machines.length > 0 
-    ? Math.round(machineUtilization.reduce((sum, m) => sum + m.utilization, 0) / machines.length) 
-    : 0;
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setColorIndex((prevIndex) => (prevIndex + 1) % colors.length);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  const averageUtilization =
+    machines.length > 0
+      ? Math.round(
+          machines.reduce((sum, m) => sum + (m.utilizationPercentage || 0), 0) /
+            machines.length
+        )
+      : 0;
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
-  // For debugging - can be removed in production
-  useEffect(() => {
-    if (machines.length > 0) {
-      console.log("Total machines:", machines.length);
-      console.log("Active machines:", activeMachines);
-      console.log("Machine statuses:", machines.map(m => m.status));
-    }
-  }, [machines, activeMachines]);
-
   return (
-    <div className={`min-h-screen p-6 ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}`}>
-      {/* Header */}
-      <header className={`${darkMode ? 'bg-gray-800' : 'bg-gray-100'} shadow-md rounded-2xl p-6 mb-8`}>
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl text-blue-500">Welcome back, Dewmi</h1>
-            <h1 className="text-3xl font-bold">Product & Machine Management Dashboard</h1>
-            <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mt-2`}>Monitor and manage products & machines</p>
-          </div>
-          <button onClick={toggleDarkMode} className={`p-2 rounded-full ${darkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-600'}`}>
-            {darkMode ? <FaSun size={24} /> : <FaMoon size={24} />}
-          </button>
+    <div
+      className={`
+      min-h-screen flex 
+      ${
+        darkMode
+          ? "bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100"
+          : "bg-gradient-to-br from-gray-100 to-gray-200 text-gray-900"
+      } transition-colors duration-300
+    `}
+    >
+      {/* Sidebar */}
+      <div className="fixed z-40 h-screen w-72 shadow-2xl">
+        <Machinesidebar />
+      </div>
+
+      {/* Main Content */}
+      <main className="flex-1 ml-72 p-8">
+        <div
+          className={`
+          ${
+            darkMode
+              ? "bg-gray-800 border border-gray-700"
+              : "bg-white border border-gray-200"
+          } 
+          rounded-3xl shadow-2xl overflow-hidden
+        `}
+        >
+          {/* Header - Changed to bg-gray-100 */}
+          <header
+            className={`
+            bg-gray-200 
+            text-black p-8 flex justify-between items-center
+          `}
+          >
+            <div>
+              <h1 className="text-4xl font-bold mb-3 tracking-tight text-gray-900">
+                Welcome Product & Machine Management Dashboard
+              </h1>
+              <p className="text-lg opacity-80 font-light text-black-900">
+                Comprehensive insights into your machine ecosystem
+              </p>
+            </div>
+            <button
+              onClick={toggleDarkMode}
+              className={`
+                p-3 rounded-full transition-all duration-300 
+                ${
+                  darkMode
+                    ? "bg-gray-700 text-yellow-300 hover:bg-gray-600"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }
+              `}
+            >
+              {darkMode ? <FaSun size={28} /> : <FaMoon size={28} />}
+            </button>
+          </header>
+
+          {isLoading ? (
+            <LoadingState />
+          ) : (
+            <div className="p-8 space-y-8">
+              {/* Rest of the code remains the same */}
+              {/* Key Metrics Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <MetricCard
+                  icon={<FaIndustry />}
+                  title="Total Machines"
+                  value={machines.length}
+                />
+                <MetricCard
+                  icon={<FaTools />}
+                  title="Active Machines"
+                  value={activeMachines}
+                />
+                <MetricCard
+                  icon={<FaWrench />}
+                  title="Maintenance Due"
+                  value={maintenanceDue}
+                />
+                <MetricCard
+                  icon={<FaChartLine />}
+                  title="Avg. Utilization"
+                  value={`${averageUtilization}%`}
+                />
+              </div>
+
+              {/* Detailed Insights */}
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Machine Status */}
+                <div
+                  className={`
+                  ${
+                    darkMode
+                      ? "bg-gray-700 border-gray-600"
+                      : "bg-white border-gray-200"
+                  } 
+                  rounded-2xl shadow-lg p-6 border
+                `}
+                >
+                  <h2 className="text-2xl font-semibold mb-6">
+                    Machine Status Overview
+                  </h2>
+                  <div className="space-y-4">
+                    <StatusBar
+                      label="Active Machines"
+                      value={activeMachines}
+                      total={machines.length}
+                      color="green"
+                      darkMode={darkMode}
+                    />
+                    <StatusBar
+                      label="Inactive Machines"
+                      value={inactiveMachines}
+                      total={machines.length}
+                      color="red"
+                      darkMode={darkMode}
+                    />
+                  </div>
+                </div>
+
+                {/* Utilization Placeholder */}
+                <div
+                  className={`
+                  ${
+                    darkMode
+                      ? "bg-gray-700 border-gray-600"
+                      : "bg-white border border-gray-200"
+                  } 
+                  rounded-2xl shadow-lg p-6 border
+                `}
+                >
+                  <h2 className="text-2xl font-semibold mb-6">
+                    Utilization Insights
+                  </h2>
+                  <div className="h-64 flex items-center justify-center border-2 border-dashed rounded-lg">
+                    <span className="text-gray-400">
+                      Detailed Chart Coming Soon
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      </header>
-
-      {isLoading ? (
-        <div className="text-center py-8">Loading machine data...</div>
-      ) : isError ? (
-        <div className="text-center py-8 text-red-500">Error loading machine data</div>
-      ) : (
-        <>
-          {/* Dashboard Cards with Color Changing Effect */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 text-black">
-            <DashboardCard 
-              icon={<FaTools />} 
-              title="Total Machines" 
-              value={machines.length} 
-              bgColor="bg-blue-100" 
-              textColor="text-black" // Set text color to black
-            />
-            <DashboardCard 
-              icon={<FaWrench />} 
-              title="Active Machines" 
-              value={activeMachines} 
-              bgColor="bg-blue-100" 
-              textColor="text-black" // Set text color to black
-            />
-            <DashboardCard 
-              icon={<FaWrench />} 
-              title="Maintenance Due" 
-              value={maintenanceDue} 
-              bgColor="bg-blue-100" 
-              textColor="text-black" // Set text color to black
-            />
-            <DashboardCard 
-              icon={<FaChartLine />} 
-              title="Utilization" 
-              value={`${averageUtilization}%`} 
-              bgColor="bg-blue-100" 
-              textColor="text-black" // Set text color to black
-            />
-          </div>
-
-          {/* Machine Status Breakdown */}
-          <div className={`${darkMode ? 'bg-gray-800' : 'bg-gray-100'} shadow-md rounded-2xl p-6 mb-8`}>
-            <h2 className={`text-xl font-semibold ${darkMode ? 'text-gray-100' : 'text-gray-800'} mb-4`}>Machine Status Overview</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-green-100 p-4 rounded-lg border border-green-200">
-                <h3 className="text-green-800 font-medium text-lg">Active Machines</h3>
-                <div className="flex items-center mt-2">
-                  <div className="text-3xl font-bold text-green-600">{activeMachines}</div>
-                  <div className="ml-2 text-sm text-green-700">
-                    ({machines.length > 0 ? Math.round((activeMachines / machines.length) * 100) : 0}% of total)
-                  </div>
-                </div>
-              </div>
-              <div className="bg-red-100 p-4 rounded-lg border border-red-200">
-                <h3 className="text-red-800 font-medium text-lg">Inactive Machines</h3>
-                <div className="flex items-center mt-2">
-                  <div className="text-3xl font-bold text-red-600">{machines.length - activeMachines}</div>
-                  <div className="ml-2 text-sm text-red-700">
-                    ({machines.length > 0 ? Math.round(((machines.length - activeMachines) / machines.length) * 100) : 0}% of total)
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Utilization Section */}
-          <div className={`${darkMode ? 'bg-gray-800' : 'bg-gray-100'} shadow-md rounded-2xl p-6 mt-8`}>
-            <h2 className={`text-xl font-semibold ${darkMode ? 'text-gray-100' : 'text-gray-800'} mb-4`}>Machine Utilization Chart</h2>
-            {/* Placeholder for future chart component */}
-            <div className="h-64 flex items-center justify-center border border-dashed rounded-lg">
-            </div>
-          </div>
-        </>
-      )}
+      </main>
     </div>
   );
 }
 
-// Reusable Dashboard Card Component
-function DashboardCard({ icon, title, value, bgColor, textColor }) {
+// Remaining component functions stay the same
+function MetricCard({ icon, title, value }) {
   return (
-    <div className={`${bgColor} p-6 rounded-2xl shadow-md ${textColor} flex items-center transition-all duration-1000 ease-in-out`}>
-      <div className="text-4xl mr-4">{icon}</div>
+    <div
+      className={`
+      bg-blue-100 text-black 
+      rounded-2xl shadow-md p-6 
+      flex items-center space-x-4 
+      transform transition-all duration-300 
+      hover:scale-105 hover:shadow-xl
+    `}
+    >
+      <div className="text-4xl opacity-70">{icon}</div>
       <div>
-        <h2 className="text-2xl font-semibold">{value}</h2>
-        <p className="text-sm mt-1">{title}</p>
+        <h3 className="text-xl font-medium opacity-80 text-black">{title}</h3>
+        <div className="text-3xl font-bold text-black">{value}</div>
+      </div>
+    </div>
+  );
+}
+
+function StatusBar({ label, value, total, color, darkMode }) {
+  const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
+
+  return (
+    <div>
+      <div className="flex justify-between mb-2">
+        <span
+          className={`
+          ${darkMode ? `text-${color}-300` : `text-${color}-600`} font-medium
+        `}
+        >
+          {label}
+        </span>
+        <span
+          className={`
+          ${darkMode ? `text-${color}-300` : `text-${color}-600`} font-semibold
+        `}
+        >
+          {value} ({percentage}%)
+        </span>
+      </div>
+      <div
+        className={`
+        w-full h-2 rounded-full 
+        ${darkMode ? `bg-${color}-900` : `bg-${color}-100`} overflow-hidden
+      `}
+      >
+        <div
+          className={`h-full bg-${color}-500`}
+          style={{ width: `${percentage}%` }}
+        ></div>
+      </div>
+    </div>
+  );
+}
+
+function LoadingState() {
+  return (
+    <div className="flex items-center justify-center h-96 animate-pulse">
+      <div className="text-center">
+        <div className="text-4xl font-bold text-gray-400 mb-4">
+          Loading Dashboard
+        </div>
+        <div className="text-gray-500">Gathering machine insights...</div>
       </div>
     </div>
   );

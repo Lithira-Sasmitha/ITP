@@ -6,6 +6,7 @@ import {
   FaBell,
   FaClipboardList,
 } from "react-icons/fa";
+import Oderslidebar from "../../components/sidebar/oderslidebar";
 
 const Settings = () => {
   const [settings, setSettings] = useState({
@@ -57,234 +58,258 @@ const Settings = () => {
   };
 
   const handleSave = () => {
-    // Here you would typically save the settings to your backend
     alert("Settings saved!");
   };
 
   return (
-    <div
-      className="min-h-screen p-8 flex justify-center items-start"
-      style={{
-        background: `linear-gradient(${gradientDegree}deg, #4158D0, #C850C0, #FFCC70)`,
-      }}
-    >
-      <div className="max-w-4xl w-full bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <div className="bg-gray-800 text-white p-6">
-          <h1 className="text-4xl font-bold text-center">Settings</h1>
-        </div>
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Sidebar */}
+      <Oderslidebar />
 
-        <div className="p-8 space-y-8">
-          {/* General Settings */}
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-gray-800 flex items-center">
-              <FaClock className="mr-2" /> General Settings
-            </h2>
+      {/* Main Content */}
+      <div
+        className="flex-1 p-6 overflow-y-auto"
+        style={{
+          background: `linear-gradient(${gradientDegree}deg, #4158D0, #C850C0, #FFCC70)`,
+        }}
+      >
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-white">Settings</h1>
+            <p className="text-sm text-gray-200">
+              Customize your store and delivery preferences
+            </p>
+          </div>
+
+          {/* Settings Form */}
+          <div className="bg-white rounded-xl shadow-lg p-6 space-y-8">
+            {/* General Settings */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Company Name
-              </label>
-              <input
-                type="text"
-                name="companyName"
-                value={settings.companyName}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Time Zone
-              </label>
-              <select
-                name="timeZone"
-                value={settings.timeZone}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-              >
-                <option value="GMT-5:00">GMT-5:00</option>
-                <option value="GMT+1:00">GMT+1:00</option>
-                <option value="GMT+5:30">GMT+5:30</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Operating Hours
-              </label>
-              <div className="flex space-x-4">
-                <input
-                  type="time"
-                  name="start"
-                  value={settings.operatingHours.start}
-                  onChange={(e) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      operatingHours: {
-                        ...prev.operatingHours,
-                        start: e.target.value,
-                      },
-                    }))
-                  }
-                  className="w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                />
-                <input
-                  type="time"
-                  name="end"
-                  value={settings.operatingHours.end}
-                  onChange={(e) =>
-                    setSettings((prev) => ({
-                      ...prev,
-                      operatingHours: {
-                        ...prev.operatingHours,
-                        end: e.target.value,
-                      },
-                    }))
-                  }
-                  className="w-1/2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                />
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center border-b pb-2 mb-4">
+                <FaClock className="mr-2" /> General Settings
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Company Name
+                  </label>
+                  <input
+                    type="text"
+                    name="companyName"
+                    value={settings.companyName}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition duration-150"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Time Zone
+                  </label>
+                  <select
+                    name="timeZone"
+                    value={settings.timeZone}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition duration-150"
+                  >
+                    <option value="GMT-5:00">GMT-5:00</option>
+                    <option value="GMT+1:00">GMT+1:00</option>
+                    <option value="GMT+5:30">GMT+5:30</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Operating Hours
+                  </label>
+                  <div className="flex space-x-4">
+                    <input
+                      type="time"
+                      name="start"
+                      value={settings.operatingHours.start}
+                      onChange={(e) =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          operatingHours: {
+                            ...prev.operatingHours,
+                            start: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition duration-150"
+                    />
+                    <input
+                      type="time"
+                      name="end"
+                      value={settings.operatingHours.end}
+                      onChange={(e) =>
+                        setSettings((prev) => ({
+                          ...prev,
+                          operatingHours: {
+                            ...prev.operatingHours,
+                            end: e.target.value,
+                          },
+                        }))
+                      }
+                      className="w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition duration-150"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Delivery Settings */}
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-gray-800 flex items-center">
-              <FaTruck className="mr-2" /> Delivery Settings
-            </h2>
+            {/* Delivery Settings */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Delivery Fee ($)
-              </label>
-              <input
-                type="number"
-                name="deliveryFee"
-                value={settings.deliveryFee}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-              />
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center border-b pb-2 mb-4">
+                <FaTruck className="mr-2" /> Delivery Settings
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Delivery Fee ($)
+                  </label>
+                  <input
+                    type="number"
+                    name="deliveryFee"
+                    value={settings.deliveryFee}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition duration-150"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Max Deliveries Per Day
+                  </label>
+                  <input
+                    type="number"
+                    name="maxDeliveriesPerDay"
+                    value={settings.maxDeliveriesPerDay}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition duration-150"
+                  />
+                </div>
+              </div>
             </div>
+
+            {/* Notification Settings */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Max Deliveries Per Day
-              </label>
-              <input
-                type="number"
-                name="maxDeliveriesPerDay"
-                value={settings.maxDeliveriesPerDay}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-              />
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center border-b pb-2 mb-4">
+                <FaBell className="mr-2" /> Notification Settings
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="sms"
+                    name="sms"
+                    checked={settings.notificationPreferences.sms}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        notificationPreferences: {
+                          ...prev.notificationPreferences,
+                          sms: e.target.checked,
+                        },
+                      }))
+                    }
+                    className="h-5 w-5 text-blue-600 focus:ring-2 focus:ring-blue-500 rounded transition duration-150"
+                  />
+                  <label
+                    htmlFor="sms"
+                    className="text-sm text-gray-700 font-medium"
+                  >
+                    Notify by SMS
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="email"
+                    name="email"
+                    checked={settings.notificationPreferences.email}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        notificationPreferences: {
+                          ...prev.notificationPreferences,
+                          email: e.target.checked,
+                        },
+                      }))
+                    }
+                    className="h-5 w-5 text-blue-600 focus:ring-2 focus:ring-blue-500 rounded transition duration-150"
+                  />
+                  <label
+                    htmlFor="email"
+                    className="text-sm text-gray-700 font-medium"
+                  >
+                    Notify by Email
+                  </label>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Notification Settings */}
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-gray-800 flex items-center">
-              <FaBell className="mr-2" /> Notification Settings
-            </h2>
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="sms"
-                name="sms"
-                checked={settings.notificationPreferences.sms}
-                onChange={(e) =>
-                  setSettings((prev) => ({
-                    ...prev,
-                    notificationPreferences: {
-                      ...prev.notificationPreferences,
-                      sms: e.target.checked,
-                    },
-                  }))
-                }
-                className="h-5 w-5 text-blue-600 focus:ring-blue-400 transition"
-              />
-              <label htmlFor="sms" className="text-gray-700 font-medium">
-                Notify by SMS
-              </label>
+            {/* Order Management Settings */}
+            <div>
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center border-b pb-2 mb-4">
+                <FaClipboardList className="mr-2" /> Order Management Settings
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="orderConfirmation"
+                    name="orderConfirmation"
+                    checked={settings.orderManagement.orderConfirmation}
+                    onChange={handleOrderManagementChange}
+                    className="h-5 w-5 text-blue-600 focus:ring-2 focus:ring-blue-500 rounded transition duration-150"
+                  />
+                  <label
+                    htmlFor="orderConfirmation"
+                    className="text-sm text-gray-700 font-medium"
+                  >
+                    Send Order Confirmation
+                  </label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="deliveryUpdates"
+                    name="deliveryUpdates"
+                    checked={settings.orderManagement.deliveryUpdates}
+                    onChange={handleOrderManagementChange}
+                    className="h-5 w-5 text-blue-600 focus:ring-2 focus:ring-blue-500 rounded transition duration-150"
+                  />
+                  <label
+                    htmlFor="deliveryUpdates"
+                    className="text-sm text-gray-700 font-medium"
+                  >
+                    Send Delivery Updates
+                  </label>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Estimated Delivery Time (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    name="estimatedDeliveryTime"
+                    value={settings.orderManagement.estimatedDeliveryTime}
+                    onChange={handleOrderManagementChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition duration-150"
+                  />
+                </div>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="email"
-                name="email"
-                checked={settings.notificationPreferences.email}
-                onChange={(e) =>
-                  setSettings((prev) => ({
-                    ...prev,
-                    notificationPreferences: {
-                      ...prev.notificationPreferences,
-                      email: e.target.checked,
-                    },
-                  }))
-                }
-                className="h-5 w-5 text-blue-600 focus:ring-blue-400 transition"
-              />
-              <label htmlFor="email" className="text-gray-700 font-medium">
-                Notify by Email
-              </label>
-            </div>
-          </div>
 
-          {/* Order Management Settings */}
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-gray-800 flex items-center">
-              <FaClipboardList className="mr-2" /> Order Management Settings
-            </h2>
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="orderConfirmation"
-                name="orderConfirmation"
-                checked={settings.orderManagement.orderConfirmation}
-                onChange={handleOrderManagementChange}
-                className="h-5 w-5 text-blue-600 focus:ring-blue-400 transition"
-              />
-              <label
-                htmlFor="orderConfirmation"
-                className="text-gray-700 font-medium"
+            {/* Save Button */}
+            <div className="flex justify-end">
+              <button
+                onClick={handleSave}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 text-sm font-medium transition duration-150 flex items-center"
               >
-                Send Order Confirmation
-              </label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="deliveryUpdates"
-                name="deliveryUpdates"
-                checked={settings.orderManagement.deliveryUpdates}
-                onChange={handleOrderManagementChange}
-                className="h-5 w-5 text-blue-600 focus:ring-blue-400 transition"
-              />
-              <label
-                htmlFor="deliveryUpdates"
-                className="text-gray-700 font-medium"
-              >
-                Send Delivery Updates
-              </label>
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Estimated Delivery Time (minutes)
-              </label>
-              <input
-                type="number"
-                name="estimatedDeliveryTime"
-                value={settings.orderManagement.estimatedDeliveryTime}
-                onChange={handleOrderManagementChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-              />
+                <FaSave className="mr-2" /> Save Settings
+              </button>
             </div>
           </div>
-        </div>
-
-        {/* Save Button */}
-        <div className="bg-gray-100 px-8 py-4">
-          <button
-            className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-700 transition transform hover:scale-105 flex items-center justify-center"
-            onClick={handleSave}
-          >
-            <FaSave className="mr-2" /> Save Settings
-          </button>
         </div>
       </div>
     </div>

@@ -26,7 +26,6 @@ import Requestedleave from "./page/emplyee/Requestedleave.js";
 import Approveleave from "./page/emplyee/Approveleave.js";
 
 import store from "./page/machine/redux/store";
-import Layout from "./page/machine/Layout";
 import Prodetails from "./page/machine/Prodetails";
 import AddMachine from "./page/machine/AddMachine";
 import AddMachineParts from "./page/machine/AddMachineParts";
@@ -59,38 +58,75 @@ import DeliverHome from "./page/order/DeliverHome";
 import PlaceOrder from "./page/order/PlaceOrder";
 import Orderhistorys from "./page/order/Orderhistorys";
 import OrderConfirmation from "./page/order/OrderConfirmation";
-import OrderTracking from "./page/order/OrderTracking"; // Import the new component
+import OrderTracking from "./page/order/OrderTracking"; 
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <><Router>
-      <Routes>
-        <Route path="/inventory/dashboard" element={<Dashboard />} />
-        <Route path="/inventory/addFinalProduct" element={<AddFinalProduct />} />
-        <Route path="/inventory/inventoryPage" element={<InventoryPage />} />
-        <Route path="/inventory/rawMaterialList" element={<RawMaterialList />} />
-        <Route path="/inventory/addRawMaterial" element={<AddRawMaterial />} />
-        <Route path="/inventory/packingMaterialList" element={<PackingMaterialList />} />
-        <Route path="/inventory/addPackingMaterial" element={<AddPackingMaterial />} />
-        <Route path="/inventory/finalProductList" element={<FinalProductList />} />
-        <Route path="/inventory/updateRawMaterial/:id" element={<UpdateRawMaterial />} />
-        <Route path="/inventory/updatePackingMaterial/:id" element={<UpdatePackingMaterial />} />
-        <Route path="/inventory/updateFinalProduct/:id" element={<UpdateFinalProduct />} />
-        <Route path="/inventory/finalProductQR" element={<FinalProductQR />} />
-      </Routes>
-    </Router><>
+    <>
+      <Router>
+        {/* Inventory parth */}
+        <Routes>
+          <Route path="/inventory/dashboard" element={<Dashboard />} />
+          <Route
+            path="/inventory/addFinalProduct"
+            element={<AddFinalProduct />}
+          />
+          <Route path="/inventory/inventoryPage" element={<InventoryPage />} />
+          <Route
+            path="/inventory/rawMaterialList"
+            element={<RawMaterialList />}
+          />
+          <Route
+            path="/inventory/addRawMaterial"
+            element={<AddRawMaterial />}
+          />
+          <Route
+            path="/inventory/packingMaterialList"
+            element={<PackingMaterialList />}
+          />
+          <Route
+            path="/inventory/addPackingMaterial"
+            element={<AddPackingMaterial />}
+          />
+          <Route
+            path="/inventory/finalProductList"
+            element={<FinalProductList />}
+          />
+          <Route
+            path="/inventory/updateRawMaterial/:id"
+            element={<UpdateRawMaterial />}
+          />
+          <Route
+            path="/inventory/updatePackingMaterial/:id"
+            element={<UpdatePackingMaterial />}
+          />
+          <Route
+            path="/inventory/updateFinalProduct/:id"
+            element={<UpdateFinalProduct />}
+          />
+          <Route
+            path="/inventory/finalProductQR"
+            element={<FinalProductQR />}
+          />
+        </Routes>
+      </Router>
+      <>
         <Router>
           <Routes>
-            <Route path="/financialdashboard" element={<FinancialDashboard />} />
+            {/* Financial parth */}
+            <Route
+              path="/financialdashboard"
+              element={<FinancialDashboard />}
+            />
             <Route path="/income" element={<Income />} />
             <Route path="/expense" element={<Expense />} />
             <Route path="/salary" element={<Salary />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/message" element={<Message />} />
 
-
+            {/* Emp parth */}
             <Route path="/home" element={<Home />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<Signup />} />
@@ -98,50 +134,47 @@ function App() {
             <Route path="/e_updates/:userid" element={<Userupdate />} />
             <Route path="/requestedleave" element={<Requestedleave />} />
             <Route path="/approveleave" element={<Approveleave />} />
-
           </Routes>
         </Router>
         <Provider store={store}>
           <Router>
             <Routes>
+              {/* Machine parth */}
+              <Route path="/machinedashboard" element={<MachineDashboard />} />
+              <Route path="/add-machine" element={<AddMachine />} />
+              <Route path="/product-details" element={<Prodetails />} />
+              <Route path="/machine-parts" element={<AddMachineParts />} />
+              <Route path="/maintenance" element={<MachineMaintenance />} />
+              <Route path="/product" element={<Product />} />
 
-              <Route path="/" element={<Layout />}>
-                <Route path="/dashboard" element={<MachineDashboard />} />
-                <Route path="/add-machine" element={<AddMachine />} />
-                <Route path="/product-details" element={<Prodetails />} />
-                <Route path="/machine-parts" element={<AddMachineParts />} />
-                <Route path="/maintenance" element={<MachineMaintenance />} />
-                <Route path="/product" element={<Product />} />
-                <Route index element={<DeliverHome />} />
-                <Route path="/dashboard" element={<Delivery />} />
-                <Route path="deliverydetail" element={<DeliveryDetail />} />
-                <Route path="adddelivery" element={<AddDelivery />} />
-                <Route path="/profile" element={<DeliverAdminProfile />} />
-                <Route
-                  path="/drivervehicledetails"
-                  element={<DrivervehicleDetails />} />
-                <Route path="/pendingorders" element={<Orderhistorys />} />
-                <Route path="settings" element={<Settings />} />
-                <Route path="logout" element={<Logout />} />
+              {/* oder parth */}
 
-                {/* Route to handle place order */}
-                <Route path="placeorder" element={<PlaceOrder />} />
-                <Route path="/order-confirmation" element={<OrderConfirmation />} />
-                {/* New route for order tracking */}
-                <Route path="/orders/track" element={<OrderTracking />} />
-                <Route path="adddelivery/:orderId" element={<AddDelivery />} />
+              <Route path="/DeliverHome" element={<DeliverHome />} />
+              <Route path="/oderdashboard" element={<Delivery />} />
+              <Route path="/deliverydetail" element={<DeliveryDetail />} />
+              <Route path="/adddelivery" element={<AddDelivery />} />
+              <Route path="profile" element={<DeliverAdminProfile />} />
+              <Route
+                path="/drivervehicledetails"
+                element={<DrivervehicleDetails />}
+              />
+              <Route path="/pendingorders" element={<Orderhistorys />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/logout" element={<Logout />} />
 
-              </Route>
+              <Route path="placeorder" element={<PlaceOrder />} />
+              <Route
+                path="/order-confirmation"
+                element={<OrderConfirmation />}
+              />
 
+              <Route path="/orders/track" element={<OrderTracking />} />
+              <Route path="adddelivery/:orderId" element={<AddDelivery />} />
             </Routes>
           </Router>
-
         </Provider>
-      </></>
-     
-     
-
-   
+      </>
+    </>
   );
 }
 

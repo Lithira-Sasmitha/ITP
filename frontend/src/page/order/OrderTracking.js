@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
- 
+
 const OrderTracking = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -9,16 +9,10 @@ const OrderTracking = () => {
   const [orderStatus, setOrderStatus] = useState(null);
   const [mapLoaded, setMapLoaded] = useState(false);
 
-
-
-      
-      
-
-  
   // Mock order status - in a real app, this would come from an API call
   useEffect(() => {
     if (!orderId) return;
-    
+
     // Simulate API call with timeout
     const timer = setTimeout(() => {
       setOrderStatus({
@@ -27,30 +21,42 @@ const OrderTracking = () => {
         estimatedDelivery: "March 25, 2025",
         lastUpdated: "March 22, 2025 - 10:30 AM",
         statusHistory: [
-          { status: "Order Placed", date: "March 22, 2025 - 9:15 AM", completed: true },
-          { status: "Processing", date: "March 22, 2025 - 10:30 AM", completed: true },
+          {
+            status: "Order Placed",
+            date: "March 22, 2025 - 9:15 AM",
+            completed: true,
+          },
+          {
+            status: "Processing",
+            date: "March 22, 2025 - 10:30 AM",
+            completed: true,
+          },
           { status: "Shipped", date: "March 23, 2025", completed: false },
-          { status: "Out for Delivery", date: "March 24, 2025", completed: false },
-          { status: "Delivered", date: "March 25, 2025", completed: false }
+          {
+            status: "Out for Delivery",
+            date: "March 24, 2025",
+            completed: false,
+          },
+          { status: "Delivered", date: "March 25, 2025", completed: false },
         ],
         // Mock location data for map
         currentLocation: {
           lat: 34.052235,
           lng: -118.243683,
-          address: "Warehouse Facility, Los Angeles"
+          address: "Warehouse Facility, Los Angeles",
         },
         destinationAddress: "1234 Customer Street, Beverly Hills, CA 90210",
         destination: {
-          lat: 34.0736, 
-          lng: -118.4004
-        }
+          lat: 34.0736,
+          lng: -118.4004,
+        },
       });
       setLoading(false);
-      
+
       // Initialize Google Maps
       initMap();
     }, 1500);
-    
+
     return () => clearTimeout(timer);
   }, [orderId]);
 
@@ -59,16 +65,16 @@ const OrderTracking = () => {
     // Check if Google Maps script is already loaded
     if (!window.google) {
       // Create script element
-      const googleMapScript = document.createElement('script');
+      const googleMapScript = document.createElement("script");
       googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`;
       googleMapScript.async = true;
       googleMapScript.defer = true;
-      
+
       // Add script to document
       window.document.body.appendChild(googleMapScript);
-      
+
       // Set up callback for when script loads
-      googleMapScript.addEventListener('load', () => {
+      googleMapScript.addEventListener("load", () => {
         setMapLoaded(true);
         renderMap();
       });
@@ -81,87 +87,92 @@ const OrderTracking = () => {
   // Render the map
   const renderMap = () => {
     if (!mapLoaded || !orderStatus) return;
-    
-    const mapContainer = document.getElementById('google-map');
+
+    const mapContainer = document.getElementById("google-map");
     if (!mapContainer) return;
-    
+
     // Create map
     const map = new window.google.maps.Map(mapContainer, {
-      center: { 
-        lat: (orderStatus.currentLocation.lat + orderStatus.destination.lat) / 2, 
-        lng: (orderStatus.currentLocation.lng + orderStatus.destination.lng) / 2 
+      center: {
+        lat:
+          (orderStatus.currentLocation.lat + orderStatus.destination.lat) / 2,
+        lng:
+          (orderStatus.currentLocation.lng + orderStatus.destination.lng) / 2,
       },
       zoom: 12,
       mapTypeControl: false,
       fullscreenControl: false,
-      streetViewControl: false
+      streetViewControl: false,
     });
-    
+
     // Create markers
     // Warehouse marker
     new window.google.maps.Marker({
-      position: { 
-        lat: orderStatus.currentLocation.lat, 
-        lng: orderStatus.currentLocation.lng 
+      position: {
+        lat: orderStatus.currentLocation.lat,
+        lng: orderStatus.currentLocation.lng,
       },
       map: map,
       icon: {
-        url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
-        scaledSize: new window.google.maps.Size(40, 40)
+        url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+        scaledSize: new window.google.maps.Size(40, 40),
       },
-      title: 'Current Location'
+      title: "Current Location",
     });
-    
+
     // Destination marker
     new window.google.maps.Marker({
-      position: { 
-        lat: orderStatus.destination.lat, 
-        lng: orderStatus.destination.lng 
+      position: {
+        lat: orderStatus.destination.lat,
+        lng: orderStatus.destination.lng,
       },
       map: map,
       icon: {
-        url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-        scaledSize: new window.google.maps.Size(40, 40)
+        url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+        scaledSize: new window.google.maps.Size(40, 40),
       },
-      title: 'Destination'
+      title: "Destination",
     });
-    
+
     // Create route
     const directionsService = new window.google.maps.DirectionsService();
     const directionsRenderer = new window.google.maps.DirectionsRenderer({
       map: map,
       suppressMarkers: true,
       polylineOptions: {
-        strokeColor: '#22c55e',
+        strokeColor: "#22c55e",
         strokeWeight: 5,
-        strokeOpacity: 0.7
-      }
+        strokeOpacity: 0.7,
+      },
     });
-    
+
     // Get route
-    directionsService.route({
-      origin: { 
-        lat: orderStatus.currentLocation.lat, 
-        lng: orderStatus.currentLocation.lng 
+    directionsService.route(
+      {
+        origin: {
+          lat: orderStatus.currentLocation.lat,
+          lng: orderStatus.currentLocation.lng,
+        },
+        destination: {
+          lat: orderStatus.destination.lat,
+          lng: orderStatus.destination.lng,
+        },
+        travelMode: window.google.maps.TravelMode.DRIVING,
       },
-      destination: { 
-        lat: orderStatus.destination.lat, 
-        lng: orderStatus.destination.lng 
-      },
-      travelMode: window.google.maps.TravelMode.DRIVING
-    }, (response, status) => {
-      if (status === 'OK') {
-        directionsRenderer.setDirections(response);
-        
-        // Extract route information
-        const route = response.routes[0];
-        const leg = route.legs[0];
-        
-        // Update ETA based on route
-        document.getElementById('distance').textContent = leg.distance.text;
-        document.getElementById('duration').textContent = leg.duration.text;
+      (response, status) => {
+        if (status === "OK") {
+          directionsRenderer.setDirections(response);
+
+          // Extract route information
+          const route = response.routes[0];
+          const leg = route.legs[0];
+
+          // Update ETA based on route
+          document.getElementById("distance").textContent = leg.distance.text;
+          document.getElementById("duration").textContent = leg.duration.text;
+        }
       }
-    });
+    );
   };
 
   // Google Maps component
@@ -171,7 +182,7 @@ const OrderTracking = () => {
         renderMap();
       }
     }, [mapLoaded, orderStatus]);
-    
+
     if (!mapLoaded) {
       return (
         <div className="flex flex-col items-center justify-center h-64 bg-gray-100 rounded-lg">
@@ -180,15 +191,15 @@ const OrderTracking = () => {
         </div>
       );
     }
-    
+
     return (
       <div className="relative">
-        <div 
-          id="google-map" 
+        <div
+          id="google-map"
           className="h-64 bg-gray-100 rounded-lg"
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
         ></div>
-        
+
         <div className="mt-4 bg-white p-4 rounded-lg shadow border border-gray-100">
           <div className="flex items-center mb-2">
             <div className="h-3 w-3 rounded-full bg-blue-600 mr-2"></div>
@@ -197,7 +208,7 @@ const OrderTracking = () => {
           <p className="text-sm text-gray-600 ml-5">
             {orderStatus?.currentLocation.address}
           </p>
-          
+
           <div className="flex items-center mt-3 mb-2">
             <div className="h-3 w-3 rounded-full bg-red-600 mr-2"></div>
             <p className="text-sm font-medium">Destination:</p>
@@ -205,11 +216,15 @@ const OrderTracking = () => {
           <p className="text-sm text-gray-600 ml-5">
             {orderStatus?.destinationAddress}
           </p>
-          
+
           <div className="flex items-center justify-between mt-4 text-sm">
             <div className="flex flex-col">
-              <span className="text-gray-700">Distance: <span id="distance">Calculating...</span></span>
-              <span className="text-gray-700">ETA: <span id="duration">Calculating...</span></span>
+              <span className="text-gray-700">
+                Distance: <span id="distance">Calculating...</span>
+              </span>
+              <span className="text-gray-700">
+                ETA: <span id="duration">Calculating...</span>
+              </span>
             </div>
             <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
               Live Tracking
@@ -292,7 +307,9 @@ const OrderTracking = () => {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-semibold text-lg">{orderStatus.status}</p>
+                    <p className="font-semibold text-lg">
+                      {orderStatus.status}
+                    </p>
                     <p className="text-gray-600">
                       Estimated Delivery: {orderStatus.estimatedDelivery}
                     </p>
@@ -302,14 +319,19 @@ const OrderTracking = () => {
 
               {/* Map section */}
               <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-4">Live Order Tracking</h3>
+                <h3 className="text-xl font-semibold mb-4">
+                  Live Order Tracking
+                </h3>
                 <GoogleMap />
               </div>
 
               <h3 className="text-xl font-semibold mb-4">Delivery Progress</h3>
               <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gray-300 before:zindex-1">
                 {orderStatus.statusHistory.map((step, index) => (
-                  <div key={index} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                  <div
+                    key={index}
+                    className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group"
+                  >
                     <div className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-300 bg-white text-gray-600 shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
                       {step.completed ? (
                         <svg

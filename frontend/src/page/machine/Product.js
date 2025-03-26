@@ -11,7 +11,9 @@ const Product = () => {
 
   const handleAddToCart = (product) => {
     setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.name === product.productName);
+      const existingItem = prevItems.find(
+        (item) => item.name === product.productName
+      );
       if (existingItem) {
         existingItem.quantity += 1;
         return [...prevItems];
@@ -51,7 +53,10 @@ const Product = () => {
   };
 
   const calculateTotal = () => {
-    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    return cartItems.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
   };
 
   const handleCheckout = () => {
@@ -65,14 +70,22 @@ const Product = () => {
     setShowCartModal(!showCartModal);
   };
 
-  if (isLoading) return <div className="text-center py-10">Loading products...</div>;
-  if (error) return <div className="text-center py-10 text-red-500">Error loading products: {error.message}</div>;
+  if (isLoading)
+    return <div className="text-center py-10">Loading products...</div>;
+  if (error)
+    return (
+      <div className="text-center py-10 text-red-500">
+        Error loading products: {error.message}
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-green-100 py-10 px-4">
       <div className="container mx-auto max-w-screen-xl">
         <div className="flex justify-between items-center mb-10">
-          <h1 className="text-4xl font-extrabold text-gray-900">Our Exclusive Products</h1>
+          <h1 className="text-4xl font-extrabold text-gray-900">
+            Our Exclusive Products
+          </h1>
           <div className="relative">
             <button
               className="bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-green-700 transition-all duration-300"
@@ -95,13 +108,21 @@ const Product = () => {
               className="bg-green-200 border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
             >
               <img
-                src={product.productImage ? `http://localhost:5000/${product.productImage}` : "https://via.placeholder.com/150"}
+                src={
+                  product.productImage
+                    ? `http://localhost:5000/${product.productImage}`
+                    : "https://via.placeholder.com/150"
+                }
                 alt={product.productName}
                 className="w-full h-48 object-cover rounded-t-lg"
-                onError={(e) => (e.target.src = "https://via.placeholder.com/150")}
+                onError={(e) =>
+                  (e.target.src = "https://via.placeholder.com/150")
+                }
               />
               <div className="p-4">
-                <h3 className="text-xl font-semibold text-gray-800">{product.productName}</h3>
+                <h3 className="text-xl font-semibold text-gray-800">
+                  {product.productName}
+                </h3>
                 <p className="text-lg text-gray-600">${product.productPrice}</p>
                 <div className="mt-4 flex gap-2">
                   <button
@@ -126,8 +147,13 @@ const Product = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
               <div className="flex justify-between items-center border-b p-4">
-                <h2 className="text-2xl font-bold text-green-800">Shopping Cart</h2>
-                <button onClick={toggleCartModal} className="text-gray-500 hover:text-gray-700">
+                <h2 className="text-2xl font-bold text-green-800">
+                  Shopping Cart
+                </h2>
+                <button
+                  onClick={toggleCartModal}
+                  className="text-gray-500 hover:text-gray-700"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-6 w-6"
@@ -135,7 +161,12 @@ const Product = () => {
                     viewBox="0 0 24 24"
                     stroke="currentColor"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -143,17 +174,26 @@ const Product = () => {
                 {cartItems.length > 0 ? (
                   <div>
                     {cartItems.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between py-4 border-b">
+                      <div
+                        key={index}
+                        className="flex items-center justify-between py-4 border-b"
+                      >
                         <div className="flex items-center">
                           <img
                             src={item.imageUrl}
                             alt={item.name}
                             className="w-16 h-16 object-cover rounded-md mr-4"
-                            onError={(e) => (e.target.src = "https://via.placeholder.com/150")}
+                            onError={(e) =>
+                              (e.target.src = "https://via.placeholder.com/150")
+                            }
                           />
                           <div>
-                            <h3 className="font-semibold text-gray-800">{item.name}</h3>
-                            <p className="text-gray-600">${item.price} x {item.quantity}</p>
+                            <h3 className="font-semibold text-gray-800">
+                              {item.name}
+                            </h3>
+                            <p className="text-gray-600">
+                              ${item.price} x {item.quantity}
+                            </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -195,7 +235,13 @@ const Product = () => {
                             </button>
                           </div>
                           <button
-                            onClick={() => handleViewDetails({ productName: item.name, productPrice: item.price, productImage: item.imageUrl })}
+                            onClick={() =>
+                              handleViewDetails({
+                                productName: item.name,
+                                productPrice: item.price,
+                                productImage: item.imageUrl,
+                              })
+                            }
                             className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 transition-all"
                           >
                             View Details
