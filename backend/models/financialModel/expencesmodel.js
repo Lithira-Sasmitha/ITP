@@ -6,7 +6,7 @@ const categories_model = new Schema({
     type: { 
         type: String, 
         required: [true, "Category type is required"], 
-        enum: ["Investment", "Savings", "Expense"], // Allow only specific types
+        enum: ["Investment", "Savings", "Expense"],
         default: "Investment" 
     },
     color: { 
@@ -26,7 +26,7 @@ const transaction_model = new Schema({
     type: { 
         type: String, 
         required: [true, "Transaction type is required"], 
-        enum: ["Investment", "Savings", "Expense"] // Ensure valid categories
+        enum: ["Investment", "Savings", "Expense"]
     },
     amount: { 
         type: Number, 
@@ -39,11 +39,11 @@ const transaction_model = new Schema({
         required: [true, "Date is required"], 
         validate: {
             validator: function(value) {
-                return value <= new Date(); // Ensure date is not in the future
+                return value <= new Date(); 
             },
             message: "Date cannot be in the future"
         },
-        default: () => new Date().toISOString().split('T')[0] // Save only YYYY-MM-DD format
+        default: () => new Date().toISOString().split('T')[0] 
     }
 });
 

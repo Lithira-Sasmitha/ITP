@@ -6,7 +6,7 @@ import Fin_sidebar from "../../components/sidebar/fin_sidebar";
 import { CreditCard, TrendingUp, Layers, Settings } from "lucide-react";
 
 function Expense() {
-  // Animated variants for smooth transitions
+  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {

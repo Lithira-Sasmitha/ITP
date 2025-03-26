@@ -1,7 +1,7 @@
 const model = require('../../models/financialModel/incomemodel');
 
 // Define color for income category
-const incomeColor = "#10B981FF"; // Emerald green
+const incomeColor = "#10B981FF"; 
 
 // Helper function to validate income input
 function validateIncomeInput({ name, amount, date }) {
@@ -17,7 +17,7 @@ function validateIncomeInput({ name, amount, date }) {
 // Post income categories
 async function create_Categories(req, res) {
     try {
-        // For income, we only have one category type
+        
         const create = new model.Categories({
             type: "Income",
             color: incomeColor,
@@ -47,13 +47,13 @@ async function create_Transaction(req, res) {
         if (!req.body) return res.status(400).json({ message: "Request body is missing." });
 
         let { name, amount, date } = req.body;
-        const type = "Income"; // Always set type to Income
+        const type = "Income"; 
 
-        // Validate input
+      
         const errors = validateIncomeInput({ name, amount, date });
         if (errors.length > 0) return res.status(400).json({ errors });
 
-        // Check if Income category exists, create if not
+        
         let category = await model.Categories.findOne({ type });
         if (!category) {
             try {
@@ -67,7 +67,7 @@ async function create_Transaction(req, res) {
             name,
             type,
             amount,
-            date: date ? new Date(date) : new Date(), // Use provided date or default to today
+            date: date ? new Date(date) : new Date(),
         });
 
         await create.save();
@@ -83,10 +83,10 @@ async function get_Transaction(req, res) {
     try {
         let data = await model.Transaction.find({ type: "Income" });
 
-        // Format date before sending response
+        
         let formattedData = data.map(transaction => ({
             ...transaction._doc,
-            date: transaction.date.toISOString().split('T')[0] // Stores only YYYY-MM-DD
+            date: transaction.date.toISOString().split('T')[0] 
         }));
 
         return res.json(formattedData);
@@ -97,15 +97,15 @@ async function get_Transaction(req, res) {
 
 // Edit income transaction
 async function edit_Transaction(req, res) {
-    const _id = req.params.id; // Access the ID from URL params
-    const { name, amount, date } = req.body; // Get updated fields from request body
-    const type = "Income"; // Always set type to Income
+    const _id = req.params.id; 
+    const { name, amount, date } = req.body; 
+    const type = "Income"; 
 
     if (!_id) {
         return res.status(400).json({ message: "Transaction ID is required" });
     }
 
-    // Validate input
+   
     const errors = validateIncomeInput({ name, amount, date });
     if (errors.length > 0) return res.status(400).json({ errors });
 
@@ -123,7 +123,7 @@ async function edit_Transaction(req, res) {
         // Update the transaction record, including the date
         const updatedTransaction = await model.Transaction.findByIdAndUpdate(
             _id,
-            { name, type, amount, date: date ? new Date(date) : undefined }, // Update date if provided
+            { name, type, amount, date: date ? new Date(date) : undefined }, 
             { new: true } // Return the updated transaction
         );
 
@@ -161,7 +161,7 @@ async function get_Labels(req, res) {
     try {
         let result = await model.Transaction.aggregate([
             {
-                $match: { type: "Income" } // Only get Income transactions
+                $match: { type: "Income" } 
             },
             {
                 $lookup: {
@@ -181,7 +181,7 @@ async function get_Labels(req, res) {
             name: v.name,
             type: v.type,
             amount: v.amount,
-            date: v.date.toISOString().split('T')[0], // Format date
+            date: v.date.toISOString().split('T')[0], 
             color: v.categories_info.color
         }));
 

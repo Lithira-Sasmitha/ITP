@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
-import { motion } from "framer-motion"; // ✅ Import motion
+import { motion } from "framer-motion"; 
 import backgroundImage from "./background.jpg";
 import logo from '../../assets/logo.png';
 
@@ -36,16 +36,16 @@ function LoginForm() {
 
         switch (role) {
           case "User":
-            navigate("/Allusers");
+            navigate("/product");
             break;
           case "Employee manager":
             navigate("/allusers");
             break;
           case "Oder manager":
-            navigate("/curiorservisedashboard");
+            navigate("/DeliverHome");
             break;
           case "Inventory manager":
-            navigate("/inventorydasgboard");
+            navigate("/inventory/dashboard");
             break;
           case "Financial manager":
             navigate("/financialdashboard");

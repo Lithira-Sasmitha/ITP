@@ -6,7 +6,7 @@ export default function ExpenseForm() {
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const [addTransaction] = api.useAddTransactionMutation();
 
-  // Get today's date in YYYY-MM-DD format for validation
+  
   const today = new Date().toISOString().split('T')[0];
 
   const onSubmit = async (data) => {
@@ -14,7 +14,7 @@ export default function ExpenseForm() {
       if (!data) return;
       // Add the transaction and handle API response
       await addTransaction(data).unwrap();
-      reset(); // Reset form fields after successful submission
+      reset(); 
     } catch (error) {
       console.error("Failed to add transaction.", error);
     }

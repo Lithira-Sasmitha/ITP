@@ -127,7 +127,7 @@ function App() {
             <Route path="/message" element={<Message />} />
 
             {/* Emp parth */}
-            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<Home />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/allusers" element={<Allusers />} />

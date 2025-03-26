@@ -6,13 +6,13 @@ const income_categories_model = new Schema({
     type: { 
         type: String, 
         required: [true, "Category type is required"], 
-        enum: ["Income"], // Only allow Income type
+        enum: ["Income"], 
         default: "Income" 
     },
     color: { 
         type: String, 
         required: [true, "Color is required"], 
-        default: '#10B981' // Default green color for income
+        default: '#10B981' 
     }
 });
 
@@ -26,25 +26,25 @@ const income_transaction_model = new Schema({
     type: { 
         type: String, 
         required: [true, "Transaction type is required"], 
-        enum: ["Income"], // Only Income type allowed
+        enum: ["Income"], 
         default: "Income"
     },
     amount: { 
         type: Number, 
         required: [true, "Amount is required"], 
         min: [1, "Amount must be at least 1"], 
-        max: [100000, "Amount cannot exceed 100,000"] // Higher max for income
+        max: [100000, "Amount cannot exceed 100,000"] 
     },
     date: { 
         type: Date, 
         required: [true, "Receipt date is required"], 
         validate: {
             validator: function(value) {
-                return value <= new Date(); // Ensure date is not in the future
+                return value <= new Date(); 
             },
             message: "Date cannot be in the future"
         },
-        default: () => new Date().toISOString().split('T')[0] // Save only YYYY-MM-DD format
+        default: () => new Date().toISOString().split('T')[0] 
     }
 });
 

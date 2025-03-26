@@ -56,7 +56,7 @@ async function create_Transaction(req, res) {
 
         let { name, type, amount, date } = req.body;
 
-        // Validate input
+        
         const errors = validateTransactionInput({ name, type, amount, date });
         if (errors.length > 0) return res.status(400).json({ errors });
 
@@ -74,7 +74,7 @@ async function create_Transaction(req, res) {
             name,
             type,
             amount,
-            date: date ? new Date(date) : new Date(), // Use provided date or default to today
+            date: date ? new Date(date) : new Date(), 
         });
 
         await create.save();
@@ -90,7 +90,7 @@ async function get_Transaction(req, res) {
     try {
         let data = await model.Transaction.find({});
 
-        // Format date before sending response
+      
         let formattedData = data.map(transaction => ({
             ...transaction._doc,
             date: transaction.date.toISOString().split('T')[0] // Stores only YYYY-MM-DD
@@ -104,14 +104,14 @@ async function get_Transaction(req, res) {
 
 // Edit transaction (Includes validation and date update)
 async function edit_Transaction(req, res) {
-    const _id = req.params.id; // Access the ID from URL params
-    const { name, type, amount, date } = req.body; // Get updated fields from request body
+    const _id = req.params.id; 
+    const { name, type, amount, date } = req.body; 
 
     if (!_id) {
         return res.status(400).json({ message: "Transaction ID is required" });
     }
 
-    // Validate input
+    
     const errors = validateTransactionInput({ name, type, amount, date });
     if (errors.length > 0) return res.status(400).json({ errors });
 
@@ -119,8 +119,8 @@ async function edit_Transaction(req, res) {
         // Update the transaction record, including the date
         const updatedTransaction = await model.Transaction.findByIdAndUpdate(
             _id,
-            { name, type, amount, date: date ? new Date(date) : undefined }, // Update date if provided
-            { new: true } // Return the updated transaction
+            { name, type, amount, date: date ? new Date(date) : undefined }, 
+            { new: true } 
         );
 
         if (!updatedTransaction) {
@@ -187,7 +187,7 @@ module.exports = {
     get_Categories,
     create_Transaction,
     get_Transaction,
-    edit_Transaction, // Updated to include date validation
+    edit_Transaction, 
     delete_Transaction,
     get_Labels
 };

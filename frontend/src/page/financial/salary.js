@@ -57,11 +57,11 @@ const styles = StyleSheet.create({
     borderRightColor: "#000",
   },
   cellWidth: {
-    width: "20%", // Adjust the width as needed for each column
+    width: "20%", 
   },
   headerColor: {
-    backgroundColor: "#15803d", // Background color for headers
-    color: "#ffffff", // Text color for headers
+    backgroundColor: "#15803d", 
+    color: "#ffffff", 
   },
 });
 
@@ -186,24 +186,31 @@ function Salary() {
   };
 
   return (
-    <div className="flex  ">
-      <Fin_sidebar />
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar - with full height */}
+      <div className="h-screen sticky top-0">
+        <Fin_sidebar />
+      </div>
       
-      <div className="flex-1 flex flex-col justify-center">
-        <div className="text-center drop-shadow-lg text-gray-800">
-          <div></div>
-          <h1 className="text-4xl py-8 mb-10 bg-red-500 text-white rounded-lg w-96 h-16 flex justify-center items-center mx-auto mt-2">
-            Salary Management
-          </h1>
+      <div className="flex-1 flex flex-col">
+        {/* Header Section */}
+        <div className="bg-white shadow-md py-6 mb-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 className="text-3xl font-bold text-green-900">Salary Management</h1>
+            <p className="text-green-600 mt-1">Manage employee compensation records</p>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <div className="sm:-mx-6 lg:-mx-8 w-2/3 mx-auto">
-            <div className="flex justify-between items-center mb-4">
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <button
-                className="px-3 rounded-md border border-transparent shadow-sm py-2 bg-green-800 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="flex items-center justify-center px-4 py-2 rounded-md bg-green-600 text-white font-medium hover:bg-green-700 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 w-full sm:w-auto"
                 onClick={handleOpen}
-                style={{ width: "200px", marginLeft: "500px" }}
               >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
                 Add Employee Salary
               </button>
               
@@ -212,113 +219,141 @@ function Salary() {
                 <PDFDownloadLink
                   document={<SalaryPDF data={searchQuery ? filteredData : data} />}
                   fileName="salary_management.pdf"
-                  className="px-3 rounded-md border border-transparent shadow-sm py-2 bg-green-800 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  style={{ width: "200px", textDecoration: "none", display: "inline-block", textAlign: "center" }}
+                  className="flex items-center justify-center px-4 py-2 rounded-md bg-green-600 text-white font-medium hover:bg-green-700 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 w-full sm:w-auto"
                 >
-                  {({ blob, url, loading, error }) =>
-                    loading ? "Loading document..." : "Download PDF"
-                  }
+                  {({ blob, url, loading, error }) => (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                      {loading ? "Preparing PDF..." : "Download PDF"}
+                    </>
+                  )}
                 </PDFDownloadLink>
               ) : (
                 <button 
-                  className="px-3 rounded-md border border-transparent shadow-sm py-2 bg-gray-400 text-base font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  style={{ width: "200px", cursor: "not-allowed" }}
+                  className="flex items-center justify-center px-4 py-2 rounded-md bg-gray-300 text-gray-500 font-medium cursor-not-allowed w-full sm:w-auto"
                   disabled
                 >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
                   No Data for PDF
                 </button>
               )}
             </div>
             
-            {/* Add salary modal */}
-            <AddSalary open={openDialog} setOpen={setOpenDialog} />
-            
-            {/* Edit salary modal */}
-            {openDialog1 && (
-              <EditSallary
-                open={openDialog1}
-                setOpen={setOpenDialog1}
-                productData={editData}
-              />
-            )}
-            
-            {isFetching && <div>Loading...</div>}
-            {isError && <div>Error fetching data</div>}
-            {isSuccess && data && Array.isArray(data) && (
-              <div>
+            {/* Search Box */}
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                  </svg>
+                </div>
                 <input
                   type="text"
-                  placeholder="Search"
+                  placeholder="Search by name, department, amount..."
                   value={searchQuery}
                   onChange={handleSearch}
-                  className="mt-4 px-4 py-2 mb-4 border-2 border-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 block w-full"
-                  style={{ marginLeft: "350px" }}
+                  className="pl-10 pr-4 py-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 />
-                <table
-                  className="min-w-full divide-y divide-gray-200"
-                  style={{ marginLeft: "350px" }}
-                >
-                  <thead className="bg-green-300">
-                    <tr>
-                      <th className="px-6 py-3 text-center text-[17px] font-sans font-semibold text-blue-950 uppercase tracking-wider">
+              </div>
+            </div>
+          </div>
+            
+          {/* Add salary modal */}
+          <AddSalary open={openDialog} setOpen={setOpenDialog} />
+          
+          {/* Edit salary modal */}
+          {openDialog1 && (
+            <EditSallary
+              open={openDialog1}
+              setOpen={setOpenDialog1}
+              productData={editData}
+            />
+          )}
+          
+          {/* Loading State */}
+          {isFetching && (
+            <div className="flex justify-center items-center p-12 bg-white rounded-lg shadow-md">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div>
+              <p className="ml-3 text-gray-600">Loading data...</p>
+            </div>
+          )}
+          
+          {/* Error State */}
+          {isError && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
+              <div className="flex">
+                <svg className="h-6 w-6 text-red-500 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <p className="text-red-800">Error fetching data. Please try again.</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Table */}
+          {isSuccess && data && Array.isArray(data) && (
+            <div className="bg-white shadow-md rounded-lg overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-green-600 to-green-500">
+                      <th className="px-6 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">
                         Employee No.
                       </th>
-                      <th className="px-6 py-3 text-center text-[17px] font-sans font-semibold text-blue-950 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">
                         Employee Name
                       </th>
-                      <th className="px-6 py-3 text-center text-[17px] font-sans font-semibold text-blue-950 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">
                         Department
                       </th>
-                      <th className="px-6 py-3 text-center text-[17px] font-sans font-semibold text-blue-950 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-sm font-medium text-white uppercase tracking-wider">
                         Amount
                       </th>
-                      <th className="px-6 py-3 text-center text-[17px] font-sans font-semibold text-blue-950 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">
                         Date
                       </th>
-                      <th className="px-6 py-3 text-center text-[17px] font-sans font-semibold text-blue-950 uppercase tracking-wider">
-                        Action
+                      <th className="px-6 py-3 text-center text-sm font-medium text-white uppercase tracking-wider">
+                        Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-green-300">
+                  <tbody className="bg-white divide-y divide-gray-200">
                     {(searchQuery ? filteredData : data).map((item) => (
-                      <tr key={item._id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {item.empno}
-                          </div>
+                      <tr key={item._id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {item.empno}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {item.empname}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {item.empname}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
+                          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                             {item.department}
-                          </div>
+                          </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {item.amount}
-                          </div>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
+                          ${parseFloat(item.amount).toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {item.date}
-                          </div>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                          {item.date}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap flex">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm flex justify-center space-x-2">
                           <button 
-                            className="px-3" 
+                            className="p-1.5 bg-red-50 rounded-full text-red-600 hover:bg-red-100 transition-colors"
                             onClick={() => handlerClick(item._id)}
+                            title="Delete"
                           >
                             <TrashIcon />
                           </button>
                           
                           <button 
-                            className="px-3" 
+                            className="p-1.5 bg-blue-50 rounded-full text-blue-600 hover:bg-blue-100 transition-colors"
                             onClick={() => handleOpenEdit(item)}
+                            title="Edit"
                           > 
                             <EditIcon />
                           </button>
@@ -328,8 +363,37 @@ function Salary() {
                   </tbody>
                 </table>
               </div>
-            )}
-          </div>
+              
+              {/* Pagination placeholder */}
+              <div className="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div className="text-sm text-gray-700">
+                  Showing <span className="font-medium">{(searchQuery ? filteredData : data).length}</span> records
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Empty State */}
+          {isSuccess && (!data || data.length === 0) && (
+            <div className="text-center bg-white shadow-md rounded-lg p-12">
+              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No salary records</h3>
+              <p className="mt-1 text-sm text-gray-500">Get started by adding a new salary record.</p>
+              <div className="mt-6">
+                <button
+                  onClick={handleOpen}
+                  className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                >
+                  <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                  </svg>
+                  Add New Record
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

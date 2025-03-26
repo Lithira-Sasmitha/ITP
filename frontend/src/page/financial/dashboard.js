@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 
 import { getTotal, getIncomeTotal, getExpenseTotal } from '../../components/helper/helper';
 import StatCard from "../../components/statCard/statCard"; 
-import Header from "../../components/header/header";
+
 import { default as api } from '../../store/apiSLice';
 import Fin_sidebar from "../../components/sidebar/fin_sidebar"; 
 const salesData = [
@@ -34,7 +34,7 @@ const Dashboard = () => {
     conversionRate: '0%'
   });
   
-  // Sidebar state
+  
   
 
   // Update statistics when data changes
