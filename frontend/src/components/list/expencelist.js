@@ -211,6 +211,24 @@ export default function Expencelist() {
       </div>
 
       {/* Transaction list */}
+      <div className=''>
+      <div className="transaction-list space-y-2">
+        {/* Table Header */}
+        <div className="flex flex-col gap-2">
+      {/* Header */}
+      <div className="flex ml-36 w-[800px] items-center py-3 px-4 bg-gray-100 font-semibold text-gray-700 rounded-lg">
+        <div className="flex items-center gap-3 flex-grow">
+          <span>Name</span>
+        </div>
+        
+        <div className="flex items-center">
+          <span className="px-3">Type</span>
+          <span className="px-3">Date</span>
+          <span className="px-3">Amount</span>
+          <div className="ml-2 w-16 text-center">Actions</div>
+        </div>
+      </div>
+      </div>
       <div className="transaction-list space-y-2">
         {filteredData.length === 0 && searchTerm ? (
           <div className="text-center py-3 text-gray-500">No matching transactions found</div>
@@ -218,7 +236,7 @@ export default function Expencelist() {
           Transactions
         )}
       </div>
-
+      </div>
       {showPopup && selectedCategory && (
         <div className="popup-overlay fixed inset-0 bg-gray-800 bg-opacity-80 flex justify-center items-center z-50">
           <div className="popup-container bg-white bg-opacity-65 backdrop-blur-lg p-5 rounded-2xl w-full max-w-md">
@@ -303,6 +321,7 @@ export default function Expencelist() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

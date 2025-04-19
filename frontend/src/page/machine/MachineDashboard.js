@@ -76,7 +76,7 @@ export default function MachineDashboard() {
           `}
           >
             <div>
-              <h1 className="text-4xl font-bold mb-3 tracking-tight text-gray-900">
+              <h1 className="text-4xl font-bold mb-3 tracking-tight text-black-900">
                 Welcome Product & Machine Management Dashboard
               </h1>
               <p className="text-lg opacity-80 font-light text-black-900">

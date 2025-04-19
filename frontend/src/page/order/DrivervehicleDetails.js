@@ -237,7 +237,7 @@ const DrivervehicleDetails = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-green-50 to-green-100">
+    <div className="flex min-h-screen ml-48 bg-gradient-to-br from-green-50 to-green-100">
       <Oderslidebar />
       {message.text && (
         <div

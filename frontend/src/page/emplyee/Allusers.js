@@ -247,7 +247,7 @@ function Allusers() {
       <Sidebar />
     
       {/* Main content */}
-      <div className="flex-1 overflow-x-auto p-8">
+      <div className="flex-1  p-8">
         <div className="w-full">
           {/* Action buttons row */}
           <div className="flex flex-wrap justify-between items-center mb-6">

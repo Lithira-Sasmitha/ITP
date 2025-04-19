@@ -44,7 +44,7 @@ import Payment from "./page/financial/payment";
 import Message from "./page/financial/message";
 import { FiMenu } from "react-icons/fi"; 
 
-// import Layout from "./page/order/Layout";
+
 
 import Delivery from "./page/order/Delivery";
 import DeliveryDetail from "./page/order/Deliverydetail";

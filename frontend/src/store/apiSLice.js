@@ -109,7 +109,7 @@ export const apiSlice = createApi({
             
             url: `/api/empsallary/${recordId._id}`,
             method: "PUT",
-            body: { recordId }, // Pass the updated properties in the body
+            body: { recordId }, 
             }),
             invalidatesTags: ["sallary"],
         }),
