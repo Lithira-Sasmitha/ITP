@@ -42,6 +42,7 @@ import Expense from "./page/financial/expense";
 import Salary from "./page/financial/salary";
 import Payment from "./page/financial/payment";
 import Message from "./page/financial/message";
+import PaymentForm from "./page/financial/payment/paymentForm.js";
 import { FiMenu } from "react-icons/fi"; 
 
 
@@ -125,6 +126,8 @@ function App() {
             <Route path="/salary" element={<Salary />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/message" element={<Message />} />
+            <Route path="/paymentForm" element={<PaymentForm />} />
+
 
             {/* Emp parth */}
             <Route path="/" element={<Home />} />
@@ -163,10 +166,9 @@ function App() {
               <Route path="/logout" element={<Logout />} />
 
               <Route path="placeorder" element={<PlaceOrder />} />
-              <Route
-                path="/order-confirmation"
-                element={<OrderConfirmation />}
+              <Route path="/order-confirmation" element={<OrderConfirmation />}
               />
+              <Route path="/paymentForm" element={<PaymentForm />} />
 
               <Route path="/orders/track" element={<OrderTracking />} />
               <Route path="adddelivery/:orderId" element={<AddDelivery />} />
