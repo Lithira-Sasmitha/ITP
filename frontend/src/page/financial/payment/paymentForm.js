@@ -9,13 +9,13 @@ const PaymentForm = () => {
     ownerName: "",
     accountNumber: "",
     bank: "",
-    password: "",
     expiry: "",
     cvd: "",
   });
 
   const [showCvd, setShowCvd] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
+  const [message, setMessage] = useState("");
 
   const expiryDate = new Date("2025-04-30");
 
@@ -30,16 +30,39 @@ const PaymentForm = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isExpired) return;
 
-    // Do real payment processing here
-    console.log("Payment submitted:", {
-      ...form,
-      totalAmount: total,
-      deliveryCharge: deliveryPrice,
-    });
+    try {
+      const response = await fetch("http://localhost:5000/api/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          totalAmount: total,
+          deliveryCharge: deliveryPrice,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("Payment submitted successfully!");
+        setForm({
+          ownerName: "",
+          accountNumber: "",
+          bank: "",
+          expiry: "",
+          cvd: "",
+        });
+      } else {
+        setMessage(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Error submitting payment:", error);
+      setMessage("Failed to submit payment. Try again later.");
+    }
   };
 
   return (
@@ -132,6 +155,10 @@ const PaymentForm = () => {
           >
             {isExpired ? "Form Expired" : "Submit Payment"}
           </button>
+
+          {message && (
+            <p className="text-sm text-center text-green-600 mt-2">{message}</p>
+          )}
 
           <p className="text-xs text-center text-gray-500 mt-2">
             This form will expire on{" "}

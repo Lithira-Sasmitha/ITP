@@ -17,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // Import your route modules
+const paymentRoutes = require("./routes/financialRoute/paymentroute");
 const expenseRoutes = require('./routes/financialRoute/expencesroute');
 const incomeRoutes = require('./routes/financialRoute/incomeroute');
 const salaryroute = require('./routes/financialRoute/salaryroute')
@@ -55,6 +56,7 @@ app.use("/api/machineparts", machinepartRoutes);
 app.use('/', expenseRoutes);
 app.use('/', incomeRoutes);
 app.use('/',salaryroute);
+app.use("/api/payments", paymentRoutes);
 
 app.use("/api/drivers", driverRoutes);
 app.use("/api/orders", orderRoutes);
