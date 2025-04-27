@@ -1,15 +1,17 @@
-import { BarChart2, DollarSign, Menu, Settings, ShoppingBag, ShoppingCart, TrendingUp } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  CalendarDays,
+  FileCheck,
+  User
+} from "lucide-react"; // Updated icons
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import logo from "../../assets/logo.png";
 
 const SIDEBAR_ITEMS = [
-  { name: "Dashoard", icon: BarChart2, color: "#ffffff", href: "/" },
-  { name: "User Dashboard", icon: ShoppingBag, color: "#ffffff", href: "/allusers" },
-  { name: "Leave", icon: DollarSign, color: "#ffffff", href: "/requestedleave" },
-  { name: "Manage Leave", icon: ShoppingCart, color: "#ffffff", href: "/approveleave" },
- 
-  
+  { name: "Dashboard", icon: LayoutDashboard, color: "#ffffff", href: "/employeeDashboard" },
+  { name: "User Dashboard", icon: Users, color: "#ffffff", href: "/allusers" },
+  { name: "Manage Leave", icon: FileCheck, color: "#ffffff", href: "/approveleave" },
 ];
 
 const Sidebar = () => {
@@ -18,17 +20,17 @@ const Sidebar = () => {
       className="relative z-10 transition-all duration-300 ease-in-out flex-shrink-0 h-full bg-green-700 text-white shadow-lg w-64"
     >
       <div className="h-full p-5 flex flex-col justify-between">
-      
-
-        {/* Logo Section */}
+        {/* User Profile Icon Section */}
         <div className="flex justify-center mb-8">
-          <img
-            src={logo}
-            alt="Logo"
-            className="rounded-full border-4 border-white w-20 h-20"
-          />
+          <Link to="/employeeProfileDashboard">
+            <motion.div className="bg-green-600 p-4 rounded-full hover:bg-green-500 transition">
+              <User size={40} color="white" />
+            </motion.div>
+          </Link>
         </div>
+
         <h2 className="text-2xl font-bold mb-6 text-white">Menu</h2>
+
         {/* Menu Items */}
         <nav className="mt-8 flex-grow">
           {SIDEBAR_ITEMS.map((item) => (

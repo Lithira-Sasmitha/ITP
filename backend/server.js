@@ -22,11 +22,18 @@ const expenseRoutes = require('./routes/financialRoute/expencesroute');
 const incomeRoutes = require('./routes/financialRoute/incomeroute');
 const salaryroute = require('./routes/financialRoute/salaryroute')
 
+//EMP
 const usersRoute = require("./routes/usersRoute");
 const leaveRoute= require("./routes/leavesRoutes")
+const attendanceInRoute=require("./routes/AttendanceIn_Routes.js")
+const attendanceOutRoute=require("./routes/AttendanceOut_Routes.js")
+const forgetpasswordRoute = require("./routes/forgotpasswordRout.js");
 
 app.use("/api/users", usersRoute);
 app.use("/api/leaves", leaveRoute);
+app.use("/api/attendanceIn",attendanceInRoute);
+app.use("/api/attendanceOut",attendanceOutRoute);
+app.use("/api/resetpassword", forgetpasswordRoute);
 
 // Route Imports
 const rawMaterialRoutes = require("./routes/inventoryRoutes/rawMaterialRoutes");

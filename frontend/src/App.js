@@ -24,6 +24,12 @@ import Allusers from "./page/emplyee/Allusers.js";
 import Userupdate from "./page/emplyee/Userupdate.js"
 import Requestedleave from "./page/emplyee/Requestedleave.js";
 import Approveleave from "./page/emplyee/Approveleave.js";
+import Employeedashboard from './page/emplyee/employee_Dashboard.js';
+import Employeeprofiledashboard from './page/emplyee/employeeProfileDashboard.js';
+import Employeeattendance from './page/emplyee/employeeAttendance.js';
+import Edidemployeeprofile from './page/emplyee/Edidemployeeprofile.js';
+import ForgotPassword from './page/emplyee/forgetpassword.js'
+
 
 import store from "./page/machine/redux/store";
 import Prodetails from "./page/machine/Prodetails";
@@ -139,6 +145,11 @@ function App() {
             <Route path="/e_updates/:userid" element={<Userupdate />} />
             <Route path="/requestedleave" element={<Requestedleave />} />
             <Route path="/approveleave" element={<Approveleave />} />
+            <Route path="/employeeDashboard" element={<Employeedashboard />} />
+            <Route path="/employeeProfileDashboard" element={<Employeeprofiledashboard />} />
+            <Route path="/employeeAttendance" element={<Employeeattendance />} />
+            <Route path="/e_userprofile" element={<Edidemployeeprofile/>}/>
+            <Route path="/forgetpassword" element={<ForgotPassword/>}/>
           </Routes>
         </Router>
         <Provider store={store}>

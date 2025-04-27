@@ -1,4 +1,4 @@
-import { BarChart2, DollarSign, Menu, Settings, ShoppingBag, ShoppingCart, TrendingUp } from "lucide-react";
+import { BarChart2, DollarSign, Menu, Settings, ShoppingBag, ShoppingCart, TrendingUp, User } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
@@ -21,13 +21,13 @@ const Fin_sidebar = () => {
 	  
 
         {/* Logo Section */}
-        <div className="flex justify-center mb-8">
-          <img
-            src={logo}
-            alt="Logo"
-            className="rounded-full border-4 border-white w-20 h-20"
-          />
-        </div>
+        <div className="flex justify-center mt-8 mb-8">
+        <Link to="/employeeProfileDashboard">
+          <motion.div className="bg-green-600 p-4 rounded-full hover:bg-green-500 transition">
+            <User size={40} color="white" />
+          </motion.div>
+        </Link>
+      </div>
 		<h2 className="text-2xl font-bold mb-6 text-white">Menu</h2>
         {/* Menu Items */}
         <nav className="mt-8 flex-grow">

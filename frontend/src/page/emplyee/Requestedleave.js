@@ -10,7 +10,7 @@ import {
   CheckCircle as ApprovedIcon,
   XCircle as RejectedIcon,
 } from "lucide-react";
-import Sidebar from "../../components/sidebar/user_sidebar";
+import ProfileSidebar from "../../components/sidebar/emplyee_profilesidebar";
 
 const { RangePicker } = DatePicker;
 
@@ -20,9 +20,15 @@ function Requestedleave() {
   const [description, setDescription] = useState("");
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [employeeName, setEmployeeName] = useState("");
+  
   useEffect(() => {
     fetchLeaves();
+    // Get current user's name
+    const currentUser = JSON.parse(localStorage.getItem("currentuser"));
+    if (currentUser) {
+      setEmployeeName(currentUser.fullName || "Employee");
+    }
   }, []);
 
   const filterByDate = (dates) => {
@@ -139,7 +145,7 @@ function Requestedleave() {
       icon: ApprovedIcon,
       description: "Leave request approved",
     },
-    Rejected: {
+    Dissapproved: { // Note: Fixed the typo in the key name to match your backend
       color: "text-red-600 bg-red-50 border-red-200",
       icon: RejectedIcon,
       description: "Leave request not approved",
@@ -149,16 +155,17 @@ function Requestedleave() {
   return (
     <div className="flex h-screen bg-gray-100">
       <div className="w-64">
-        <Sidebar />
+      <ProfileSidebar />
       </div>
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-6xl mx-auto space-y-8">
-          <div className="bg-white shadow-md rounded-2xl p-6 border-l-4 border-blue-500">
+          <div className="bg-white shadow-md rounded-2xl p-6 border-l-4 border-green-500">
             <h1 className="text-3xl font-bold text-gray-800 flex items-center">
-              <CalendarIcon className="mr-4 text-blue-600" size={36} />
+              <CalendarIcon className="mr-4 text-green-600" size={36} />
               Leave Management
             </h1>
             <p className="text-gray-500 mt-2">Submit and track your leave requests efficiently</p>
+            <p className="text-gray-700 mt-1">Welcome, <span className="font-semibold">{employeeName}</span></p>
           </div>
           <div className="bg-white shadow-lg rounded-2xl p-8 border border-gray-100">
             <form onSubmit={leaveRequest} className="grid md:grid-cols-3 gap-6">
@@ -186,7 +193,7 @@ function Requestedleave() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <div className="animate-spin">
@@ -216,7 +223,7 @@ function Requestedleave() {
                 <table className="w-full">
                   <thead className="bg-gray-100">
                     <tr>
-                      {["#", "From", "To", "Duration", "Reason", "Status"].map((header) => (
+                      {["#", "Employee", "From", "To", "Duration", "Reason", "Status"].map((header) => (
                         <th
                           key={header}
                           className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -229,10 +236,11 @@ function Requestedleave() {
                   <tbody>
                     {leaves.map((leave, index) => {
                       const StatusIcon = STATUS_CONFIG[leave.status]?.icon || CalendarIcon;
-                      const statusConfig = STATUS_CONFIG[leave.status] || {};
+                      const statusConfig = STATUS_CONFIG[leave.status] || STATUS_CONFIG.Pending;
                       return (
                         <tr key={leave._id} className="border-b hover:bg-gray-50 transition-colors">
                           <td className="px-6 py-4">{index + 1}</td>
+                          <td className="px-6 py-4">{employeeName}</td>
                           <td className="px-6 py-4">{leave.fromdate}</td>
                           <td className="px-6 py-4">{leave.todate}</td>
                           <td className="px-6 py-4">

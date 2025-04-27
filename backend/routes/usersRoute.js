@@ -13,7 +13,7 @@ const {
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/getallusers", getAllUsers);
-router.post("/getuser/:id", getUserById);
+router.post("/getuser", getUserById);  // Updated to POST to fetch user by ID
 router.put("/updateuser/:id", updateUser);
 router.delete("/delete/:id", deleteUser);
 
