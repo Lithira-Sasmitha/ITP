@@ -24,16 +24,22 @@ const EditEmployeeProfile = () => {
   useEffect(() => {
     const userDataString = localStorage.getItem("currentuser");
     if (userDataString) {
-      const userData = JSON.parse(userDataString);
+      const userDataLocal = JSON.parse(userDataString);
       setUserData((prevState) => ({
         ...prevState,
-        id: userData._id,
+        id: userDataLocal._id,
+        fullName: userDataLocal.fullName || "",
+        email: userDataLocal.email || "",
+        phone: userDataLocal.phone || "",
+        imageurl: userDataLocal.imageurl || "https://via.placeholder.com/150",
+        password: userDataLocal.password || "",
       }));
-      fetchUserData(userData._id);
+      fetchUserData(userDataLocal._id); // fetch latest from server too
     } else {
       console.log("No user data found in localStorage.");
     }
   }, []);
+  
 
   const fetchUserData = async (userID) => {
     try {

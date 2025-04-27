@@ -21,18 +21,20 @@ const Userupdate = () => {
   useEffect(() => {
     async function getUser() {
       try {
-        // Fix: Use the correct API endpoint format and send userID in request body
-        const response = (
-          await axios.post(`http://localhost:5000/api/users/getuser`, {
-            userID: userid
-          })
-        ).data;
-
-        setid(response.user._id);
-        setfullName(response.user.fullName);
-        setemail(response.user.email);
-        setphone(response.user.phone);
-        setRole(response.user.role);
+        const response = await axios.get(`http://localhost:5000/api/users/getuser/${userid}`);
+        console.log(response); // This helps debug the response structure
+        
+        // Fixed to correctly access the user data from the response
+        const userData = response.data;
+        
+        // Check if the user data is nested inside a 'user' property or directly in data
+        const user = userData.user || userData;
+        
+        setid(user._id);
+        setfullName(user.fullName);
+        setemail(user.email);
+        setphone(user.phone);
+        setRole(user.role);
         setLoading(false);
       } catch (error) {
         console.log(error);
@@ -40,6 +42,7 @@ const Userupdate = () => {
         setLoading(false);
       }
     }
+    
     getUser();
   }, [userid]);
 
@@ -115,6 +118,7 @@ const Userupdate = () => {
                 </div>
               </div>
 
+              {/* Full name input */}
               <div className="group">
                 <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">Full Name</label>
                 <div className="relative">
@@ -134,6 +138,7 @@ const Userupdate = () => {
                 </div>
               </div>
 
+              {/* Email input */}
               <div className="group">
                 <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">Email Address</label>
                 <div className="relative">
@@ -153,6 +158,7 @@ const Userupdate = () => {
                 </div>
               </div>
 
+              {/* Phone input */}
               <div className="group">
                 <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">Phone Number</label>
                 <div className="relative">
@@ -165,16 +171,6 @@ const Userupdate = () => {
                     type="tel"
                     value={phone}
                     onChange={(e) => setphone(e.target.value)}
-                    onInput={(e) => {
-                      const maxLength = 10;
-                      const enteredValue = e.target.value.replace(/\D/g, '');
-                      if (enteredValue.length !== maxLength) {
-                        toast.error("Phone number must be 10 digits.");
-                        setphone(enteredValue.slice(0, maxLength));
-                      } else {
-                        setphone(enteredValue);
-                      }
-                    }}
                     minLength={10}
                     maxLength={10}
                     required
@@ -184,12 +180,13 @@ const Userupdate = () => {
                 </div>
               </div>
 
+              {/* Role select */}
               <div className="group">
                 <label className="block text-sm font-medium text-gray-700 mb-2 ml-1">Role</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                     </svg>
                   </div>
                   <select
@@ -201,12 +198,12 @@ const Userupdate = () => {
                     <option value="User">User</option>
                     <option value="Employee manager">Employee manager</option>
                     <option value="Financial manager">Financial manager</option>
-                    <option value="Oder manager">Oder manager</option>
+                    <option value="Order manager">Order manager</option>
                     <option value="Inventory manager">Inventory manager</option>
                     <option value="Machine manager">Machine manager</option>
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4">
-                    <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                       <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </div>
@@ -218,23 +215,8 @@ const Userupdate = () => {
                   type="submit"
                   className="w-full flex justify-center items-center text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 font-bold py-3 px-6 rounded-full transition-all duration-300 ease-in-out shadow-lg hover:shadow-xl transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-green-500/50"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12" />
-                  </svg>
                   Update User Information
                 </button>
-              </div>
-              
-              <div className="text-center mt-6">
-                <a 
-                  href="/allusers" 
-                  className="inline-flex items-center text-sm font-medium text-green-600 hover:text-green-800 transition-colors duration-200"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  Back to all users
-                </a>
               </div>
             </form>
           </div>

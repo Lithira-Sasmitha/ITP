@@ -56,15 +56,20 @@ const getAllUsers = async (req, res) => {
 
 // Get Single User
 const getUserById = async (req, res) => {
-  const userId = req.params.id;
-
+  const userId = req.params.id; // NOT req.body.id
   try {
     const user = await User.findById(userId);
-    return res.status(200).json({ status: "Employee is fetched", user });
+    if (user) {
+      res.json(user); // Send user data directly
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
   } catch (error) {
-    return res.status(400).json({ status: "Error with fetch employee", message: error });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+
 
 // Update User
 const updateUser = async (req, res) => {
