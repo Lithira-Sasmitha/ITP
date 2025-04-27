@@ -5,13 +5,13 @@
     "cros": "^1.0.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mongoose-sequence": "^6.0.1",
     "fs": "^0.0.1-security",
     "mongodb": "^6.14.2",
     "mongoose": "^8.12.2",
+    "mongoose-sequence": "^6.0.1",
     "multer": "^1.4.5-lts.2",
     "nodemon": "^3.1.9",
-    "path": "^0.12.7"
-
+    "path": "^0.12.7",
+    "qrcode.react": "^4.2.0"
   }
 }

@@ -1,14 +1,25 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const paymentSchema = new mongoose.Schema({
-  ownerName: { type: String, required: true },
-  accountNumber: { type: String, required: true },
-  bank: { type: String, required: true },
-  expiry: { type: String, required: true }, // Stored as YYYY-MM format
-  cvd: { type: String, required: true }, // Ideally encrypted
-  totalAmount: { type: Number, required: true },
-  deliveryCharge: { type: Number, required: true },
-  createdAt: { type: Date, default: Date.now },
+  order_id: { type: String, required: true },
+  fullName: { type: String, required: true },
+  selectedproduct_type: [
+    {
+      title: { type: String, required: true },
+      price: { type: Number, required: true },
+    },
+  ],
+  total: { type: Number, required: true },
+  paymentStatus: { type: String, default: "Pending" },
+  cardDetails: {
+    cardNumber: { type: String, required: true },
+    nameOnCard: { type: String, required: true },
+    expiryDate: { type: String, required: true },
+    cvv: { type: String, required: true }
+  },
+  createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("Payment", paymentSchema);
+const Payment = mongoose.model('Payment', paymentSchema);
+
+module.exports = Payment;

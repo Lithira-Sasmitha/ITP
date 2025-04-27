@@ -43,6 +43,7 @@ import Salary from "./page/financial/salary";
 import Payment from "./page/financial/payment";
 import Message from "./page/financial/message";
 import PaymentForm from "./page/financial/payment/paymentForm.js";
+import PaymentSummary from './page/financial/payment/payment-summary';
 import { FiMenu } from "react-icons/fi"; 
 
 
@@ -127,6 +128,7 @@ function App() {
             <Route path="/payment" element={<Payment />} />
             <Route path="/message" element={<Message />} />
             <Route path="/paymentForm" element={<PaymentForm />} />
+            <Route path="/payment-summary" element={<PaymentSummary />} />
 
 
             {/* Emp parth */}

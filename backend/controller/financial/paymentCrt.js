@@ -1,62 +1,120 @@
 const Payment = require("../../models/financialModel/paymentmodel");
 
-// @desc    Create a new payment
-// @route   POST /api/payments
-// @access  Public or Protected (depends on your auth setup)
-exports.createPayment = async (req, res) => {
+// Get all payments
+exports.getAllPayments = async (req, res) => {
   try {
-    const {
-      ownerName,
-      accountNumber,
-      bank,
-      expiry,
-      cvd,
-      totalAmount,
-      deliveryCharge,
-    } = req.body;
+    const payments = await Payment.find();
+    res.status(200).json(payments);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
-    // Optional: Validate required fields
-    if (
-      !ownerName ||
-      !accountNumber ||
-      !bank ||
-      !expiry ||
-      !cvd ||
-      totalAmount == null ||
-      deliveryCharge == null
-    ) {
-      return res.status(400).json({ message: "All fields are required" });
+// Get a specific payment by ID
+exports.getPaymentById = async (req, res) => {
+  try {
+    const payment = await Payment.findById(req.params.id);
+    if (!payment) {
+      return res.status(404).json({ message: 'Payment not found' });
+    }
+    res.status(200).json(payment);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Update payment status
+// Update payment status
+exports.updatePaymentStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { paymentStatus } = req.body;
+
+    // Validate ID
+    if (!id) {
+      return res.status(400).json({ message: 'Payment ID is required.' });
     }
 
-    const newPayment = new Payment({
-      ownerName,
-      accountNumber,
-      bank,
-      expiry,
-      cvd,
-      totalAmount,
-      deliveryCharge,
-    });
+    // Validate paymentStatus
+    if (!paymentStatus) {
+      return res.status(400).json({ message: 'Payment status is required.' });
+    }
 
-    await newPayment.save();
+    const updatedPayment = await Payment.findByIdAndUpdate(
+      id,
+      { paymentStatus },
+      { new: true, runValidators: true }
+    );
 
-    res.status(201).json({
-      message: "Payment recorded successfully",
-      payment: newPayment,
+    if (!updatedPayment) {
+      return res.status(404).json({ message: 'Payment not found.' });
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Payment status updated successfully.', 
+      updatedPayment 
     });
-  } catch (error) {
-    console.error("Payment creation error:", error);
-    res.status(500).json({ message: "Error processing payment" });
+  } catch (err) {
+    console.error('Error updating payment status:', err);
+    res.status(500).json({ message: 'Server error.', error: err.message });
   }
 };
 
 
-exports.getPayments = async (req, res) => {
+// Create a payment
+// Create a payment
+exports.createPayment = async (req, res) => {
   try {
-    const payments = await Payment.find().sort({ createdAt: -1 });
-    res.status(200).json(payments);
-  } catch (error) {
-    console.error("Payment fetch error:", error);
-    res.status(500).json({ message: "Error fetching payments" });
+    const { 
+      order_id, 
+      fullName, 
+      selectedproduct_type, 
+      total,
+      cardDetails 
+    } = req.body;
+
+    if (!order_id || !fullName || !selectedproduct_type || !total || !cardDetails) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const newPayment = new Payment({
+      order_id,
+      fullName,
+      selectedproduct_type,
+      total,
+      cardDetails: {
+        cardNumber: cardDetails.cardNumber,
+        nameOnCard: cardDetails.nameOnCard,
+        expiryDate: cardDetails.expiryDate,
+        cvv: cardDetails.cvv
+      }
+    });
+
+    await newPayment.save();
+    res.status(201).json(newPayment);
+  } catch (err) {   
+    res.status(500).json({ message: err.message });
   }
+}; 
+
+// Generate QR code (mocked)
+exports.generateQR = (req, res) => {
+  const { order_id } = req.params;
+  const qrCodeUrl = `https://your-website.com/qr/${order_id}`;
+  res.status(200).json({ success: true, qrCodeUrl });
+};
+
+// Download summary (mocked)
+exports.downloadSummary = (req, res) => {
+  const { order_id } = req.params;
+  const summary = `Payment Summary for Order ID: ${order_id}`;
+  res.status(200).json({ success: true, summary });
+};
+
+// Track order (mocked)
+exports.trackOrder = (req, res) => {
+  const { order_id } = req.params;
+  const orderStatus = 'Shipped';
+  res.status(200).json({ success: true, status: orderStatus });
 };
