@@ -7,9 +7,10 @@ import {
   FaTasks,
   FaHistory,
   FaTachometerAlt,
+  FaUserCircle, // ✅ Added this instead of missing User
 } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // ✅ Added Link
 import logo from "../../assets/logo.png"; // Adjust the path to your logo
 
 const Oderslidebar = () => {
@@ -32,13 +33,13 @@ const Oderslidebar = () => {
       transition={{ duration: 0.3 }}
     >
       <div className="h-full flex flex-col p-5 overflow-y-auto">
-        {/* Logo Section */}
-        <div className="flex justify-center mb-8 pt-4">
-          <img
-            src={logo}
-            alt="Logo"
-            className="w-20 h-20 rounded-full border-4 border-white"
-          />
+        {/* Profile Icon */}
+        <div className="flex justify-center mb-8">
+          <Link to="/employeeProfileDashboard">
+            <motion.div className="bg-green-600 p-4 rounded-full hover:bg-green-500 transition">
+              <FaUserCircle size={40} color="white" /> {/* ✅ Used FaUserCircle */}
+            </motion.div>
+          </Link>
         </div>
 
         {/* Menu Section */}
@@ -98,7 +99,8 @@ const Oderslidebar = () => {
                   onClick={() => handleNavigate("/drivervehicledetails")}
                   className="flex items-center w-full text-left rounded-lg px-4 py-3 transition-all duration-300 hover:bg-green-700 focus:bg-green-700 focus:outline-none"
                 >
-                  <FaTasks className="h-6 w-6 mr-4 text-white" />D & V Details
+                  <FaTasks className="h-6 w-6 mr-4 text-white" />
+                  D & V Details
                 </button>
               </li>
 

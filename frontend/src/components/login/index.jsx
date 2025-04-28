@@ -72,7 +72,7 @@ function LoginForm() {
           case "Employee manager":
             navigate("/employeeDashboard");
             break;
-          case "Oder manager":
+          case "Order manager":
             navigate("/DeliverHome");
             break;
           case "Inventory manager":

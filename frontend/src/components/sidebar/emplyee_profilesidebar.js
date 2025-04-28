@@ -1,44 +1,66 @@
 import { User, Settings, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const SIDEBAR_ITEMS = [
   { name: "Profile Board", icon: User, href: "/employeeProfileDashboard" },
   { name: "Edit Profile", icon: Settings, href: "/e_userprofile" },
   { name: "Attendance", icon: User, href: "/employeeAttendance" },
   { name: "Leave Request", icon: User, href: "/requestedleave" },
-
 ];
 
 const ProfileSidebar = () => {
   const navigate = useNavigate();
+  const [userRole, setUserRole] = useState("");
+
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("currentuser"));
+    if (userData && userData.role) {
+      setUserRole(userData.role);
+    }
+  }, []);
+
+  const handleProfileClick = () => {
+    if (userRole === "Financial manager") {
+      navigate("/financialdashboard");
+    } else if (userRole === "Inventory manager") {
+      navigate("/inventory/dashboard");
+    } else if (userRole === "Oder manager") {
+      navigate("/DeliverHome");
+    } else if (userRole === "Employee manager") {
+      navigate("/employeeDashboard");
+    } else if (userRole === "Machine manager") {
+      navigate("/machinedashboard");
+    } else {
+      navigate("/employeeDashboard"); // Default fallback
+    }
+  };
 
   const handleLogout = () => {
-    // Add any logout logic here (clear tokens, state, etc.)
-    // Then navigate to signin page
+    // Clear localStorage or user session if needed
     navigate("/signin");
   };
 
   return (
-    <motion.div
-      className="relative z-10 transition-all duration-300 ease-in-out flex-shrink-0 h-full bg-green-700 text-white shadow-lg w-64"
-    >
+    <motion.div className="relative z-10 transition-all duration-300 ease-in-out flex-shrink-0 h-full bg-green-700 text-white shadow-lg w-64">
       <div className="h-full p-5 flex flex-col justify-between">
         {/* Profile Icon */}
         <div className="flex justify-center mb-8">
-          <Link to="/employeeDashboard">
-            <motion.div
-              className="bg-green-600 p-4 rounded-full hover:bg-green-500 transition cursor-pointer"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <User size={40} color="white" />
-            </motion.div>
-          </Link>
+          <motion.div
+            className="bg-green-600 p-4 rounded-full hover:bg-green-500 transition cursor-pointer"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleProfileClick}
+          >
+            <User size={40} color="white" />
+          </motion.div>
         </div>
 
         {/* Menu Title */}
-        <h2 className="text-2xl font-bold mb-6 text-white text-center">My Profile</h2>
+        <h2 className="text-2xl font-bold mb-6 text-white text-center">
+          My Profile
+        </h2>
 
         {/* Menu Buttons */}
         <nav className="flex-grow">
@@ -58,9 +80,9 @@ const ProfileSidebar = () => {
               </motion.div>
             </Link>
           ))}
-          
+
           {/* Logout Button */}
-          <motion.div 
+          <motion.div
             className="flex items-center rounded-lg px-4 py-3 transition-all duration-300 bg-red-600 hover:bg-red-500 mb-4 cursor-pointer"
             onClick={handleLogout}
             whileTap={{ scale: 0.95 }}

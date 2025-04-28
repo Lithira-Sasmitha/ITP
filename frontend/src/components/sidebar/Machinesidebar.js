@@ -6,7 +6,8 @@ import {
   Layers,
   Wrench,
   Hammer,
-  Menu, // Import the Menu icon for the hamburger menu
+  Menu,
+  User // Import the Menu icon for the hamburger menu
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -72,15 +73,13 @@ const Machinesidebar = () => {
           sidebarOpen ? "left-0" : "-left-64"
         }`}
       >
-        {/* Logo Section */}
-        <div className="flex flex-col items-center mb-10">
-          <motion.img
-            src={logo}
-            alt="Logo"
-            className="w-16 h-16 rounded-full border-4 border-white shadow-md"
-            whileHover={{ rotate: 360 }}
-            transition={{ duration: 0.8 }}
-          />
+        {/* Profile icon  */}
+        <div className="flex justify-center mb-8">
+          <Link to="/employeeProfileDashboard">
+            <motion.div className="bg-green-600 p-4 rounded-full hover:bg-green-500 transition">
+              <User size={40} color="white" />
+            </motion.div>
+          </Link>
         </div>
 
         {/* Menu Items */}

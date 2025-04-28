@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // ✅ Added Link here
+import { motion } from "framer-motion"; // ✅ Added motion here
 import {
   FaChartBar,
   FaWarehouse,
   FaCubes,
   FaBarcode,
   FaEnvelope,
+  FaUserCircle, // ✅ Replaced User with FaUserCircle
 } from "react-icons/fa";
 import logo from "../../assets/logo.png";
 
@@ -23,13 +25,17 @@ const WarehouseLayout = ({ children }) => {
       {/* Sidebar */}
       <div className="flex flex-col justify-between w-64 p-5 text-white bg-green-900 shadow-lg">
         <div>
-          <div className="flex justify-center mb-6">
-            <img src={logo} alt="Logo" className="w-16 h-16 rounded-full" />
+          <div className="flex justify-center mb-8">
+            <Link to="/employeeProfileDashboard">
+              <motion.div className="bg-green-600 p-4 rounded-full hover:bg-green-500 transition">
+                <FaUserCircle size={40} color="white" /> {/* ✅ Used FaUserCircle */}
+              </motion.div>
+            </Link>
           </div>
           <nav>
             <ul>
 
-            <li className="mb-4">
+              <li className="mb-4">
                 <button
                   onClick={() => navigate("/inventory/inventoryPage")}
                   className="flex items-center w-full p-3 rounded-lg hover:bg-green-700"
@@ -37,7 +43,7 @@ const WarehouseLayout = ({ children }) => {
                   <FaWarehouse className="mr-4" /> Inventory
                 </button>
               </li>
-              
+
               <li className="mb-4">
                 <button
                   onClick={() => navigate("/inventory/dashboard")}
@@ -46,7 +52,7 @@ const WarehouseLayout = ({ children }) => {
                   <FaChartBar className="mr-4" /> Dashboard
                 </button>
               </li>
-              
+
               <li className="mb-4">
                 <button
                   onClick={() => navigate("/inventory/stockMovement")}
@@ -55,6 +61,7 @@ const WarehouseLayout = ({ children }) => {
                   <FaCubes className="mr-4" /> Stock Movements
                 </button>
               </li>
+
               <li className="mb-4">
                 <button
                   onClick={() => navigate("/inventory/finalProductQR")}
@@ -63,6 +70,7 @@ const WarehouseLayout = ({ children }) => {
                   <FaBarcode className="mr-4" /> QR Generator
                 </button>
               </li>
+
             </ul>
           </nav>
         </div>
