@@ -39,11 +39,15 @@ app.use("/api/resetpassword", forgetpasswordRoute);
 const rawMaterialRoutes = require("./routes/inventoryRoutes/rawMaterialRoutes");
 const packingMaterialRoutes = require("./routes/inventoryRoutes/packingMaterialRoutes");
 const finalProductRoutes = require("./routes/inventoryRoutes/finalProductRoutes");
+const stockMovementRoutes = require("./routes/inventoryRoutes/stockMovementRoutes");
+const warehouseEmailRoutes = require("./routes/inventoryRoutes/warehouseEmailRoutes");
 
 // Route Middleware
 app.use("/api/rawMaterial", rawMaterialRoutes);
 app.use("/api/packingMaterial", packingMaterialRoutes);
 app.use("/api/finalProduct", finalProductRoutes);
+app.use("/api/stockMovement", stockMovementRoutes);
+app.use("/api/warehouseEmail", warehouseEmailRoutes);
 
 const driverRoutes = require("./routes/driverRoutes");
 const orderRoutes = require("./routes/orderRoutes");

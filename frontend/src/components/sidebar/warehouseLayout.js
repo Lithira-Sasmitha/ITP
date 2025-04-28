@@ -68,7 +68,7 @@ const WarehouseLayout = ({ children }) => {
         </div>
         <div className="text-sm text-gray-300">
           <div className="flex items-center mb-2">
-            <FaEnvelope className="mr-2" /> warehouse@ceyloncoir.com
+            <FaEnvelope className="mr-2" /> ceyloncoirlimited@gmail.com
           </div>
           <div>{currentTime.toLocaleTimeString()}</div>
         </div>

@@ -15,7 +15,7 @@ import FinalProductList from './page/inventory/finalProductList';
 import AddFinalProduct from './page/inventory/addFinalProduct';
 import UpdateFinalProduct from './page/inventory/updateFinalProduct';
 import FinalProductQR from './page/inventory/finalProductQR';
-
+import StockMovement from './page/inventory/stockMovement';
 
 import SignIn from "./components/login/index.jsx"; 
 import Signup from "./components/register/index.js";
@@ -117,6 +117,10 @@ function App() {
           <Route
             path="/inventory/finalProductQR"
             element={<FinalProductQR />}
+          />
+          <Route
+            path="/inventory/stockMovement"
+            element={<StockMovement />}
           />
         </Routes>
       </Router>
