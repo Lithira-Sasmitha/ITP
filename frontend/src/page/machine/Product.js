@@ -1,15 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGetProductsQuery } from "../../page/machine/redux/api/productapiSlice";
+import axios from "axios";
 
 const Product = () => {
   const [cartCount, setCartCount] = useState(0);
   const [cartItems, setCartItems] = useState([]);
   const [showCartModal, setShowCartModal] = useState(false);
+  const [finalProducts, setFinalProducts] = useState([]);
   const navigate = useNavigate();
   const { data: products, isLoading, error } = useGetProductsQuery();
 
+  // Fetch final products
+  useEffect(() => {
+    axios
+      .get("http://localhost:5000/api/finalProduct")
+      .then((response) => {
+        setFinalProducts(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching final products:", error);
+      });
+  }, []);
+
   const handleAddToCart = (product) => {
+    const finalProduct = finalProducts.find(
+      (fp) => fp.name === product.productName
+    );
+    if (!finalProduct || finalProduct.status === "Out of Stock") {
+      alert("This product is out of stock!");
+      return;
+    }
+
     setCartItems((prevItems) => {
       const existingItem = prevItems.find(
         (item) => item.name === product.productName
@@ -59,7 +81,18 @@ const Product = () => {
     );
   };
 
+  const isCheckoutDisabled = () => {
+    return cartItems.some((item) => {
+      const finalProduct = finalProducts.find((fp) => fp.name === item.name);
+      return !finalProduct || finalProduct.status === "Out of Stock";
+    });
+  };
+
   const handleCheckout = () => {
+    if (isCheckoutDisabled()) {
+      alert("Cannot checkout: some products are out of stock!");
+      return;
+    }
     const deliveryPrice = 5;
     const total = calculateTotal() + deliveryPrice;
     navigate("/placeorder", { state: { cartItems, deliveryPrice, total } });
@@ -80,7 +113,7 @@ const Product = () => {
     );
 
   return (
-    <div className="min-h-screen bg-green-100 py-10 px-4">
+    <div className="min-h-screen bg-gray-100 py-10 px-4">
       <div className="container mx-auto max-w-screen-xl">
         <div className="flex justify-between items-center mb-10">
           <h1 className="text-4xl font-extrabold text-gray-900">
@@ -102,54 +135,80 @@ const Product = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
-          {products?.map((product, index) => (
-            <div
-              key={index}
-              className="bg-green-200 border border-gray-200 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
-            >
-              <img
-                src={
-                  product.productImage
-                    ? `http://localhost:5000/${product.productImage}`
-                    : "https://via.placeholder.com/150"
-                }
-                alt={product.productName}
-                className="w-full h-48 object-cover rounded-t-lg"
-                onError={(e) =>
-                  (e.target.src = "https://via.placeholder.com/150")
-                }
-              />
-              <div className="p-4">
-                <h3 className="text-xl font-semibold text-gray-800">
-                  {product.productName}
-                </h3>
-                <p className="text-lg text-gray-600">${product.productPrice}</p>
-                <div className="mt-4 flex gap-2">
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-all"
-                  >
-                    Add to Cart
-                  </button>
-                  <button
-                    onClick={() => handleViewDetails(product)}
-                    className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-all"
-                  >
-                    View Details
-                  </button>
+          {products?.map((product, index) => {
+            const finalProduct = finalProducts.find(
+              (fp) => fp.name === product.productName
+            );
+            const isOutOfStock =
+              !finalProduct || finalProduct.status === "Out of Stock";
+            return (
+              <div
+                key={index}
+                className={`relative bg-white border-2 border-black rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 ${
+                  isOutOfStock ? "opacity-50" : ""
+                }`}
+              >
+                {isOutOfStock && (
+                  <div className="absolute top-0 left-0 w-full bg-red-500 text-white text-center py-2 rounded-t-lg font-semibold">
+                    Out of Stock
+                  </div>
+                )}
+                <img
+                  src={
+                    product.productImage
+                      ? `http://localhost:5000/${product.productImage}`
+                      : "https://via.placeholder.com/150"
+                  }
+                  alt={product.productName}
+                  className="w-full h-48 object-cover rounded-t-lg"
+                  onError={(e) =>
+                    (e.target.src = "https://via.placeholder.com/150")
+                  }
+                />
+                <div className="p-4">
+                  <h3 className="text-xl font-semibold text-gray-800">
+                    {product.productName}
+                  </h3>
+                  <p className="text-lg text-gray-600">
+                    ${product.productPrice}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {isOutOfStock
+                      ? ""
+                      : `Stock: ${finalProduct?.quantity || 0}`}
+                  </p>
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      onClick={() => handleAddToCart(product)}
+                      className={`bg-green-500 text-white px-6 py-2 rounded-lg transition-all ${
+                        isOutOfStock
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-green-600"
+                      }`}
+                      disabled={isOutOfStock}
+                    >
+                      Add to Cart
+                    </button>
+                    <button
+                      onClick={() => handleViewDetails(product)}
+                      className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-all"
+                    >
+                      View Details
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {showCartModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
               <div className="flex justify-between items-center border-b p-4">
-                <h2 className="text-2xl font-bold text-green-800">
+                <h1 className="text-2xl font-bold text-green-800">
                   Shopping Cart
-                </h2>
+                </h1>
                 <button
                   onClick={toggleCartModal}
                   className="text-gray-500 hover:text-gray-700"
@@ -173,82 +232,100 @@ const Product = () => {
               <div className="p-4 max-h-96 overflow-y-auto">
                 {cartItems.length > 0 ? (
                   <div>
-                    {cartItems.map((item, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between py-4 border-b"
-                      >
-                        <div className="flex items-center">
-                          <img
-                            src={item.imageUrl}
-                            alt={item.name}
-                            className="w-16 h-16 object-cover rounded-md mr-4"
-                            onError={(e) =>
-                              (e.target.src = "https://via.placeholder.com/150")
-                            }
-                          />
-                          <div>
-                            <h3 className="font-semibold text-gray-800">
-                              {item.name}
-                            </h3>
-                            <p className="text-gray-600">
-                              ${item.price} x {item.quantity}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
+                    {cartItems.map((item, index) => {
+                      const finalProduct = finalProducts.find(
+                        (fp) => fp.name === item.name
+                      );
+                      const isOutOfStock =
+                        !finalProduct || finalProduct.status === "Out of Stock";
+                      return (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between py-4 border-b"
+                        >
                           <div className="flex items-center">
-                            <button
-                              onClick={() => handleRemoveFromCart(item.name)}
-                              className="bg-red-100 hover:bg-red-200 text-red-700 p-1 rounded"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
+                            <img
+                              src={item.imageUrl}
+                              alt={item.name}
+                              className="w-16 h-16 object-cover rounded-md mr-4"
+                              onError={(e) =>
+                                (e.target.src =
+                                  "https://via.placeholder.com/150")
+                              }
+                            />
+                            <div>
+                              <h3 className="font-semibold text-gray-800">
+                                {item.name}
+                              </h3>
+                              <p className="text-gray-600">
+                                ${item.price} x {item.quantity}
+                              </p>
+                              {isOutOfStock && (
+                                <p className="text-red-500 text-sm">
+                                  Out of Stock
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center">
+                              <button
+                                onClick={() => handleRemoveFromCart(item.name)}
+                                className="bg-red-100 hover:bg-red-200 text-red-700 p-1 rounded"
                               >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </button>
-                            <span className="mx-2">{item.quantity}</span>
-                            <button
-                              onClick={() => handleAddToCart(item)}
-                              className="bg-green-100 hover:bg-green-200 text-green-700 p-1 rounded"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </button>
+                              <span className="mx-2">{item.quantity}</span>
+                              <button
+                                onClick={() => handleAddToCart(item)}
+                                className={`bg-green-100 text-green-700 p-1 rounded ${
+                                  isOutOfStock
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : "hover:bg-green-200"
+                                }`}
+                                disabled={isOutOfStock}
                               >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-5 w-5"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                            <button
+                              onClick={() =>
+                                handleViewDetails({
+                                  productName: item.name,
+                                  productPrice: item.price,
+                                  productImage: item.imageUrl,
+                                })
+                              }
+                              className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 transition-all"
+                            >
+                              View Details
                             </button>
                           </div>
-                          <button
-                            onClick={() =>
-                              handleViewDetails({
-                                productName: item.name,
-                                productPrice: item.price,
-                                productImage: item.imageUrl,
-                              })
-                            }
-                            className="bg-blue-500 text-white px-2 py-1 rounded-lg hover:bg-blue-600 transition-all"
-                          >
-                            View Details
-                          </button>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                     <div className="py-4 border-b">
                       <div className="flex justify-between font-bold">
                         <span>Total:</span>
@@ -264,7 +341,12 @@ const Product = () => {
                       </button>
                       <button
                         onClick={handleCheckout}
-                        className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
+                        className={`bg-green-600 text-white py-2 px-4 rounded transition-all ${
+                          isCheckoutDisabled()
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:bg-green-700"
+                        }`}
+                        disabled={isCheckoutDisabled()}
                       >
                         Checkout
                       </button>

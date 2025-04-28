@@ -1,87 +1,177 @@
 const MachinePart = require("../../models/machineModel/MachinePart");
+const Machine = require("../../models/machineModel/Machine");
 
 // Create a new machine part
 exports.createMachinePart = async (req, res) => {
   try {
-    const {machinepartName, machinepartId, machinepartPurchaseDate , machinepartWarrantyPeriod, machinepartValue } = req.body;
+    const {
+      machinepartName,
+      machinepartId,
+      machinepartPurchaseDate,
+      machinepartWarrantyPeriod,
+      machinepartValue,
+      machineId,
+    } = req.body;
 
-    if (!machinepartName || !machinepartId || !machinepartPurchaseDate || !machinepartWarrantyPeriod || !machinepartValue) {
-      return res.status(400).json({ message: "All fields are required" });
+    // Validate required fields
+    if (
+      !machinepartName ||
+      !machinepartId ||
+      !machinepartValue ||
+      !machineId ||
+      !machinepartWarrantyPeriod
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Required fields are missing. Please provide part name, ID, value, machine ID, and warranty period.",
+      });
     }
 
-    const newMachinePart = new MachinePart(req.body);
+    // Verify machine exists and get machine name
+    const machine = await Machine.findById(machineId);
+    if (!machine) {
+      return res.status(404).json({
+        success: false,
+        message: "Machine not found",
+      });
+    }
+
+    const newMachinePart = new MachinePart({
+      machinepartName,
+      machinepartId,
+      machinepartPurchaseDate,
+      machinepartWarrantyPeriod,
+      machinepartValue,
+      machineId,
+      machineName: machine.name,
+    });
     await newMachinePart.save();
 
-    res
-      .status(201)
-      .json({ message: "Machine Part added successfully", machinepart: newMachinePart });
+    res.status(201).json({
+      success: true,
+      message: "Machine Part added successfully",
+      data: newMachinePart,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error adding machine part", error: error.message });
+    console.error("Error creating machine part:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error adding machine part",
+      error: error.message,
+    });
   }
 };
 
-// Get all machines part
+// Get all machine parts
 exports.getAllMachineParts = async (req, res) => {
   try {
-    const machineparts = await MachinePart.find();
-    res.status(200).json(machineparts);
+    const machineParts = await MachinePart.find();
+    res.status(200).json({
+      success: true,
+      data: machineParts,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching machine parts", error: error.message });
+    console.error("Error fetching machine parts:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching machine parts",
+      error: error.message,
+    });
   }
 };
 
 // Get a single machine part by ID
 exports.getMachinePartById = async (req, res) => {
   try {
-    const machinepart = await MachinePart.findById(req.params.id);
-    if (!machinepart) return res.status(404).json({ message: "Machine Part not found" });
-    res.status(200).json(machinepart);
+    const machinePart = await MachinePart.findById(req.params.id);
+    if (!machinePart) {
+      return res.status(404).json({
+        success: false,
+        message: "Machine Part not found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      data: machinePart,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching machine part", error: error.message });
+    console.error("Error fetching machine part:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching machine part",
+      error: error.message,
+    });
   }
 };
 
 // Update a machine part by ID
 exports.updateMachinePart = async (req, res) => {
   try {
+    const { machineId } = req.body;
+
+    // If machineId is provided, verify machine exists and get machine name
+    if (machineId) {
+      const machine = await Machine.findById(machineId);
+      if (!machine) {
+        return res.status(404).json({
+          success: false,
+          message: "Machine not found",
+        });
+      }
+      req.body.machineName = machine.name;
+    }
+
     const updatedMachinePart = await MachinePart.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true }
     );
+
     if (!updatedMachinePart) {
-      return res.status(404).json({ message: "Machine Part not found" });
-    }
-    res
-      .status(200)
-      .json({
-        message: "Machine Part updated successfully",
-        machinepart: updatedMachinePart,
+      return res.status(404).json({
+        success: false,
+        message: "Machine Part not found",
       });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Machine Part updated successfully",
+      data: updatedMachinePart,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating machine part", error: error.message });
+    console.error("Error updating machine part:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating machine part",
+      error: error.message,
+    });
   }
 };
 
 // Delete a machine part by ID
 exports.deleteMachinePart = async (req, res) => {
   try {
-    const deletedMachinePart = await MachinePart.findByIdAndDelete(req.params.id);
+    const deletedMachinePart = await MachinePart.findByIdAndDelete(
+      req.params.id
+    );
     if (!deletedMachinePart) {
-      return res.status(404).json({ message: "Machine Part not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Machine Part not found",
+      });
     }
-    res.status(200).json({ message: "Machine Part deleted successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Machine Part deleted successfully",
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error deleting machine part", error: error.message });
+    console.error("Error deleting machine part:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error deleting machine part",
+      error: error.message,
+    });
   }
 };

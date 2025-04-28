@@ -2,52 +2,64 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const machinepartapiSlice = createApi({
   reducerPath: "machinepartApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:5000/api" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: "http://localhost:5000/api",
+    prepareHeaders: (headers) => {
+      headers.set("Content-Type", "application/json");
+      return headers;
+    },
+  }),
   tagTypes: ["MachinePart"],
   endpoints: (builder) => ({
     getParts: builder.query({
-      query: () => "/machineParts", // Adjust to your machine parts endpoint
+      query: () => "/machineparts",
       providesTags: ["MachinePart"],
+      transformResponse: (response) => {
+        if (!response.success) {
+          throw new Error(response.message || "Failed to fetch parts");
+        }
+        return response.data;
+      },
     }),
     createPart: builder.mutation({
       query: (newPart) => ({
-        url: "/machineparts", // Adjust to your machine parts creation endpoint
+        url: "/machineparts",
         method: "POST",
         body: newPart,
       }),
       invalidatesTags: ["MachinePart"],
+      transformResponse: (response) => {
+        if (!response.success) {
+          throw new Error(response.message || "Failed to create part");
+        }
+        return response.data;
+      },
     }),
     updatePart: builder.mutation({
       query: ({ id, updatedPart }) => ({
-        url: `/machineparts/${id}`, // Adjust to your machine part update endpoint
+        url: `/machineparts/${id}`,
         method: "PUT",
         body: updatedPart,
       }),
       invalidatesTags: ["MachinePart"],
+      transformResponse: (response) => {
+        if (!response.success) {
+          throw new Error(response.message || "Failed to update part");
+        }
+        return response.data;
+      },
     }),
     deletePart: builder.mutation({
       query: (id) => ({
-        url: `/machineParts/${id}`, // Adjust to your machine part delete endpoint
+        url: `/machineparts/${id}`,
         method: "DELETE",
       }),
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          machinepartapiSlice.util.updateQueryData(
-            "getParts",
-            undefined,
-            (draft) => {
-              const index = draft.findIndex((part) => part.id === id);
-              if (index !== -1) {
-                draft.splice(index, 1); // Remove the deleted part from the local cache
-              }
-            }
-          )
-        );
-        try {
-          await queryFulfilled; // Wait for the mutation to complete
-        } catch (error) {
-          patchResult.undo(); // Revert the cache update if the mutation fails
+      invalidatesTags: ["MachinePart"],
+      transformResponse: (response) => {
+        if (!response.success) {
+          throw new Error(response.message || "Failed to delete part");
         }
+        return response.data;
       },
     }),
   }),

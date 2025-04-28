@@ -3,22 +3,26 @@ const Machine = require("../../models/machineModel/Machine");
 // Create a new machine
 exports.createMachine = async (req, res) => {
   try {
-    const {name, id, status, purchaseDate, warrantyDate, value } = req.body;
+    const { name, id, status, purchaseDate, warrantyDate, value } = req.body;
 
     if (!name || !id || !status || !purchaseDate || !warrantyDate || !value) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ success: false, message: "All fields are required" });
     }
 
     const newMachine = new Machine(req.body);
     await newMachine.save();
 
-    res
-      .status(201)
-      .json({ message: "Machine added successfully", machine: newMachine });
+    res.status(201).json({
+      success: true,
+      message: "Machine added successfully",
+      data: newMachine,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error adding machine", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error adding machine",
+      error: error.message,
+    });
   }
 };
 
@@ -26,11 +30,16 @@ exports.createMachine = async (req, res) => {
 exports.getAllMachines = async (req, res) => {
   try {
     const machines = await Machine.find();
-    res.status(200).json(machines);
+    res.status(200).json({
+      success: true,
+      data: machines,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching machines", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching machines",
+      error: error.message,
+    });
   }
 };
 
@@ -38,12 +47,17 @@ exports.getAllMachines = async (req, res) => {
 exports.getMachineById = async (req, res) => {
   try {
     const machine = await Machine.findById(req.params.id);
-    if (!machine) return res.status(404).json({ message: "Machine not found" });
-    res.status(200).json(machine);
+    if (!machine) return res.status(404).json({ success: false, message: "Machine not found" });
+    res.status(200).json({
+      success: true,
+      data: machine,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching machine", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching machine",
+      error: error.message,
+    });
   }
 };
 
@@ -56,18 +70,19 @@ exports.updateMachine = async (req, res) => {
       { new: true, runValidators: true }
     );
     if (!updatedMachine) {
-      return res.status(404).json({ message: "Machine not found" });
+      return res.status(404).json({ success: false, message: "Machine not found" });
     }
-    res
-      .status(200)
-      .json({
-        message: "Machine updated successfully",
-        machine: updatedMachine,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Machine updated successfully",
+      data: updatedMachine,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error updating machine", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error updating machine",
+      error: error.message,
+    });
   }
 };
 
@@ -76,12 +91,17 @@ exports.deleteMachine = async (req, res) => {
   try {
     const deletedMachine = await Machine.findByIdAndDelete(req.params.id);
     if (!deletedMachine) {
-      return res.status(404).json({ message: "Machine not found" });
+      return res.status(404).json({ success: false, message: "Machine not found" });
     }
-    res.status(200).json({ message: "Machine deleted successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Machine deleted successfully",
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error deleting machine", error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error deleting machine",
+      error: error.message,
+    });
   }
 };

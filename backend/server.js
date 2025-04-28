@@ -56,6 +56,7 @@ const deliveryRoutes = require("./routes/deliveryRoutes");
 const productRoutes = require("./routes/productRoutes");
 const machineRoutes = require("./routes/machineRoutes");
 const machinepartRoutes = require("./routes/machinepartRoutes");
+const maintenanceRoutes = require("./routes/maintenanceRoutes");
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -63,6 +64,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/products", productRoutes);
 app.use("/api/machines", machineRoutes);
 app.use("/api/machineparts", machinepartRoutes);
+app.use("/api/maintenance", maintenanceRoutes);
 
 app.use('/', expenseRoutes);
 app.use('/', incomeRoutes);

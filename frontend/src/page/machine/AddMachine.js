@@ -12,7 +12,7 @@ import Machinesidebar from "../../components/sidebar/Machinesidebar";
 const AddMachine = () => {
   const dispatch = useDispatch();
   const [editingMachine, setEditingMachine] = useState(null);
-  const { data: machines, refetch } = useGetMachinesQuery();
+  const { data: machinesData, refetch } = useGetMachinesQuery();
   const [formValues, setFormValues] = useState({
     name: "",
     id: "",
@@ -27,6 +27,9 @@ const AddMachine = () => {
   const [deleteMachine] = useDeleteMachineMutation();
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState({ type: "", text: "" });
+
+  // Ensure machines is always an array
+  const machines = Array.isArray(machinesData?.data) ? machinesData.data : [];
 
   const handleInputChange = (e) => {
     setFormValues({
@@ -104,9 +107,12 @@ const AddMachine = () => {
       }
       handleCancel();
       refetch();
-      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
-      setMessage({ type: "error", text: "Operation unsuccessful. Try again." });
+      console.error("Operation failed:", error);
+      setMessage({ 
+        type: "error", 
+        text: error.data?.message || "Operation failed. Please try again." 
+      });
     }
   };
 
@@ -253,7 +259,7 @@ const AddMachine = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Warranty Date
+                  Warranty Period
                 </label>
                 <input
                   type="date"
@@ -376,13 +382,13 @@ const AddMachine = () => {
                             {machine.id}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
-                            {machine.status}
+                            {machine.status || "N/A"}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
-                            {machine.purchaseDate}
+                            {machine.purchaseDate || "N/A"}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
-                            {machine.warrantyDate}
+                            {machine.warrantyDate || "N/A"}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
                             ${machine.value}
