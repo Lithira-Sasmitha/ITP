@@ -61,6 +61,15 @@ const deliverySchema = new mongoose.Schema(
       enum: ["Pending", "Delayed", "Completed"],
       default: "Pending",
     },
+    assignedDriver: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Driver',
+      default: null
+    },
+    driverAssignmentDate: {
+      type: Date,
+      default: null
+    }
   },
   {
     timestamps: true,

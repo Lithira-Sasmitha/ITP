@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Oderslidebar from "../../components/sidebar/oderslidebar";
+import { FaCheck, FaClock, FaExclamationCircle } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -19,6 +21,7 @@ const DeliveryDetail = () => {
   const [highlightedDeliveryId, setHighlightedDeliveryId] = useState(
     location.state?.newDeliveryId || ""
   );
+  const [rowColors, setRowColors] = useState({});
 
   // Define fetchDeliveries outside of useEffect
   const fetchDeliveries = async () => {
@@ -55,27 +58,25 @@ const DeliveryDetail = () => {
     }
   }, [successMessage, highlightedDeliveryId]);
 
-  const handleStatusChange = async (deliveryId, status) => {
+  const handleStatusUpdate = async (deliveryId, newStatus) => {
     try {
-      setLoading(true);
-      await axios.patch(`${API_URL}/deliveries/${deliveryId}`, {
-        deliveryStatus: status,
+      await axios.put(`${API_URL}/deliveries/status`, {
+        deliveryId,
+        status: newStatus
       });
-
-      setDeliveries(
-        deliveries.map((delivery) =>
-          delivery._id === deliveryId
-            ? { ...delivery, deliveryStatus: status }
+      
+      // Update the delivery status in the local state
+      setDeliveries(prevDeliveries => 
+        prevDeliveries.map(delivery => 
+          delivery._id === deliveryId 
+            ? { ...delivery, deliveryStatus: newStatus }
             : delivery
         )
       );
-
-      setSuccessMessage(`Delivery status updated to ${status}`);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error updating delivery status:", error);
-      setError("Failed to update delivery status. Please try again later.");
-      setLoading(false);
+      
+      toast.success(`Delivery status updated to ${newStatus}`);
+    } catch (err) {
+      toast.error("Failed to update delivery status");
     }
   };
 
@@ -114,10 +115,41 @@ const DeliveryDetail = () => {
       return "bg-green-300";
     }
 
-    if (deliveryStatus === "Pending") return "bg-yellow-100";
-    if (deliveryStatus === "Delayed") return "bg-blue-100";
-    if (deliveryStatus === "Completed") return "bg-green-100";
-    return "";
+    switch (deliveryStatus) {
+      case "Completed":
+        return "bg-green-100";
+      case "Pending":
+        return "bg-yellow-100";
+      case "Delayed":
+        return "bg-red-100";
+      default:
+        return "";
+    }
+  };
+
+  const renderDeliveryStatus = (status) => {
+    switch (status) {
+      case "Pending":
+        return (
+          <span className="flex items-center text-yellow-600">
+            <FaClock className="mr-1" /> Pending
+          </span>
+        );
+      case "Delayed":
+        return (
+          <span className="flex items-center text-red-600">
+            <FaExclamationCircle className="mr-1" /> Delayed
+          </span>
+        );
+      case "Completed":
+        return (
+          <span className="flex items-center text-green-600">
+            <FaCheck className="mr-1" /> Completed
+          </span>
+        );
+      default:
+        return status;
+    }
   };
 
   // Loading state
@@ -182,12 +214,15 @@ const DeliveryDetail = () => {
       <div className="flex-1 p-6 overflow-y-auto ml-64">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">
-              Delivery Management
-            </h1>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">
+                Delivery Management
+              </h1>
+              <p className="text-gray-600 mt-1">Manage and track all deliveries</p>
+            </div>
             <button
               onClick={handleAddNewDelivery}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition duration-150 flex items-center"
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 text-sm font-medium transition duration-150 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -208,8 +243,8 @@ const DeliveryDetail = () => {
           </div>
 
           {successMessage && (
-            <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-md shadow-sm mb-6 animate-pulse">
-              <div className="flex">
+            <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-md shadow-sm mb-6 animate-fade-in">
+              <div className="flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6 mr-3"
@@ -260,7 +295,7 @@ const DeliveryDetail = () => {
             </p>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md border border-gray-200">
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-indigo-600 text-white sticky top-0 z-10">
@@ -311,7 +346,7 @@ const DeliveryDetail = () => {
                     filteredDeliveries.map((delivery) => (
                       <tr
                         key={delivery._id}
-                        className={`hover:bg-gray-50 transition-colors ${getRowColor(
+                        className={`hover:bg-gray-50 transition-colors duration-200 ${getRowColor(
                           delivery.deliveryStatus,
                           delivery._id
                         )}`}
@@ -361,38 +396,32 @@ const DeliveryDetail = () => {
                                 : "bg-green-100 text-green-800"
                             }`}
                           >
-                            {delivery.deliveryStatus || "Not Assigned"}
+                            {renderDeliveryStatus(delivery.deliveryStatus)}
                           </span>
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm">
                           <div className="flex flex-wrap gap-2">
                             <button
-                              onClick={() =>
-                                handleStatusChange(delivery._id, "Pending")
-                              }
-                              className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm"
+                              onClick={() => handleStatusUpdate(delivery._id, "Completed")}
+                              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm hover:shadow-md transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+                            >
+                              Complete
+                            </button>
+                            <button
+                              onClick={() => handleStatusUpdate(delivery._id, "Pending")}
+                              className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm hover:shadow-md transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
                             >
                               Pending
                             </button>
                             <button
-                              onClick={() =>
-                                handleStatusChange(delivery._id, "Delayed")
-                              }
-                              className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm"
+                              onClick={() => handleStatusUpdate(delivery._id, "Delayed")}
+                              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm hover:shadow-md transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
                             >
-                              Delayed
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleStatusChange(delivery._id, "Completed")
-                              }
-                              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm"
-                            >
-                              Completed
+                              Delay
                             </button>
                             <button
                               onClick={() => handleDelete(delivery._id)}
-                              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm"
+                              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors shadow-sm hover:shadow-md transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
                             >
                               Delete
                             </button>
@@ -426,9 +455,9 @@ const DeliveryDetail = () => {
                         <button
                           onClick={() => {
                             setLoading(true);
-                            fetchDeliveries(); // Now accessible
+                            fetchDeliveries();
                           }}
-                          className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 text-sm font-medium transition duration-150"
+                          className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 text-sm font-medium transition duration-150 shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
                         >
                           Refresh
                         </button>

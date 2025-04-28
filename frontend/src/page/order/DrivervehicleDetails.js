@@ -11,23 +11,23 @@ import Oderslidebar from "../../components/sidebar/oderslidebar";
 
 const DrivervehicleDetails = () => {
   const [editingDriver, setEditingDriver] = useState(null);
-  
+
   // RTK Query hooks
-  const { 
-    data: driversFromRTK, 
+  const {
+    data: driversFromRTK,
     isLoading: isLoadingRTK,
-    isError: isErrorRTK 
+    isError: isErrorRTK,
   } = useGetDriversQuery();
-  
+
   // Axios fallback state
   const [driversFromAxios, setDriversFromAxios] = useState([]);
   const [isLoadingAxios, setIsLoadingAxios] = useState(false);
   const [isAxiosFallback, setIsAxiosFallback] = useState(false);
-  
+
   // Determine which data source to use
   const drivers = isAxiosFallback ? driversFromAxios : driversFromRTK;
   const isLoading = isAxiosFallback ? isLoadingAxios : isLoadingRTK;
-  
+
   // Fallback to Axios if RTK Query fails
   useEffect(() => {
     const fetchWithAxios = async () => {
@@ -35,7 +35,7 @@ const DrivervehicleDetails = () => {
         setIsAxiosFallback(true);
         setIsLoadingAxios(true);
         try {
-          const response = await axios.get('http://localhost:5000/api/drivers');
+          const response = await axios.get("http://localhost:5000/api/drivers");
           setDriversFromAxios(response.data.data || response.data);
         } catch (error) {
           console.error("Axios error fetching drivers:", error);
@@ -44,10 +44,10 @@ const DrivervehicleDetails = () => {
         }
       }
     };
-    
+
     fetchWithAxios();
   }, [isErrorRTK, driversFromRTK]);
-  
+
   // Form state
   const [formValues, setFormValues] = useState({
     name: "",
@@ -59,12 +59,12 @@ const DrivervehicleDetails = () => {
     licenseNo: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // RTK Query mutations
   const [createDriver] = useCreateDriverMutation();
   const [updateDriver] = useUpdateDriverMutation();
   const [deleteDriver] = useDeleteDriverMutation();
-  
+
   // UI state
   const [message, setMessage] = useState({ type: "", text: "" });
 
@@ -73,7 +73,7 @@ const DrivervehicleDetails = () => {
     if (isAxiosFallback) {
       setIsLoadingAxios(true);
       try {
-        const response = await axios.get('http://localhost:5000/api/drivers');
+        const response = await axios.get("http://localhost:5000/api/drivers");
         setDriversFromAxios(response.data.data || response.data);
       } catch (error) {
         console.error("Error refetching drivers with axios:", error);
@@ -124,33 +124,63 @@ const DrivervehicleDetails = () => {
     e.preventDefault();
 
     try {
+      let response;
       if (isAxiosFallback) {
         // Using Axios for mutations if RTK Query failed
         if (editingDriver) {
-          await axios.put(
+          response = await axios.put(
             `http://localhost:5000/api/drivers/${editingDriver._id}`,
             formValues
           );
         } else {
-          await axios.post('http://localhost:5000/api/drivers', formValues);
+          response = await axios.post(
+            "http://localhost:5000/api/drivers",
+            formValues
+          );
         }
       } else {
         // Using RTK Query mutations
         if (editingDriver) {
-          await updateDriver({
+          response = await updateDriver({
             id: editingDriver._id,
             ...formValues,
           }).unwrap();
         } else {
-          await createDriver(formValues).unwrap();
+          response = await createDriver(formValues).unwrap();
         }
       }
 
-      setMessage({ 
-        type: "success", 
-        text: editingDriver ? "Driver updated successfully" : "Driver added successfully" 
+      // After creating/updating driver, check for pending deliveries that need a driver
+      if (!editingDriver) {
+        try {
+          const pendingDeliveries = await axios.get(
+            "http://localhost:5000/api/deliveries"
+          );
+          const deliveriesWithoutDriver = pendingDeliveries.data.filter(
+            (delivery) =>
+              !delivery.assignedDriver && delivery.deliveryStatus === "Pending"
+          );
+
+          if (deliveriesWithoutDriver.length > 0) {
+            // Assign the new driver to the first pending delivery
+            await axios.put("http://localhost:5000/api/deliveries/status", {
+              deliveryId: deliveriesWithoutDriver[0]._id,
+              status: "Pending",
+              assignedDriver: response._id,
+            });
+          }
+        } catch (error) {
+          console.error("Error assigning driver to pending deliveries:", error);
+        }
+      }
+
+      setMessage({
+        type: "success",
+        text: editingDriver
+          ? "Driver updated successfully"
+          : "Driver added successfully",
       });
-      
+
       setFormValues({
         name: "",
         dob: "",
@@ -162,19 +192,18 @@ const DrivervehicleDetails = () => {
       });
       setEditingDriver(null);
       refetch();
-      
+
       // Auto-dismiss message after 3 seconds
       setTimeout(() => {
         setMessage({ type: "", text: "" });
       }, 3000);
-      
     } catch (error) {
       console.error("Error adding/updating driver:", error);
       setMessage({
         type: "error",
         text: "Adding/updating unsuccessful. Please try again.",
       });
-      
+
       // Auto-dismiss error message after 5 seconds
       setTimeout(() => {
         setMessage({ type: "", text: "" });
@@ -189,10 +218,10 @@ const DrivervehicleDetails = () => {
       } else {
         await deleteDriver(id).unwrap();
       }
-      
+
       setMessage({ type: "success", text: "Driver deleted successfully" });
       refetch();
-      
+
       // Auto-dismiss message after 3 seconds
       setTimeout(() => {
         setMessage({ type: "", text: "" });
@@ -203,7 +232,7 @@ const DrivervehicleDetails = () => {
         type: "error",
         text: "Error deleting driver. Please try again.",
       });
-      
+
       // Auto-dismiss error message after 5 seconds
       setTimeout(() => {
         setMessage({ type: "", text: "" });
@@ -237,7 +266,7 @@ const DrivervehicleDetails = () => {
   };
 
   return (
-    <div className="flex min-h-screen ml-48 bg-gradient-to-br from-green-50 to-green-100">
+    <div className="flex min-h-screen bg-gradient-to-br from-green-50 to-green-100">
       <Oderslidebar />
       {message.text && (
         <div
@@ -294,7 +323,7 @@ const DrivervehicleDetails = () => {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto px-4 py-6">
         {/* Form Section */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <h1 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-3">
@@ -304,131 +333,149 @@ const DrivervehicleDetails = () => {
             onSubmit={handleCreateOrUpdate}
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
           >
-            {/* Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name{" "}
-                <span className="text-gray-500">(English letters only)</span>
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formValues.name}
-                onChange={handleInputChange}
-                placeholder="Enter name"
-                pattern="[A-Za-z\s]+"
-                title="Please use English letters and spaces only"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-                required
-              />
+            {/* Personal Information Section */}
+            <div className="md:col-span-2">
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                Personal Information
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Name{" "}
+                    <span className="text-gray-500">
+                      (English letters only)
+                    </span>
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formValues.name}
+                    onChange={handleInputChange}
+                    placeholder="Enter name"
+                    pattern="[A-Za-z\s]+"
+                    title="Please use English letters and spaces only"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    required
+                  />
+                </div>
+
+                {/* Date of Birth */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Date of Birth
+                  </label>
+                  <input
+                    type="date"
+                    name="dob"
+                    value={formValues.dob}
+                    onChange={handleInputChange}
+                    max={new Date().toISOString().split("T")[0]} // Prevents future dates
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    required
+                  />
+                </div>
+
+                {/* NIC */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    NIC
+                  </label>
+                  <input
+                    type="text"
+                    name="nic"
+                    value={formValues.nic}
+                    onChange={handleInputChange}
+                    placeholder="20XXXXXXXXXX"
+                    pattern="\d{12}"
+                    title="NIC must be 12 digits"
+                    maxLength="12"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    required
+                  />
+                </div>
+
+                {/* Telephone/Mobile Number */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Telephone/Mobile Number
+                  </label>
+                  <input
+                    type="text"
+                    name="telephone"
+                    value={formValues.telephone}
+                    onChange={handleInputChange}
+                    placeholder="07X-XXXXXXX"
+                    pattern="07[0-8]-?\d{7}"
+                    title="Format: 07X-XXXXXXX (X: 0-8)"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    required
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Date of Birth */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Date of Birth
-              </label>
-              <input
-                type="date"
-                name="dob"
-                value={formValues.dob}
-                onChange={handleInputChange}
-                max={new Date().toISOString().split("T")[0]} // Prevents future dates
-                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-                required
-              />
-            </div>
+            {/* Vehicle Information Section */}
+            <div className="md:col-span-2">
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                Vehicle Information
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Vehicle */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Vehicle
+                  </label>
+                  <input
+                    type="text"
+                    name="vehicle"
+                    value={formValues.vehicle}
+                    onChange={handleInputChange}
+                    placeholder="Enter vehicle"
+                    pattern="[A-Za-z0-9\s-]+"
+                    title="Use letters, numbers, spaces, and hyphens only"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    required
+                  />
+                </div>
 
-            {/* NIC */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                NIC
-              </label>
-              <input
-                type="text"
-                name="nic"
-                value={formValues.nic}
-                onChange={handleInputChange}
-                placeholder="20XXXXXXXXXX"
-                pattern="\d{12}"
-                title="NIC must be 12 digits"
-                maxLength="12"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-                required
-              />
-            </div>
+                {/* Vehicle Registration Number */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Vehicle Registration Number
+                  </label>
+                  <input
+                    type="text"
+                    name="vehicleRegNo"
+                    value={formValues.vehicleRegNo}
+                    onChange={handleInputChange}
+                    placeholder="12-1234 or AB-1234 or ABC-1234"
+                    pattern="^([0-9]{2}-[0-9]{4}|[A-Z]{2}-[0-9]{4}|[A-Z]{3}-[0-9]{4})$"
+                    title="Format: 12-1234 or AB-1234 or ABC-1234"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    required
+                  />
+                </div>
 
-            {/* Telephone/Mobile Number */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Telephone/Mobile Number
-              </label>
-              <input
-                type="text"
-                name="telephone"
-                value={formValues.telephone}
-                onChange={handleInputChange}
-                placeholder="07X-XXXXXXX"
-                pattern="07[0-8]-?\d{7}"
-                title="Format: 07X-XXXXXXX (X: 0-8)"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-                required
-              />
-            </div>
-
-            {/* Vehicle */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Vehicle
-              </label>
-              <input
-                type="text"
-                name="vehicle"
-                value={formValues.vehicle}
-                onChange={handleInputChange}
-                placeholder="Enter vehicle"
-                pattern="[A-Za-z0-9\s-]+"
-                title="Use letters, numbers, spaces, and hyphens only"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-                required
-              />
-            </div>
-
-            {/* Vehicle Registration Number */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Vehicle Registration Number
-              </label>
-              <input
-                type="text"
-                name="vehicleRegNo"
-                value={formValues.vehicleRegNo}
-                onChange={handleInputChange}
-                placeholder="12-1234 or AB-1234 or ABC-1234"
-                pattern="^([0-9]{2}-[0-9]{4}|[A-Z]{2}-[0-9]{4}|[A-Z]{3}-[0-9]{4})$"
-                title="Format: 12-1234 or AB-1234 or ABC-1234"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-                required
-              />
-            </div>
-
-            {/* Driver License Number */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Driver License Number
-              </label>
-              <input
-                type="text"
-                name="licenseNo"
-                value={formValues.licenseNo}
-                onChange={handleInputChange}
-                placeholder="A1234567"
-                pattern="[A-Za-z]\d{7}"
-                title="Format: One letter followed by 7 digits"
-                maxLength="8"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-                required
-              />
+                {/* Driver License Number */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Driver License Number
+                  </label>
+                  <input
+                    type="text"
+                    name="licenseNo"
+                    value={formValues.licenseNo}
+                    onChange={handleInputChange}
+                    placeholder="A1234567"
+                    pattern="[A-Za-z]\d{7}"
+                    title="Format: One letter followed by 7 digits"
+                    maxLength="8"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    required
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Buttons - span full width on the grid */}
