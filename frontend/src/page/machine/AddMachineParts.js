@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   useCreatePartMutation,
@@ -6,91 +6,130 @@ import {
   useUpdatePartMutation,
   useDeletePartMutation,
 } from "../../page/machine/redux/api/machinepartapiSlice";
+import { useGetMachinesQuery } from "../../page/machine/redux/api/machineapiSlice";
 import jsPDF from "jspdf";
 import Machinesidebar from "../../components/sidebar/Machinesidebar";
 
 const AddMachinePart = () => {
   const dispatch = useDispatch();
   const [editingPart, setEditingPart] = useState(null);
-  const { data: parts, refetch } = useGetPartsQuery();
+  const {
+    data: parts = [],
+    isLoading,
+    error: fetchError,
+    refetch,
+  } = useGetPartsQuery();
+  const { data: machinesData, isLoading: machinesLoading } =
+    useGetMachinesQuery();
   const [formValues, setFormValues] = useState({
     machinepartName: "",
     machinepartId: "",
     machinepartPurchaseDate: "",
     machinepartWarrantyPeriod: "",
     machinepartValue: "",
+    machineId: "",
+    machineName: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
-  const [createPart] = useCreatePartMutation();
-  const [updatePart] = useUpdatePartMutation();
-  const [deletePart] = useDeletePartMutation();
+  const [createPart, { error: createError }] = useCreatePartMutation();
+  const [updatePart, { error: updateError }] = useUpdatePartMutation();
+  const [deletePart, { error: deleteError }] = useDeletePartMutation();
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState({ type: "", text: "" });
 
+  // Ensure machines is always an array
+  const machines = Array.isArray(machinesData?.data) ? machinesData.data : [];
+
+  // Handle fetch error
+  useEffect(() => {
+    if (fetchError) {
+      setMessage({
+        type: "error",
+        text: "Failed to fetch parts. Please try again.",
+      });
+    }
+  }, [fetchError]);
+
+  // Handle input changes, including machine selection
   const handleInputChange = (e) => {
-    setFormValues({
-      ...formValues,
-      [e.target.name]: e.target.value,
-    });
-    setErrors((prevErrors) => ({ ...prevErrors, [e.target.name]: "" }));
+    const { name, value } = e.target;
+    if (name === "machineId") {
+      const selectedMachine = machines.find((machine) => machine._id === value);
+      setFormValues((prev) => ({
+        ...prev,
+        machineId: value,
+        machineName: selectedMachine ? selectedMachine.name : "",
+      }));
+    } else {
+      setFormValues((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleCancel = () => {
-    setFormValues({
-      machinepartName: "",
-      machinepartId: "",
-      machinepartPurchaseDate: "",
-      machinepartWarrantyPeriod: "",
-      machinepartValue: "",
-    });
-    setEditingPart(null);
-    setErrors({});
-  };
-
-  const handleCreateOrUpdate = async (e) => {
-    e.preventDefault();
-    setErrors({});
+  // Form validation
+  const validateForm = () => {
     const newErrors = {};
 
-    if (!formValues.machinepartName)
-      newErrors.machinepartName = "Part Name is required.";
-    else if (
+    if (!formValues.machinepartName.trim()) {
+      newErrors.machinepartName = "Part Name is required";
+    } else if (
       formValues.machinepartName.length < 3 ||
       formValues.machinepartName.length > 50
-    )
+    ) {
       newErrors.machinepartName =
-        "Part Name must be between 3 and 50 characters.";
+        "Part Name must be between 3 and 50 characters";
+    }
 
-    if (!formValues.machinepartId)
-      newErrors.machinepartId = "Part ID is required.";
-    else if (!/^[a-zA-Z0-9-]+$/.test(formValues.machinepartId))
+    if (!formValues.machinepartId.trim()) {
+      newErrors.machinepartId = "Part ID is required";
+    } else if (!/^[a-zA-Z0-9-]+$/.test(formValues.machinepartId)) {
       newErrors.machinepartId =
-        "Part ID must contain only letters, numbers, or hyphens.";
+        "Part ID must contain only letters, numbers, or hyphens";
+    }
+
+    if (!formValues.machineId) {
+      newErrors.machineId = "Machine selection is required";
+    }
+
+    if (!formValues.machinepartWarrantyPeriod) {
+      newErrors.machinepartWarrantyPeriod = "Warranty period is required";
+    } else {
+      const warrantyPeriod = Number(formValues.machinepartWarrantyPeriod);
+      if (isNaN(warrantyPeriod) || warrantyPeriod < 0) {
+        newErrors.machinepartWarrantyPeriod =
+          "Warranty period must be a positive number";
+      }
+    }
 
     if (
       formValues.machinepartPurchaseDate &&
       isNaN(Date.parse(formValues.machinepartPurchaseDate))
-    )
-      newErrors.machinepartPurchaseDate = "Purchase Date must be a valid date.";
+    ) {
+      newErrors.machinepartPurchaseDate = "Invalid purchase date";
+    }
 
-    if (
-      formValues.machinepartWarrantyPeriod &&
-      (isNaN(formValues.machinepartWarrantyPeriod) ||
-        Number(formValues.machinepartWarrantyPeriod) < 0)
-    )
-      newErrors.machinepartWarrantyPeriod =
-        "Warranty Period must be a positive number.";
+    if (!formValues.machinepartValue) {
+      newErrors.machinepartValue = "Part Value is required";
+    } else {
+      const value = Number(formValues.machinepartValue);
+      if (isNaN(value) || value <= 0) {
+        newErrors.machinepartValue = "Part Value must be a positive number";
+      }
+    }
 
-    if (!formValues.machinepartValue)
-      newErrors.machinepartValue = "Part Value is required.";
-    else if (
-      isNaN(formValues.machinepartValue) ||
-      Number(formValues.machinepartValue) <= 0
-    )
-      newErrors.machinepartValue = "Part Value must be a positive number.";
+    return newErrors;
+  };
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+  // Handle form submission for create or update
+  const handleCreateOrUpdate = async (e) => {
+    e.preventDefault();
+    const validationErrors = validateForm();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
@@ -107,43 +146,75 @@ const AddMachinePart = () => {
       }
       handleCancel();
       refetch();
-      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
-      console.error("Error in Create/Update:", error);
-      setMessage({ type: "error", text: "Operation unsuccessful. Try again." });
+      console.error("Operation failed:", error);
+      setMessage({
+        type: "error",
+        text: error.data?.message || "Operation failed. Please try again.",
+      });
     }
   };
 
+  // Handle delete part
   const handleDeletePart = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this part?")) {
+      return;
+    }
+
     try {
       await deletePart(id).unwrap();
       setMessage({ type: "success", text: "Part deleted successfully" });
       refetch();
-      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
-      console.error("Error deleting part:", error);
-      setMessage({ type: "error", text: "Error deleting part. Try again." });
+      console.error("Delete failed:", error);
+      setMessage({
+        type: "error",
+        text: error.data?.message || "Failed to delete part. Please try again.",
+      });
     }
   };
 
+  // Handle edit part
   const handleEditPart = (part) => {
     setFormValues({
-      machinepartName: part.machinepartName,
-      machinepartId: part.machinepartId,
-      machinepartPurchaseDate: part.machinepartPurchaseDate,
-      machinepartWarrantyPeriod: part.machinepartWarrantyPeriod,
-      machinepartValue: part.machinepartValue,
+      machinepartName: part.machinepartName || "",
+      machinepartId: part.machinepartId || "",
+      machinepartPurchaseDate: part.machinepartPurchaseDate
+        ? new Date(part.machinepartPurchaseDate).toISOString().split("T")[0]
+        : "",
+      machinepartWarrantyPeriod: part.machinepartWarrantyPeriod || "",
+      machinepartValue: part.machinepartValue || "",
+      machineId: part.machineId || "",
+      machineName: part.machineName || "",
     });
     setEditingPart(part);
     setErrors({});
   };
 
+  // Handle cancel
+  const handleCancel = () => {
+    setFormValues({
+      machinepartName: "",
+      machinepartId: "",
+      machinepartPurchaseDate: "",
+      machinepartWarrantyPeriod: "",
+      machinepartValue: "",
+      machineId: "",
+      machineName: "",
+    });
+    setEditingPart(null);
+    setErrors({});
+  };
+
+  // Handle PDF download
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     doc.text("Machine Parts List", 20, 20);
     parts.forEach((part, index) => {
       doc.text(
-        `${index + 1}. ${part.machinepartName} - $${part.machinepartValue}`,
+        `${index + 1}. ${part.machinepartName} - $${
+          part.machinepartValue
+        } (Machine: ${part.machineName})`,
         20,
         30 + index * 10
       );
@@ -153,12 +224,12 @@ const AddMachinePart = () => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
-      {/* This is Sidebar */}
+      {/* Sidebar */}
       <div className="fixed h-screen w-64 flex-shrink-0">
         <Machinesidebar />
       </div>
 
-      {/* This is Main Content */}
+      {/* Main Content */}
       <main className="flex-1 ml-64 p-6 overflow-y-auto">
         <div className="bg-white rounded-xl shadow-lg p-6 min-h-screen">
           {/* Header */}
@@ -177,6 +248,38 @@ const AddMachinePart = () => {
               {editingPart ? "Edit Machine Part" : "Add New Machine Part"}
             </h2>
             <form onSubmit={handleCreateOrUpdate} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Select Machine *
+                </label>
+                <select
+                  name="machineId"
+                  value={formValues.machineId}
+                  onChange={handleInputChange}
+                  className={`w-full border rounded-md p-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all ${
+                    errors.machineId ? "border-red-500" : "border-gray-300"
+                  }`}
+                  disabled={machinesLoading}
+                >
+                  <option value="">Select a machine</option>
+                  {machines.map((machine) => (
+                    <option key={machine._id} value={machine._id}>
+                      {machine.name} (ID: {machine.id})
+                    </option>
+                  ))}
+                </select>
+                {errors.machineId && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.machineId}
+                  </p>
+                )}
+                {machinesLoading && (
+                  <p className="text-gray-500 text-sm mt-1">
+                    Loading machines...
+                  </p>
+                )}
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Part Name *
@@ -245,7 +348,7 @@ const AddMachinePart = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Warranty Period (months)
+                  Warranty Period (months) *
                 </label>
                 <input
                   type="number"
@@ -328,7 +431,9 @@ const AddMachinePart = () => {
               className="w-full max-w-md border rounded-md p-3 mb-4 focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
 
-            {parts && parts.length > 0 ? (
+            {isLoading ? (
+              <p className="text-gray-500 text-center py-4">Loading parts...</p>
+            ) : parts && parts.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full border-collapse border border-gray-200 rounded-lg">
                   <thead className="bg-gray-100">
@@ -338,6 +443,9 @@ const AddMachinePart = () => {
                       </th>
                       <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
                         ID
+                      </th>
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Machine
                       </th>
                       <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
                         Purchase Date
@@ -372,10 +480,19 @@ const AddMachinePart = () => {
                             {part.machinepartId}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
-                            {part.machinepartPurchaseDate || "N/A"}
+                            {part.machineName}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
-                            {part.machinepartWarrantyPeriod || "N/A"}
+                            {part.machinepartPurchaseDate
+                              ? new Date(
+                                  part.machinepartPurchaseDate
+                                ).toLocaleDateString()
+                              : "N/A"}
+                          </td>
+                          <td className="border border-gray-200 px-4 py-2">
+                            {part.machinepartWarrantyPeriod
+                              ? `${part.machinepartWarrantyPeriod} months`
+                              : "N/A"}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
                             ${part.machinepartValue}

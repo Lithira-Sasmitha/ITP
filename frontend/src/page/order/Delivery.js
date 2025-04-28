@@ -11,13 +11,18 @@ import {
   FaMoon,
   FaSun,
   FaHistory,
+  FaCar,
+  FaUserPlus,
 } from "react-icons/fa";
 import { useGetDriversQuery } from "../../page/order/redux/api/driverApiSlice";
 import axios from "axios";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 export default function Delivery() {
+  // State declarations
   const [deliveries, setDeliveries] = useState([]);
   const [pendingDeliveries, setPendingDeliveries] = useState(0);
   const [completedDeliveries, setCompletedDeliveries] = useState(0);
@@ -32,6 +37,15 @@ export default function Delivery() {
     totalItemEarnings: 0,
     totalEarnings: 0,
   });
+  const [loading, setLoading] = useState(true);
+  const [showAssignDriverModal, setShowAssignDriverModal] = useState(false);
+  const [selectedDelivery, setSelectedDelivery] = useState(null);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [drivers, setDrivers] = useState([]);
+  const [showNoDriversModal, setShowNoDriversModal] = useState(false);
+
+  // Navigation hook
+  const navigate = useNavigate();
 
   const priceFormatter = new Intl.NumberFormat("en-LK", {
     style: "decimal",
@@ -39,45 +53,46 @@ export default function Delivery() {
     maximumFractionDigits: 2,
   });
 
-  const { data: drivers } = useGetDriversQuery();
+  const { data: driversData } = useGetDriversQuery();
 
   useEffect(() => {
-    if (drivers) {
-      setTotalDrivers(drivers.length);
+    if (driversData) {
+      setTotalDrivers(driversData.length);
     }
-  }, [drivers]);
+  }, [driversData]);
 
   const fetchDeliveries = async () => {
     try {
-      const response = await fetch("/api/deliveries");
-      if (!response.ok) throw new Error("Network response was not ok");
-      const data = await response.json();
-      setDeliveries(data);
+      const response = await axios.get(`${API_URL}/deliveries`);
+      const fetchedDeliveries = response.data;
+      setDeliveries(fetchedDeliveries);
+      setLoading(false);
 
       setPendingDeliveries(
-        data.filter((d) => d.deliveryStatus === "Pending").length
+        fetchedDeliveries.filter((d) => d.deliveryStatus === "Pending").length
       );
       setCompletedDeliveries(
-        data.filter((d) => d.deliveryStatus === "Completed").length
+        fetchedDeliveries.filter((d) => d.deliveryStatus === "Completed").length
       );
       setDelayedDeliveries(
-        data.filter((d) => d.deliveryStatus === "Delayed").length
+        fetchedDeliveries.filter((d) => d.deliveryStatus === "Delayed").length
       );
 
-      const totalDeliveryEarnings = data.reduce(
+      const totalDeliveryEarnings = fetchedDeliveries.reduce(
         (sum, d) => sum + (parseFloat(d.deliveryPrice) || 0),
         0
       );
-      const totalItemEarnings = data.reduce(
+      const totalItemEarnings = fetchedDeliveries.reduce(
         (sum, d) => sum + (parseFloat(d.itemsPrice) || 0),
         0
       );
 
       setTotalEarnings(totalDeliveryEarnings);
       setTotalDeliveredItems(totalItemEarnings);
-    } catch (error) {
-      console.error("Error fetching deliveries:", error);
-      setError(error.message);
+    } catch (err) {
+      setError("Failed to fetch deliveries");
+      setLoading(false);
+      toast.error("Failed to fetch deliveries");
     }
   };
 
@@ -105,15 +120,330 @@ export default function Delivery() {
     } catch (error) {
       console.error("Error fetching order history:", error);
       setError("Failed to load order history earnings data.");
+      toast.error("Failed to load order history");
+    }
+  };
+
+  const fetchDrivers = async () => {
+    try {
+      const driverResponse = await axios.get(`${API_URL}/drivers`);
+      const driversList = driverResponse.data;
+
+      const deliveryResponse = await axios.get(
+        `${API_URL}/deliveries?deliveryStatus=Pending`
+      );
+      const deliveriesList = deliveryResponse.data;
+
+      const driversWithStatus = driversList.map((driver) => {
+        const isAssigned = deliveriesList.some(
+          (delivery) =>
+            delivery.assignedDriver &&
+            delivery.assignedDriver._id === driver._id &&
+            delivery.deliveryStatus === "Pending"
+        );
+        return { ...driver, isAssigned };
+      });
+
+      setDrivers(driversWithStatus);
+    } catch (error) {
+      console.error("Error fetching drivers:", error);
+      toast.error("Failed to load drivers");
     }
   };
 
   useEffect(() => {
-    fetchDeliveries();
-    fetchOrderHistory();
+    const loadData = async () => {
+      await Promise.all([
+        fetchDeliveries(),
+        fetchDrivers(),
+        fetchOrderHistory(),
+      ]);
+    };
+    loadData();
   }, []);
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
+
+  const openAssignDriverModal = (delivery) => {
+    if (delivery.assignedDriver) {
+      toast.info("This delivery already has an assigned driver");
+      return;
+    }
+
+    const availableDrivers = drivers.filter((driver) => !driver.isAssigned);
+    if (availableDrivers.length === 0) {
+      setShowNoDriversModal(true);
+      return;
+    }
+
+    setSelectedDelivery(delivery);
+    setShowAssignDriverModal(true);
+  };
+
+  const handleDriverSelect = (driver) => {
+    if (!driver.isAssigned) {
+      setSelectedDriver(driver);
+    } else {
+      toast.error("This driver is already assigned to another delivery");
+    }
+  };
+
+  const handleAssignDriver = async () => {
+    try {
+      if (!selectedDriver || !selectedDelivery) {
+        toast.error("Please select a driver");
+        return;
+      }
+
+      const response = await axios.put(
+        `${API_URL}/deliveries/${selectedDelivery._id}`,
+        {
+          assignedDriver: {
+            id: selectedDriver._id,
+            name: selectedDriver.name,
+            vehicle: selectedDriver.vehicle,
+            vehicleRegNo: selectedDriver.vehicleRegNo,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const updatedDelivery = response.data.delivery;
+        setDeliveries((prevDeliveries) =>
+          prevDeliveries.map((delivery) =>
+            delivery._id === updatedDelivery._id ? updatedDelivery : delivery
+          )
+        );
+
+        await fetchDrivers();
+
+        toast.success(`Driver ${selectedDriver.name} assigned successfully!`);
+      }
+
+      setShowAssignDriverModal(false);
+      setSelectedDriver(null);
+      setSelectedDelivery(null);
+    } catch (error) {
+      console.error("Error assigning driver:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to assign driver. Please try again.";
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleStatusUpdate = async (deliveryId, newStatus) => {
+    try {
+      const response = await axios.put(`${API_URL}/deliveries/status`, {
+        deliveryId,
+        status: newStatus,
+      });
+
+      if (response.status === 200) {
+        toast.success(`Delivery status updated to ${newStatus}`);
+        await fetchDeliveries();
+        await fetchDrivers();
+      }
+    } catch (err) {
+      setError("Failed to update delivery status");
+      toast.error("Failed to update delivery status");
+    }
+  };
+
+  const handleDeleteDelivery = async (deliveryId) => {
+    try {
+      const response = await axios.delete(
+        `${API_URL}/deliveries/${deliveryId}`
+      );
+      if (response.status === 200) {
+        toast.success("Delivery deleted successfully");
+        await fetchDeliveries();
+        await fetchDrivers();
+      }
+    } catch (err) {
+      toast.error("Failed to delete delivery");
+      console.error("Error deleting delivery:", err);
+    }
+  };
+
+  const renderDeliveryStatus = (status) => {
+    switch (status) {
+      case "Pending":
+        return (
+          <span className="flex items-center text-yellow-600">
+            <FaClock className="mr-1" /> Pending
+          </span>
+        );
+      case "Delayed":
+        return (
+          <span className="flex items-center text-red-600">
+            <FaExclamationCircle className="mr-1" /> Delayed
+          </span>
+        );
+      case "Completed":
+        return (
+          <span className="flex items-center text-green-600">
+            <FaCheck className="mr-1" /> Completed
+          </span>
+        );
+      default:
+        return status;
+    }
+  };
+
+  const renderDriverInfo = (delivery) => {
+    if (!delivery.assignedDriver) {
+      return (
+        <div className="flex items-center text-gray-500">
+          <FaUser className="mr-2" />
+          <span>No driver assigned</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex flex-col space-y-1 p-2 bg-blue-50 rounded-lg">
+        <div className="flex items-center">
+          <FaUser className="mr-2 text-blue-500" />
+          <span className="font-semibold text-blue-600">
+            {delivery.assignedDriver.name}
+          </span>
+        </div>
+        <div className="flex items-center text-sm text-gray-600">
+          <FaCar className="mr-2 text-gray-500" />
+          <span>{delivery.assignedDriver.vehicle}</span>
+          {delivery.assignedDriver.vehicleRegNo && (
+            <span className="ml-1 text-gray-500">
+              ({delivery.assignedDriver.vehicleRegNo})
+            </span>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const AssignDriverModal = ({ drivers }) => {
+    if (!showAssignDriverModal) return null;
+
+    const availableDrivers = drivers.filter((driver) => !driver.isAssigned);
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-3xl shadow-xl">
+          <h2 className="text-xl font-semibold mb-4 text-gray-800">
+            Assign Driver
+          </h2>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Select Available Driver
+            </label>
+            {availableDrivers.length === 0 ? (
+              <p className="text-red-600 font-medium">
+                No available drivers. All drivers are assigned to pending
+                deliveries.
+              </p>
+            ) : (
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Driver Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Vehicle
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {availableDrivers.map((driver) => (
+                    <tr key={driver._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {driver.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        {driver.vehicle} ({driver.vehicleRegNo})
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <button
+                          onClick={() => {
+                            handleDriverSelect(driver);
+                            handleAssignDriver();
+                          }}
+                          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+                        >
+                          Assign
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => {
+                setShowAssignDriverModal(false);
+                setSelectedDriver(null);
+                setSelectedDelivery(null);
+              }}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-150"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const NoDriversModal = () => {
+    if (!showNoDriversModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-xl">
+          <div className="flex items-center mb-4">
+            <FaExclamationCircle className="text-red-500 mr-2" />
+            <h2 className="text-xl font-semibold text-gray-800">
+              No Drivers Available
+            </h2>
+          </div>
+          <p className="text-gray-600 mb-4">
+            There are no drivers available to assign to this delivery. Please
+            add a new driver to continue.
+          </p>
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={() => setShowNoDriversModal(false)}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 bg-gray-100 rounded hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-150"
+            >
+              Close
+            </button>
+            <button
+              onClick={() => {
+                setShowNoDriversModal(false);
+                navigate("/drivervehicledetails"); // Navigate to DrivervehicleDetails page
+              }}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
+            >
+              Add Driver
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  if (loading)
+    return <div className="text-center text-gray-600 text-lg">Loading...</div>;
+  if (error)
+    return (
+      <div className="text-center text-red-600 text-lg">Error: {error}</div>
+    );
 
   return (
     <div
@@ -132,7 +462,6 @@ export default function Delivery() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-8 space-y-8">
-        {/* Header */}
         <div
           className={`flex justify-between items-center p-6 rounded-3xl shadow-2xl transition-all duration-500 ${
             darkMode
@@ -166,7 +495,6 @@ export default function Delivery() {
           </div>
         </div>
 
-        {/* Dashboard Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <DashboardCard
             icon={<FaBox />}
@@ -198,7 +526,6 @@ export default function Delivery() {
           />
         </div>
 
-        {/* Earnings Section */}
         <div
           className={`p-6 rounded-3xl shadow-2xl transition-all duration-500 ${
             darkMode
@@ -237,65 +564,104 @@ export default function Delivery() {
           </div>
         </div>
 
-        {/* Recent Deliveries Table */}
-        <div
-          className={`rounded-3xl shadow-2xl overflow-hidden transition-all duration-500 ${
-            darkMode
-              ? "bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700"
-              : "bg-gradient-to-r from-white to-gray-50 border border-gray-200"
-          }`}
-        >
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-2xl font-semibold">Recent Deliveries</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className={`${darkMode ? "bg-gray-700" : "bg-gray-100"}`}>
-                <tr className="text-xs uppercase tracking-wider text-left">
-                  <th className="p-4">Delivery No</th>
-                  <th className="p-4">Items Price</th>
-                  <th className="p-4">Delivery Price</th>
-                  <th className="p-4">Total Price</th>
-                  <th className="p-4">Actions</th>
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold mb-4">Recent Deliveries</h2>
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Order ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Customer
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Driver Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Assigned Driver
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Total
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
-              <tbody>
-                {deliveries
-                  .slice(-5)
-                  .reverse()
-                  .map((d) => (
-                    <tr
-                      key={d._id}
-                      className={`border-b transition-colors duration-300 hover:${
-                        darkMode
-                          ? "bg-gray-700 bg-opacity-50"
-                          : "bg-gray-50 bg-opacity-70"
-                      }`}
-                    >
-                      <td className="p-4">{d._id}</td>
-                      <td className="p-4">
-                        {priceFormatter.format(d.itemsPrice || 0)}
-                      </td>
-                      <td className="p-4">
-                        {priceFormatter.format(d.deliveryPrice || 0)}
-                      </td>
-                      <td className="p-4">
-                        {priceFormatter.format(
-                          (d.itemsPrice || 0) + (d.deliveryPrice || 0)
+              <tbody className="bg-white divide-y divide-gray-200">
+                {deliveries.map((delivery) => (
+                  <tr key={delivery._id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {delivery.orderId}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {delivery.customerName}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {delivery.address}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {renderDeliveryStatus(delivery.deliveryStatus)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {delivery.assignedDriver
+                        ? delivery.assignedDriver.name
+                        : "-"}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="min-w-[200px]">
+                        {renderDriverInfo(delivery)}
+                        {!delivery.assignedDriver && (
+                          <button
+                            onClick={() => openAssignDriverModal(delivery)}
+                            className="mt-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 py-1.5 rounded-full text-sm flex items-center space-x-1 shadow-sm hover:shadow-md transition-all duration-200"
+                          >
+                            <FaUserPlus className="text-xs" />
+                            <span>Assign Driver</span>
+                          </button>
                         )}
-                      </td>
-                      <td className="p-4">
-                        <button className="text-red-500 hover:text-red-700 transition-colors transform hover:scale-125">
-                          <FaTrash />
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      Rs. {delivery.totalPrice}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap space-x-2">
+                      {delivery.deliveryStatus === "Pending" && (
+                        <button
+                          onClick={() =>
+                            handleStatusUpdate(delivery._id, "Completed")
+                          }
+                          className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm transition duration-150"
+                        >
+                          Complete
                         </button>
-                      </td>
-                    </tr>
-                  ))}
+                      )}
+                      <button
+                        onClick={() => handleDeleteDelivery(delivery._id)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded flex items-center text-sm transition duration-150"
+                      >
+                        <FaTrash className="mr-1" /> Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
       </div>
+
+      <AssignDriverModal drivers={drivers} />
+      <NoDriversModal />
     </div>
   );
 }

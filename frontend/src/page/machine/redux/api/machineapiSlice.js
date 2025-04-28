@@ -37,9 +37,11 @@ export const machineapiSlice = createApi({
             "getMachines",
             undefined,
             (draft) => {
-              const index = draft.findIndex((machine) => machine.id.toString() === id.toString());
-              if (index !== -1) {
-                draft.splice(index, 1);
+              if (Array.isArray(draft)) {
+                const index = draft.findIndex((machine) => machine._id === id);
+                if (index !== -1) {
+                  draft.splice(index, 1);
+                }
               }
             }
           )

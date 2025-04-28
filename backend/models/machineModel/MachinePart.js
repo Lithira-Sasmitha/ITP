@@ -7,6 +7,8 @@ const machinepartSchema = new mongoose.Schema(
     machinepartPurchaseDate: { type: Date },
     machinepartWarrantyPeriod: { type: Number, required: true },
     machinepartValue: { type: Number, required: true },
+    machineId: { type: String, required: true },
+    machineName: { type: String, required: true },
   },
   { timestamps: true }
 );

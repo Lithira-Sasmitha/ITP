@@ -1,88 +1,443 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Machinesidebar from "../../components/sidebar/Machinesidebar";
+import axios from "axios";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 const MachineMaintenance = () => {
+  // State for form values
   const [formValues, setFormValues] = useState({
-    machineName: "",
     machineId: "",
+    partId: "",
     issue: "",
-    warranty: "no",
+    statusInquiryId: "",
+    maintenanceStatus: "",
   });
+
+  // State for validation errors
   const [errors, setErrors] = useState({});
+
+  // State for feedback messages
   const [message, setMessage] = useState({ type: "", text: "" });
 
+  // State to store submitted maintenance inquiries
+  const [maintenanceInquiries, setMaintenanceInquiries] = useState([]);
+
+  // State to track if current machine and part are under warranty
+  const [isUnderWarranty, setIsUnderWarranty] = useState(false);
+
+  // State to store machines and parts
+  const [machines, setMachines] = useState([]);
+  const [parts, setParts] = useState([]);
+  const [machinesLoading, setMachinesLoading] = useState(false);
+  const [partsLoading, setPartsLoading] = useState(false);
+
+  // Handle input changes
   const handleInputChange = (e) => {
-    setFormValues({
-      ...formValues,
-      [e.target.name]: e.target.value,
-    });
-    setErrors((prevErrors) => ({ ...prevErrors, [e.target.name]: "" }));
+    const { name, value } = e.target;
+    setFormValues((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    // Fetch parts when machine is selected
+    if (name === "machineId" && value) {
+      const selectedMachine = machines.find((machine) => machine._id === value);
+      if (selectedMachine) {
+        fetchParts(selectedMachine.name);
+      }
+    } else if (name === "machineId" && !value) {
+      setParts([]);
+      setFormValues((prev) => ({ ...prev, partId: "" }));
+    }
   };
 
-  const handleWarrantyChange = (e) => {
-    setFormValues({
-      ...formValues,
-      warranty: e.target.value,
-    });
+  // Validate ObjectId format
+  const isValidObjectId = (id) => {
+    return /^[0-9a-fA-F]{24}$/.test(id);
   };
 
+  // Validate form inputs for reporting issue
   const validateForm = () => {
     const newErrors = {};
-    if (!formValues.machineName)
-      newErrors.machineName = "Machine Name is required.";
-    else if (formValues.machineName.length < 3)
-      newErrors.machineName = "Machine Name must be at least 3 characters.";
 
-    if (!formValues.machineId) newErrors.machineId = "Machine ID is required.";
-    else if (!/^[a-zA-Z0-9-]+$/.test(formValues.machineId))
+    if (!formValues.machineId) {
+      newErrors.machineId = "Machine ID is required.";
+    } else if (!isValidObjectId(formValues.machineId)) {
       newErrors.machineId =
-        "Machine ID must contain only letters, numbers, or hyphens.";
+        "Machine ID must be a valid ObjectId (24 hexadecimal characters).";
+    }
 
-    if (!formValues.issue) newErrors.issue = "Issue description is required.";
-    else if (formValues.issue.length < 10)
+    if (!formValues.partId) {
+      newErrors.partId = "Part ID is required.";
+    } else if (!isValidObjectId(formValues.partId)) {
+      newErrors.partId =
+        "Part ID must be a valid ObjectId (24 hexadecimal characters).";
+    }
+
+    if (!formValues.issue) {
+      newErrors.issue = "Issue description is required.";
+    } else if (formValues.issue.length < 10) {
       newErrors.issue = "Issue description must be at least 10 characters.";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSendEmail = async () => {
+  // Check if machine and part are under warranty
+  const checkWarrantyStatus = async (machineId, partId) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/maintenance/check-warranty/${machineId}/${partId}`
+      );
+      const data = response.data;
+
+      if (!data.success) {
+        setMessage({
+          type: "error",
+          text: data.message || "Error checking warranty status",
+        });
+        return false;
+      }
+
+      const isUnderWarranty =
+        data.machineUnderWarranty && data.partUnderWarranty;
+      setIsUnderWarranty(isUnderWarranty);
+
+      if (!data.machineUnderWarranty) {
+        setMessage({
+          type: "warning",
+          text: "Machine is not under warranty",
+        });
+      } else if (!data.partUnderWarranty) {
+        setMessage({
+          type: "warning",
+          text: "Part is not under warranty",
+        });
+      }
+
+      return isUnderWarranty;
+    } catch (error) {
+      console.error(
+        "Error checking warranty status:",
+        error.response?.data || error.message
+      );
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message ||
+          "Failed to check warranty status. Please try again.",
+      });
+      return false;
+    }
+  };
+
+  // Fetch maintenance inquiries
+  const fetchMaintenanceInquiries = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/maintenance`);
+      const data = response.data;
+
+      if (data.success) {
+        setMaintenanceInquiries(data.data);
+      } else {
+        setMessage({
+          type: "error",
+          text: data.message || "Failed to fetch maintenance inquiries",
+        });
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching maintenance inquiries:",
+        error.response?.data || error.message
+      );
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message ||
+          `Failed to fetch maintenance inquiries: ${error.message}`,
+      });
+    }
+  };
+
+  // Fetch machines
+  const fetchMachines = async () => {
+    setMachinesLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/machines`);
+      const data = response.data;
+
+      if (data.success) {
+        setMachines(data.data);
+      } else {
+        setMessage({
+          type: "error",
+          text: data.message || "Failed to fetch machines",
+        });
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching machines:",
+        error.response?.data || error.message
+      );
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message ||
+          `Failed to fetch machines: ${error.message}`,
+      });
+    } finally {
+      setMachinesLoading(false);
+    }
+  };
+
+  // Fetch parts for a machine by machine name
+  const fetchParts = async (machineName) => {
+    setPartsLoading(true);
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/maintenance/parts-by-machine-name/${encodeURIComponent(
+          machineName
+        )}`
+      );
+      const data = response.data;
+
+      if (data.success) {
+        setParts(data.data);
+      } else {
+        setMessage({
+          type: "error",
+          text: data.message || "Failed to fetch parts",
+        });
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching parts:",
+        error.response?.data || error.message
+      );
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message ||
+          `Failed to fetch parts: ${error.message}`,
+      });
+    } finally {
+      setPartsLoading(false);
+    }
+  };
+
+  // Load maintenance inquiries and machines on component mount
+  useEffect(() => {
+    fetchMaintenanceInquiries();
+    fetchMachines();
+  }, []);
+
+  // Submit the maintenance inquiry
+  const handleSubmitRequest = async () => {
     if (!validateForm()) {
       setMessage({ type: "error", text: "Please fix the errors in the form." });
       return;
     }
 
     try {
-      if (formValues.warranty === "yes") {
-        // Simulate email sending (replace with actual API call in production)
+      const isWarrantyValid = await checkWarrantyStatus(
+        formValues.machineId,
+        formValues.partId
+      );
+
+      const response = await axios.post(`${API_BASE_URL}/maintenance`, {
+        machineId: formValues.machineId,
+        partId: formValues.partId,
+        issue: formValues.issue,
+        isUnderWarranty: isWarrantyValid,
+      });
+
+      const data = response.data;
+
+      if (!data.success) {
         setMessage({
-          type: "success",
-          text: "Automated email sent to company!",
+          type: "error",
+          text: data.message || "Failed to submit maintenance inquiry",
         });
-        // Example: await sendEmailToCompany(formValues);
-      } else {
-        setMessage({ type: "info", text: "Machine is not under warranty." });
+        return;
       }
+
+      // Reset the form
+      setFormValues({
+        machineId: "",
+        partId: "",
+        issue: "",
+        statusInquiryId: "",
+        maintenanceStatus: "",
+      });
+      setParts([]);
+
+      // Refresh the maintenance inquiries list
+      await fetchMaintenanceInquiries();
+
+      setMessage({
+        type: "success",
+        text: isWarrantyValid
+          ? "Maintenance inquiry submitted successfully! Both machine and part are under warranty."
+          : "Maintenance inquiry submitted successfully! Note: Not all items are under warranty.",
+      });
+      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+    } catch (error) {
+      console.error(
+        "Error submitting maintenance inquiry:",
+        error.response?.data || error.message
+      );
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message ||
+          `Failed to submit maintenance inquiry: ${error.message}`,
+      });
+    }
+  };
+
+  // Send email to company
+  const handleSendEmail = async () => {
+    try {
+      // Mock email sending API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setMessage({
+        type: "success",
+        text: "Email sent successfully to the company!",
+      });
       setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
       setMessage({
         type: "error",
-        text: "Failed to send email. Try again later.",
+        text: "Failed to send email. Please try again later.",
+      });
+      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+    }
+  };
+
+  // Delete a maintenance inquiry
+  const handleDeleteRequest = async (id) => {
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/maintenance/${id}`);
+      const data = response.data;
+
+      if (!data.success) {
+        setMessage({
+          type: "error",
+          text: data.message || "Failed to delete maintenance inquiry",
+        });
+        return;
+      }
+
+      await fetchMaintenanceInquiries();
+
+      setMessage({
+        type: "success",
+        text: "Inquiry deleted successfully!",
+      });
+      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+    } catch (error) {
+      console.error(
+        "Error deleting maintenance inquiry:",
+        error.response?.data || error.message
+      );
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message ||
+          `Failed to delete maintenance inquiry: ${error.message}`,
+      });
+    }
+  };
+
+  // Update maintenance status
+  const handleUpdateStatus = async () => {
+    try {
+      const { statusInquiryId, maintenanceStatus } = formValues;
+
+      // Validate inputs
+      if (!statusInquiryId) {
+        setMessage({
+          type: "error",
+          text: "Please select a maintenance inquiry",
+        });
+        return;
+      }
+
+      if (!maintenanceStatus) {
+        setMessage({
+          type: "error",
+          text: "Please select a status",
+        });
+        return;
+      }
+
+      // Validate ObjectId
+      if (!isValidObjectId(statusInquiryId)) {
+        setMessage({
+          type: "error",
+          text: "Invalid Maintenance Inquiry ID",
+        });
+        return;
+      }
+
+      const response = await axios.put(
+        `${API_BASE_URL}/maintenance/${statusInquiryId}`,
+        {
+          status: maintenanceStatus,
+        }
+      );
+
+      const data = response.data;
+
+      if (!data.success) {
+        setMessage({
+          type: "error",
+          text: data.message || "Failed to update maintenance status",
+        });
+        return;
+      }
+
+      // Reset the form
+      setFormValues((prev) => ({
+        ...prev,
+        statusInquiryId: "",
+        maintenanceStatus: "",
+      }));
+
+      // Refresh the maintenance inquiries list
+      await fetchMaintenanceInquiries();
+
+      setMessage({
+        type: "success",
+        text: "Maintenance status updated successfully!",
+      });
+      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+    } catch (error) {
+      console.error(
+        "Error updating maintenance status:",
+        error.response?.data || error.message
+      );
+      setMessage({
+        type: "error",
+        text:
+          error.response?.data?.message ||
+          "Failed to update maintenance status. Please try again.",
       });
     }
   };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
-      {/* this show  down Sidebar */}
       <div className="fixed h-screen w-64 flex-shrink-0">
         <Machinesidebar />
       </div>
 
-      {/* This is Main Content */}
       <main className="flex-1 ml-64 p-6 overflow-y-auto">
         <div className="bg-white rounded-xl shadow-lg p-6 min-h-screen">
-          {/*This is a  Header */}
           <header className="bg-gray-50 rounded-lg shadow-sm p-6 mb-8">
             <h1 className="text-3xl font-bold text-black-900">
               Machine Maintenance
@@ -92,50 +447,73 @@ const MachineMaintenance = () => {
             </p>
           </header>
 
-          {/* This is a Form Section */}
-          <section className="bg-gray-50 p-6 rounded-lg shadow-sm">
+          <section className="bg-gray-50 p-6 rounded-lg shadow-sm mb-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">
               Report Maintenance Issue
             </h2>
             <form className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Machine Name *
+                  Select Machine *
                 </label>
-                <input
-                  type="text"
-                  name="machineName"
-                  value={formValues.machineName}
+                <select
+                  name="machineId"
+                  value={formValues.machineId}
                   onChange={handleInputChange}
-                  placeholder="Enter machine name"
                   className={`w-full border rounded-md p-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all ${
-                    errors.machineName ? "border-red-500" : "border-gray-300"
+                    errors.machineId ? "border-red-500" : "border-gray-300"
                   }`}
-                />
-                {errors.machineName && (
+                  disabled={machinesLoading}
+                >
+                  <option value="">Select a machine</option>
+                  {machines.map((machine) => (
+                    <option key={machine._id} value={machine._id}>
+                      {machine.name} (ID: {machine.id})
+                    </option>
+                  ))}
+                </select>
+                {errors.machineId && (
                   <p className="text-red-500 text-sm mt-1">
-                    {errors.machineName}
+                    {errors.machineId}
+                  </p>
+                )}
+                {machinesLoading && (
+                  <p className="text-gray-500 text-sm mt-1">
+                    Loading machines...
                   </p>
                 )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Machine ID *
+                  Select Part *
                 </label>
-                <input
-                  type="text"
-                  name="machineId"
-                  value={formValues.machineId}
+                <select
+                  name="partId"
+                  value={formValues.partId}
                   onChange={handleInputChange}
-                  placeholder="Enter machine ID"
                   className={`w-full border rounded-md p-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all ${
-                    errors.machineId ? "border-red-500" : "border-gray-300"
+                    errors.partId ? "border-red-500" : "border-gray-300"
                   }`}
-                />
-                {errors.machineId && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.machineId}
+                  disabled={partsLoading || !formValues.machineId}
+                >
+                  <option value="">Select a part</option>
+                  {parts.map((part) => (
+                    <option key={part._id} value={part._id}>
+                      {part.machinepartName} (Machine: {part.machineName}, ID:{" "}
+                      {part.machinepartId})
+                    </option>
+                  ))}
+                </select>
+                {errors.partId && (
+                  <p className="text-red-500 text-sm mt-1">{errors.partId}</p>
+                )}
+                {partsLoading && (
+                  <p className="text-gray-500 text-sm mt-1">Loading parts...</p>
+                )}
+                {!formValues.machineId && !partsLoading && (
+                  <p className="text-gray-500 text-sm mt-1">
+                    Select a machine to view its parts
                   </p>
                 )}
               </div>
@@ -159,49 +537,188 @@ const MachineMaintenance = () => {
                 )}
               </div>
 
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={handleSubmitRequest}
+                  className="bg-green-700 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-md transition-colors"
+                >
+                  Submit Inquiry
+                </button>
+                {isUnderWarranty && (
+                  <button
+                    type="button"
+                    onClick={handleSendEmail}
+                    className="bg-blue-700 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-md transition-colors"
+                  >
+                    Send Email to Company
+                  </button>
+                )}
+              </div>
+            </form>
+          </section>
+
+          <section className="bg-gray-50 p-6 rounded-lg shadow-sm mb-8">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Update Maintenance Status
+            </h2>
+            <form className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Is the machine under warranty?
+                  Maintenance Inquiry *
                 </label>
-                <div className="flex items-center space-x-6 mt-2">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="warranty"
-                      value="yes"
-                      checked={formValues.warranty === "yes"}
-                      onChange={handleWarrantyChange}
-                      className="mr-2 text-green-600 focus:ring-green-500"
-                    />
-                    <span className="text-gray-700">Yes</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="warranty"
-                      value="no"
-                      checked={formValues.warranty === "no"}
-                      onChange={handleWarrantyChange}
-                      className="mr-2 text-green-600 focus:ring-green-500"
-                    />
-                    <span className="text-gray-700">No</span>
-                  </label>
-                </div>
+                <select
+                  name="statusInquiryId"
+                  value={formValues.statusInquiryId || ""}
+                  onChange={handleInputChange}
+                  className="w-full border rounded-md p-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all border-gray-300"
+                >
+                  <option value="">Select Inquiry</option>
+                  {maintenanceInquiries.map((inquiry) => (
+                    <option key={inquiry._id} value={inquiry._id}>
+                      {inquiry.machineId?.name || "N/A"} -{" "}
+                      {inquiry.partId?.machinepartName || "N/A"} (
+                      {inquiry.issue.substring(0, 20)}...)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Maintenance Status *
+                </label>
+                <select
+                  name="maintenanceStatus"
+                  value={formValues.maintenanceStatus || ""}
+                  onChange={handleInputChange}
+                  className="w-full border rounded-md p-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all border-gray-300"
+                >
+                  <option value="">Select Status</option>
+                  <option value="inprogress">In Progress</option>
+                  <option value="complete">Complete</option>
+                  <option value="reject">Reject</option>
+                </select>
               </div>
 
               <div className="flex justify-end">
                 <button
                   type="button"
-                  onClick={handleSendEmail}
+                  onClick={handleUpdateStatus}
                   className="bg-blue-700 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-md transition-colors"
                 >
-                  Send Email to Company
+                  Update Status
                 </button>
               </div>
             </form>
           </section>
 
-          {/* Message */}
+          <section className="bg-gray-50 p-6 rounded-lg shadow-sm">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              Maintenance Inquiries
+            </h2>
+
+            {maintenanceInquiries.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full border-collapse border border-gray-200 rounded-lg">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Machine Name
+                      </th>
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Machine ID
+                      </th>
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Part Name
+                      </th>
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Part ID
+                      </th>
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Issue
+                      </th>
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Warranty Status
+                      </th>
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Status
+                      </th>
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Date Submitted
+                      </th>
+                      <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {maintenanceInquiries.map((inquiry) => (
+                      <tr
+                        key={inquiry._id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="border border-gray-200 px-4 py-2">
+                          {inquiry.machineId?.name || "N/A"}
+                        </td>
+                        <td className="border border-gray-200 px-4 py-2">
+                          {inquiry.machineId?.id || inquiry.machineId}
+                        </td>
+                        <td className="border border-gray-200 px-4 py-2">
+                          {inquiry.partId?.machinepartName || "N/A"}
+                        </td>
+                        <td className="border border-gray-200 px-4 py-2">
+                          {inquiry.partId?.machinepartId || inquiry.partId}
+                        </td>
+                        <td className="border border-gray-200 px-4 py-2">
+                          {inquiry.issue.length > 50
+                            ? `${inquiry.issue.substring(0, 50)}...`
+                            : inquiry.issue}
+                        </td>
+                        <td className="border border-gray-200 px-4 py-2">
+                          {inquiry.isUnderWarranty
+                            ? "Under Warranty"
+                            : "Not Under Warranty"}
+                        </td>
+                        <td className="border border-gray-200 px-4 py-2">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              inquiry.status === "complete"
+                                ? "bg-green-100 text-green-800"
+                                : inquiry.status === "inprogress"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : inquiry.status === "reject"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {inquiry.status.charAt(0).toUpperCase() +
+                              inquiry.status.slice(1)}
+                          </span>
+                        </td>
+                        <td className="border border-gray-200 px-4 py-2">
+                          {new Date(inquiry.dateSubmitted).toLocaleString()}
+                        </td>
+                        <td className="border border-gray-200 px-4 py-2">
+                          <button
+                            onClick={() => handleDeleteRequest(inquiry._id)}
+                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-4">
+                No maintenance inquiries submitted yet.
+              </p>
+            )}
+          </section>
+
           {message.text && (
             <div
               className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg ${

@@ -11,8 +11,8 @@ router.post("/", deliveryController.createDelivery);
 // GET a specific delivery
 router.get("/:id", deliveryController.getDeliveryById);
 
-// PATCH update delivery status
-router.patch("/:id", deliveryController.updateDeliveryStatus);
+// PUT update delivery status
+router.put("/status", deliveryController.updateDeliveryStatus);
 
 // DELETE a delivery
 router.delete("/:id", deliveryController.deleteDelivery);

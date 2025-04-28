@@ -1,18 +1,38 @@
+
+
+
 const PackingMaterial = require("../../models/inventoryModel/packingMaterialModel");
+const StockMovement = require("../../models/inventoryModel/stockMovementModel");
 
 // Create a new Packing material
 exports.createPackingMaterial = async (req, res) => {
   try {
     const { id, name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status } = req.body;
-    const newMaterial = new PackingMaterial({id, name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status });
+
+    const newMaterial = new PackingMaterial({
+      id, name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status
+    });
+
     await newMaterial.save();
+
+    // ➡️ After saving, create IN stock movement
+    const newStockMovement = new StockMovement({
+      productType: 'Packing',
+      productTypeRef: 'PackingMaterial',
+      productId: newMaterial._id,
+      productName: newMaterial.name,
+      movementType: 'IN',
+      quantity: quantity,
+    });
+    await newStockMovement.save();
+
     res.status(201).json(newMaterial);
   } catch (error) {
+    console.error('Error creating packing material:', error);
     res.status(500).json({ error: error.message });
   }
 };
 
- 
 // Get all Packing materials
 exports.getPackingMaterials = async (req, res) => {
   try {
@@ -38,14 +58,39 @@ exports.getPackingMaterialById = async (req, res) => {
 exports.updatePackingMaterial = async (req, res) => {
   try {
     const { name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status } = req.body;
+
+    const existingMaterial = await PackingMaterial.findById(req.params.id);
+    if (!existingMaterial) return res.status(404).json({ message: "Not found" });
+
+    const quantityDifference = quantity - existingMaterial.quantity;
+
     const updatedMaterial = await PackingMaterial.findByIdAndUpdate(
       req.params.id,
-      { name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status, lastUpdated: Date.now() },
+      {
+        name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status, lastUpdated: Date.now()
+      },
       { new: true }
     );
-    if (!updatedMaterial) return res.status(404).json({ message: "Not found" });
+
+    // ➡️ After updating, create IN/OUT stock movement if quantity changed
+    if (quantityDifference !== 0) {
+      const movementType = quantityDifference > 0 ? 'IN' : 'OUT';
+      const movementQuantity = Math.abs(quantityDifference);
+
+      const stockMovement = new StockMovement({
+        productType: 'Packing',
+        productTypeRef: 'PackingMaterial',
+        productId: updatedMaterial._id,
+        productName: updatedMaterial.name,
+        movementType: movementType,
+        quantity: movementQuantity,
+      });
+      await stockMovement.save();
+    }
+
     res.json(updatedMaterial);
   } catch (error) {
+    console.error('Error updating packing material:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -55,8 +100,21 @@ exports.deletePackingMaterial = async (req, res) => {
   try {
     const deletedMaterial = await PackingMaterial.findByIdAndDelete(req.params.id);
     if (!deletedMaterial) return res.status(404).json({ message: "Not found" });
+
+    // ➡️ After deleting, create OUT stock movement (full quantity OUT)
+    const stockMovement = new StockMovement({
+      productType: 'Packing',
+      productTypeRef: 'PackingMaterial',
+      productId: deletedMaterial._id,
+      productName: deletedMaterial.name,
+      movementType: 'OUT',
+      quantity: deletedMaterial.quantity,
+    });
+    await stockMovement.save();
+
     res.json({ message: "Deleted successfully" });
   } catch (error) {
+    console.error('Error deleting packing material:', error);
     res.status(500).json({ error: error.message });
   }
 };
