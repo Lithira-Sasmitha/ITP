@@ -113,6 +113,20 @@ const OrderConfirmation = () => {
             >
               Track Order
             </button>
+            <button
+            onClick={() => navigate("/paymentForm", { 
+              state: {
+                total: orderDetails.totalPrice,
+                deliveryPrice: orderDetails.deliveryPrice,
+                orderId: orderId,
+                fullName: orderDetails.name,
+              }
+            })}            
+  className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition"
+>
+  Proceed to Payment
+</button>
+
           </div>
         </div>
       </div>
