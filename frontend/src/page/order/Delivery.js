@@ -13,6 +13,7 @@ import {
   FaHistory,
   FaCar,
   FaUserPlus,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { useGetDriversQuery } from "../../page/order/redux/api/driverApiSlice";
 import axios from "axios";
@@ -36,6 +37,7 @@ export default function Delivery() {
   const [totalDrivers, setTotalDrivers] = useState(0);
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
   const [orderHistoryData, setOrderHistoryData] = useState({
     totalDeliveryEarnings: 0,
     totalItemEarnings: 0,
@@ -67,17 +69,20 @@ export default function Delivery() {
 
   const fetchDeliveries = async () => {
     try {
+      console.log("Fetching deliveries from:", `${API_URL}/deliveries`);
       const response = await axios.get(`${API_URL}/deliveries`);
       const fetchedDeliveries = response.data;
+      console.log("Fetched Deliveries:", fetchedDeliveries);
       setDeliveries(fetchedDeliveries);
       setLoading(false);
 
       setPendingDeliveries(
         fetchedDeliveries.filter((d) => d.deliveryStatus === "Pending").length
       );
-      setCompletedDeliveries(
-        fetchedDeliveries.filter((d) => d.deliveryStatus === "Completed").length
-      );
+      const completedCount = fetchedDeliveries.filter((d) => d.deliveryStatus === "Completed").length;
+      console.log("Completed Deliveries:", completedCount);
+      setCompletedDeliveries(completedCount);
+
       setDelayedDeliveries(
         fetchedDeliveries.filter((d) => d.deliveryStatus === "Delayed").length
       );
@@ -94,6 +99,7 @@ export default function Delivery() {
       setTotalEarnings(totalDeliveryEarnings);
       setTotalDeliveredItems(totalItemEarnings);
     } catch (err) {
+      console.error("Error fetching deliveries:", err);
       setError("Failed to fetch deliveries");
       setLoading(false);
       toast.error("Failed to fetch deliveries");
@@ -156,6 +162,7 @@ export default function Delivery() {
   };
 
   useEffect(() => {
+    console.log("Starting data load");
     const loadData = async () => {
       await Promise.all([
         fetchDeliveries(),
@@ -165,6 +172,21 @@ export default function Delivery() {
     };
     loadData();
   }, []);
+
+  // Control alert visibility for zero completed deliveries
+  useEffect(() => {
+    if (!loading && completedDeliveries === 0) {
+      console.log("Triggering alert for zero completed deliveries");
+      setShowAlert(true);
+      // Auto-dismiss after 5 seconds
+      const timer = setTimeout(() => setShowAlert(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, completedDeliveries]);
+
+  const handleDismissAlert = () => {
+    setShowAlert(false);
+  };
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
 
@@ -532,6 +554,35 @@ export default function Delivery() {
             </button>
           </div>
         </div>
+
+        {/* Zero Completed Deliveries Alert */}
+        {showAlert && (
+          <div className="fixed top-4 right-4 z-50 max-w-sm bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-lg flex items-center space-x-2 animate-slide-in">
+            <FaExclamationTriangle className="text-red-700 w-5 h-5" />
+            <p className="font-semibold">
+              No completed deliveries found. Please review pending or delayed deliveries.
+            </p>
+            <button
+              onClick={handleDismissAlert}
+              className="text-red-700 hover:text-red-900 focus:outline-none"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <DashboardCard
