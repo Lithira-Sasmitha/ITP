@@ -25,8 +25,8 @@ const ProductDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 py-12 px-4">
-      <div className="container mx-auto max-w-screen-md animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-200 py-12 px-6">
+      <div className="container mx-auto animate-fade-in">
         <button
           onClick={() => navigate(-1)}
           className="mb-6 flex items-center bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg shadow-md transition duration-300 ease-in-out group"
@@ -46,11 +46,11 @@ const ProductDetails = () => {
           </svg>
           Back
         </button>
-        <div className="bg-white rounded-xl shadow-2xl p-8 transform transition-all duration-300 hover:shadow-3xl">
+        <div className="bg-white rounded-xl shadow-2xl p-10 transform transition-all duration-300 hover:shadow-3xl">
           <h1 className="text-4xl font-extrabold text-gray-900 mb-6 tracking-tight">
             {product.productName}
           </h1>
-          <div className="flex flex-col md:flex-row gap-8">
+          <div className="flex flex-col md:flex-row gap-10">
             <div className="md:w-1/2">
               <img
                 src={
@@ -59,7 +59,7 @@ const ProductDetails = () => {
                     : "https://via.placeholder.com/150"
                 }
                 alt={product.productName}
-                className="w-full h-80 object-cover rounded-lg shadow-md transition-transform duration-300 hover:scale-105"
+                className="w-full h-96 object-cover rounded-lg shadow-md transition-transform duration-300 hover:scale-105"
                 onError={(e) =>
                   (e.target.src = "https://via.placeholder.com/150")
                 }
