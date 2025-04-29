@@ -1,6 +1,6 @@
 const routes = require('express').Router();
 const controller = require('../../controller/financial/expencesCrt');
-const { default: route } = require('./const');
+const  route  = require('./const');
 
 
 

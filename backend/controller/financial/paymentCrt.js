@@ -1,4 +1,4 @@
-const { Transaction } = require("../../models/financialModel/expencesmodel");
+const { IncomeTransaction } = require("../../models/financialModel/incomemodel");
 const Payment = require("../../models/financialModel/paymentmodel");
 
 // Get all payments
@@ -55,9 +55,9 @@ exports.updatePaymentStatus = async (req, res) => {
     // If payment status is "Complete", create a new transaction
     if (paymentStatus === "Complete") {
       // Get payment details to use for the transaction
-      const newTransaction = new Transaction({
+      const newTransaction = new IncomeTransaction({
         name: payment.fullName || "Payment Transaction",
-        type: "Investment", // As requested in the requirements
+        type: "Income", // As requested in the requirements
         amount: payment.total || 0,
         date: new Date(),
         paymentId: payment._id,

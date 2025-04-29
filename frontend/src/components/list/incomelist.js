@@ -6,10 +6,10 @@ import { Calendar, Trash2, Edit2, Search, DollarSign, X, Check, Clock } from 'lu
 import 'boxicons';
 
 export default function IncomeList() {
-  const { data, isFetching, isSuccess, isError } = api.useGetLabelsQuery();
+  const { data, isFetching, isSuccess, isError } = api.useGetIncomeLabelsQuery();
   
-  const [deleteTransaction] = api.useDeleteTransactionMutation();
-  const [updateTransaction] = api.useUpdateTransactionMutation();
+  const [deleteTransaction] = api.useDeleteIncomeTransactionMutation();
+  const [updateTransaction] = api.useUpdateIncomeTransactionMutation();
   const [showPopup, setShowPopup] = useState(false);
   const [selectedIncome, setSelectedIncome] = useState(null);
   const [updatedName, setUpdatedName] = useState('');
@@ -96,6 +96,7 @@ export default function IncomeList() {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
     return date.toLocaleDateString('en-US', options);
   };
+  console.log(data, "income label");
 
   // Calculate total income
   const calculateTotal = (transactions) => {
@@ -117,7 +118,7 @@ export default function IncomeList() {
     );
   } else if (isSuccess) {
     // Filter for transactions that relate to income - since we're using Investment as a placeholder
-    const incomeData = data.filter(item => item.type === 'Investment');
+    const incomeData = data.filter(item => item.type === 'Income');
     
     // Apply search filter if there is a search query
     const filteredBySearch = searchQuery 

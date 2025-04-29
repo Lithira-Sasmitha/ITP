@@ -51,14 +51,14 @@ export const apiSlice = createApi({
         // INCOME ENDPOINTS
         // Get income categories
         getIncomeCategories: builder.query({
-            query: () => '/api/income-categories',
-            providesTags: ['incomeCategories']
+            query: () => '/api/income-transaction',
+            providesTags: ['categories']
         }),
 
         // Get income labels
         getIncomeLabels: builder.query({
-            query: () => '/api/income-labels',
-            providesTags: ['incomeTransaction']
+            query: () => "/api/income-transaction",
+            providesTags: ['categories']
         }),
 
         // Add income transaction
@@ -68,7 +68,7 @@ export const apiSlice = createApi({
                 method: "POST",
                 body: initialTransaction
             }),
-            invalidatesTags: ['incomeTransaction']
+            invalidatesTags: ['transaction']
         }),
 
         // Update income transaction
@@ -78,7 +78,7 @@ export const apiSlice = createApi({
                 method: "PUT",
                 body: updatedData
             }),
-            invalidatesTags: ['incomeTransaction']
+            invalidatesTags: ['transaction']
         }),
 
         // Delete income transaction
@@ -87,7 +87,7 @@ export const apiSlice = createApi({
                 url: `/api/income-transaction/${_id}`,
                 method: "DELETE"
             }),
-            invalidatesTags: ['incomeTransaction']
+            invalidatesTags: ['transaction']
         }),
         //Sallary
         addSallary: builder.mutation({
@@ -138,7 +138,8 @@ export const {
     useGetIncomeLabelsQuery,
     useAddIncomeTransactionMutation,
     useUpdateIncomeTransactionMutation,
-    useDeleteIncomeTransactionMutation
+    useDeleteIncomeTransactionMutation,
+    
 } = apiSlice;
 
 export default apiSlice;

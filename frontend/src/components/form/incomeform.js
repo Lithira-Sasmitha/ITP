@@ -12,7 +12,7 @@ export default function IncomeForm() {
     }
   });
   
-  const [addTransaction] = api.useAddTransactionMutation();
+  const [addTransaction] = api.useAddIncomeTransactionMutation();
   const today = new Date().toISOString().split('T')[0];
 
   const onSubmit = async (data) => {

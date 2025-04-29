@@ -7,4 +7,4 @@ const route = {
  
 }
 
-export default route;
+module.exports = route;
