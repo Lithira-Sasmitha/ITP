@@ -68,6 +68,7 @@ import PlaceOrder from "./page/order/PlaceOrder";
 import Orderhistorys from "./page/order/Orderhistorys";
 import OrderConfirmation from "./page/order/OrderConfirmation";
 import OrderTracking from "./page/order/OrderTracking"; 
+import Receipt from './page/financial/payment/recept.js';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -134,6 +135,7 @@ function App() {
             <Route path="/message" element={<Message />} />
             <Route path="/paymentForm" element={<PaymentForm />} />
             <Route path="/payment-summary" element={<PaymentSummary />} />
+            <Route path="/receipt/:orderId" element={<Receipt />} />
 
             {/* Emp parth */}
             <Route path="/" element={<Home />} />

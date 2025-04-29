@@ -1,3 +1,4 @@
+const { Transaction } = require("../../models/financialModel/expencesmodel");
 const Payment = require("../../models/financialModel/paymentmodel");
 
 // Get all payments
@@ -40,14 +41,33 @@ exports.updatePaymentStatus = async (req, res) => {
       return res.status(400).json({ message: 'Payment status is required.' });
     }
 
-    const updatedPayment = await Payment.findByIdAndUpdate(
-      id,
-      { paymentStatus },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedPayment) {
+    // Find the payment first to get all necessary details
+    const payment = await Payment.findById(id);
+    
+    if (!payment) {
       return res.status(404).json({ message: 'Payment not found.' });
+    }
+
+    // Update payment status
+    payment.paymentStatus = paymentStatus;
+    const updatedPayment = await payment.save();
+
+    // If payment status is "Complete", create a new transaction
+    if (paymentStatus === "Complete") {
+      // Get payment details to use for the transaction
+      const newTransaction = new Transaction({
+        name: payment.fullName || "Payment Transaction",
+        type: "Investment", // As requested in the requirements
+        amount: payment.total || 0,
+        date: new Date(),
+        paymentId: payment._id,
+        orderId: payment.order_id || null
+      });
+
+      // Save the new transaction
+      await newTransaction.save();
+      
+      console.log('New transaction created:', newTransaction);
     }
 
     res.status(200).json({ 
@@ -60,7 +80,6 @@ exports.updatePaymentStatus = async (req, res) => {
     res.status(500).json({ message: 'Server error.', error: err.message });
   }
 };
-
 
 // Create a payment
 // Create a payment
