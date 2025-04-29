@@ -18,6 +18,10 @@ import { useGetDriversQuery } from "../../page/order/redux/api/driverApiSlice";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -322,6 +326,40 @@ export default function Delivery() {
     );
   };
 
+  // Pie chart data
+  const chartData = {
+    labels: ["Completed Deliveries", "Other Deliveries"],
+    datasets: [
+      {
+        data: [completedDeliveries, deliveries.length - completedDeliveries],
+        backgroundColor: ["#3B82F6", "#F43F5E"], // Blue, Rose
+        hoverBackgroundColor: ["#2563EB", "#E11D48"], // Darker blue, darker rose
+        borderColor: darkMode ? "#1F2937" : "#FFFFFF",
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          color: darkMode ? "#D1D5DB" : "#4B5563",
+        },
+      },
+      tooltip: {
+        backgroundColor: darkMode ? "#1F2937" : "#FFFFFF",
+        titleColor: darkMode ? "#D1D5DB" : "#4B5563",
+        bodyColor: darkMode ? "#D1D5DB" : "#4B5563",
+        borderColor: darkMode ? "#4B5563" : "#D1D5DB",
+        borderWidth: 1,
+      },
+    },
+  };
+
   const AssignDriverModal = ({ drivers }) => {
     if (!showAssignDriverModal) return null;
 
@@ -426,7 +464,7 @@ export default function Delivery() {
             <button
               onClick={() => {
                 setShowNoDriversModal(false);
-                navigate("/drivervehicledetails"); // Navigate to DrivervehicleDetails page
+                navigate("/drivervehicledetails");
               }}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
             >
@@ -524,6 +562,20 @@ export default function Delivery() {
             color="rose"
             darkMode={darkMode}
           />
+        </div>
+
+        {/* Pie Chart Section */}
+        <div
+          className={`p-6 rounded-3xl shadow-xl transition-all duration-500 ${
+            darkMode
+              ? "bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700"
+              : "bg-gradient-to-r from-white to-gray-50 border border-gray-200"
+          }`}
+        >
+          <h2 className="text-xl font-semibold mb-4">Delivery Status</h2>
+          <div className="relative h-64">
+            <Pie data={chartData} options={chartOptions} />
+          </div>
         </div>
 
         <div
