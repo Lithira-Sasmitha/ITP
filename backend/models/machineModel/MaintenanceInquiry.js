@@ -12,26 +12,21 @@ const maintenanceInquirySchema = new mongoose.Schema(
       ref: "MachinePart",
       required: true,
     },
-    issue: {
-      type: String,
-      required: true,
-      minlength: 10,
-    },
-    isUnderWarranty: {
-      type: Boolean,
-      default: false,
-    },
+    issue: { type: String, required: true },
     status: {
       type: String,
       enum: ["pending", "inprogress", "complete", "reject"],
       default: "pending",
     },
-    dateSubmitted: {
-      type: Date,
-      default: Date.now,
-    },
+    isUnderWarranty: { type: Boolean, required: true },
+    dateSubmitted: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("MaintenanceInquiry", maintenanceInquirySchema);
+const MaintenanceInquiry = mongoose.model(
+  "MaintenanceInquiry",
+  maintenanceInquirySchema
+);
+
+module.exports = MaintenanceInquiry;
