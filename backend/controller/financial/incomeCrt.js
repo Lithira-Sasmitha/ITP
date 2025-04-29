@@ -18,7 +18,7 @@ function validateIncomeInput({ name, amount, date }) {
 async function create_Categories(req, res) {
     try {
         
-        const create = new model.Categories({
+        const create = new model.IncomeCategories({
             type: "Income",
             color: incomeColor,
         });
@@ -33,7 +33,7 @@ async function create_Categories(req, res) {
 // Get income categories
 async function get_Categories(req, res) {
     try {
-        let data = await model.Categories.find({ type: "Income" });
+        let data = await model.IncomeCategories.find({ type: "Income" });
         let filter = data.map(v => ({ type: v.type, color: v.color }));
         return res.json(filter);
     } catch (err) {
@@ -54,16 +54,16 @@ async function create_Transaction(req, res) {
         if (errors.length > 0) return res.status(400).json({ errors });
 
         
-        let category = await model.Categories.findOne({ type });
+        let category = await model.IncomeCategories.findOne({ type });
         if (!category) {
             try {
-                category = await new model.Categories({ type, color: incomeColor }).save();
+                category = await new model.IncomeCategories({ type, color: incomeColor }).save();
             } catch (error) {
                 return res.status(400).json({ message: `Error while creating income category: ${error}` });
             }
         }
 
-        const create = new model.Transaction({
+        const create = new model.IncomeTransaction({
             name,
             type,
             amount,
@@ -81,7 +81,7 @@ async function create_Transaction(req, res) {
 // Get income transactions with date formatting
 async function get_Transaction(req, res) {
     try {
-        let data = await model.Transaction.find({ type: "Income" });
+        let data = await model.IncomeTransaction.find({ type: "Income" });
 
         
         let formattedData = data.map(transaction => ({
@@ -111,7 +111,7 @@ async function edit_Transaction(req, res) {
 
     try {
         // First check if the transaction is an income transaction
-        const existingTransaction = await model.Transaction.findById(_id);
+        const existingTransaction = await model.IncomeTransaction.findById(_id);
         if (!existingTransaction) {
             return res.status(404).json({ message: "Income transaction not found" });
         }
@@ -121,7 +121,7 @@ async function edit_Transaction(req, res) {
         }
 
         // Update the transaction record, including the date
-        const updatedTransaction = await model.Transaction.findByIdAndUpdate(
+        const updatedTransaction = await model.IncomeTransaction.findByIdAndUpdate(
             _id,
             { name, type, amount, date: date ? new Date(date) : undefined }, 
             { new: true } // Return the updated transaction
@@ -140,7 +140,7 @@ async function delete_Transaction(req, res) {
         if (!id) return res.status(400).json({ message: "Transaction ID is required." });
 
         // First check if the transaction is an income transaction
-        const existingTransaction = await model.Transaction.findById(id);
+        const existingTransaction = await model.IncomeTransaction.findById(id);
         if (!existingTransaction) {
             return res.status(404).json({ message: "Income transaction not found." });
         }
@@ -149,7 +149,7 @@ async function delete_Transaction(req, res) {
             return res.status(400).json({ message: "Can only delete income transactions in this endpoint" });
         }
 
-        const deletedTransaction = await model.Transaction.findByIdAndDelete(id);
+        const deletedTransaction = await model.IncomeTransaction.findByIdAndDelete(id);
         return res.json({ message: "Income transaction deleted successfully." });
     } catch (err) {
         return res.status(500).json({ message: "Error while deleting income transaction." });
@@ -159,7 +159,7 @@ async function delete_Transaction(req, res) {
 // Get income labels
 async function get_Labels(req, res) {
     try {
-        let result = await model.Transaction.aggregate([
+        let result = await model.IncomeTransaction.aggregate([
             {
                 $match: { type: "Income" } 
             },
