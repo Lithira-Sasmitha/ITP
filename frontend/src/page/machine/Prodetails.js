@@ -6,6 +6,7 @@ import {
   useDeleteProductMutation,
 } from "../../page/machine/redux/api/productapiSlice";
 import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import Machinesidebar from "../../components/sidebar/Machinesidebar";
 import axios from "axios";
 
@@ -238,19 +239,129 @@ const Prodetails = () => {
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
-    doc.text("Product List", 20, 20);
-    if (products && products.length > 0) {
-      products.forEach((product, index) => {
-        doc.text(
-          `${index + 1}. ${product.productName} - $${product.productPrice}`,
-          20,
-          30 + index * 10
-        );
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 14;
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    // Helper function for header and footer
+    const addHeader = () => {
+      // Removed "MyApp" branding
+    };
+
+    const addFooter = (pageNum, totalPages) => {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(107, 114, 128); // Gray-500
+      doc.text(`Generated on ${currentDate}`, margin, pageHeight - 10);
+      doc.text(
+        `Page ${pageNum} of ${totalPages}`,
+        pageWidth - margin - 30,
+        pageHeight - 10
+      );
+    };
+
+    // Cover Page
+    addHeader();
+    addFooter(1, 2);
+
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(34, 197, 94); // Green-600
+    doc.text("Product List Report", margin, 60);
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(107, 114, 128); // Gray-500
+    doc.text(`Generated on ${currentDate}`, margin, 80);
+
+    // Decorative line
+    doc.setDrawColor(34, 197, 94); // Green-600
+    doc.setLineWidth(0.5);
+    doc.line(margin, 90, pageWidth - margin, 90);
+
+    // Border
+    doc.setDrawColor(37, 99, 235); // Blue-600
+    doc.setLineWidth(0.3);
+    doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+    // Product List Table Page
+    doc.addPage();
+    addHeader();
+    addFooter(2, 2);
+
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(33, 33, 33); // Gray-900
+    doc.text("Product List", margin, 30);
+
+    const headers = ["Item Number", "Product Name", "Price", "Description"];
+    const data =
+      products && products.length > 0
+        ? products.map((product, index) => [
+            index + 1,
+            product.productName || "N/A",
+            `$${parseFloat(product.productPrice).toFixed(2)}`,
+            product.productDescription || "No description available",
+          ])
+        : [["", "No products available", "", ""]];
+
+    try {
+      autoTable(doc, {
+        startY: 40,
+        head: [headers],
+        body: data,
+        theme: "grid",
+        styles: {
+          font: "helvetica",
+          fontSize: 12,
+          cellPadding: 6,
+          textColor: [33, 33, 33],
+          overflow: "linebreak",
+        },
+        headStyles: {
+          fillColor: [34, 197, 94], // Green-600
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+          fontSize: 12,
+        },
+        alternateRowStyles: {
+          fillColor: [240, 240, 240], // Gray-100
+        },
+        margin: { left: margin, right: margin },
+        tableWidth: "auto",
+        columnStyles: {
+          0: { cellWidth: 30 }, // Item Number
+          1: { cellWidth: 60 }, // Product Name
+          2: { cellWidth: 30 }, // Price
+          3: { cellWidth: pageWidth - 2 * margin - 120 }, // Description
+        },
       });
-    } else {
-      doc.text("No products available", 20, 30);
+    } catch (error) {
+      console.error("autoTable failed:", error.message, error.stack);
+      let y = 40;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(33, 33, 33);
+      headers.forEach((header, index) => {
+        doc.text(header, margin + index * 50, y);
+      });
+      y += 10;
+      doc.setFont("helvetica", "normal");
+      data.forEach((row) => {
+        row.forEach((cell, index) => {
+          doc.text(cell, margin + index * 50, y);
+        });
+        y += 10;
+      });
     }
-    doc.save("products.pdf");
+
+    // Save the PDF
+    doc.save("product_list_report.pdf");
   };
 
   const apiBaseUrl = "http://localhost:5000";
@@ -292,8 +403,8 @@ const Prodetails = () => {
                     <p className="text-gray-600">
                       Price: ${product.unit_price}
                     </p>
-                    <p className="text-gray-600">Stock: {product.quantity}</p>
-                    <p className="text-gray-600">Status: {product.status}</p>
+                    <p className="text-gray-600">Stock: ${product.quantity}</p>
+                    <p className="text-gray-600">Status: ${product.status}</p>
                   </div>
                 ))}
             </div>
@@ -387,7 +498,7 @@ const Prodetails = () => {
                   <input
                     type="file"
                     ref={fileInputRef}
-                    accept="image/png16.png, image/jpeg, image/jpg"
+                    accept="image/png, image/jpeg, image/jpg"
                     onChange={handleImageChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4

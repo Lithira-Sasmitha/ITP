@@ -2,11 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Oderslidebar from "../../components/sidebar/oderslidebar";
+import { FaSearch, FaDownload } from "react-icons/fa";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable"; // Explicitly import autoTable
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 const Orderhistory = () => {
   const [orderhistorys, setOrderhistorys] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(null);
@@ -16,11 +21,20 @@ const Orderhistory = () => {
     fetchOrderhistorys();
   }, []);
 
+  useEffect(() => {
+    // Filter orders based on search query
+    const filtered = orderhistorys.filter((order) =>
+      order._id.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredOrders(filtered);
+  }, [searchQuery, orderhistorys]);
+
   const fetchOrderhistorys = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_URL}/orders/pending`);
       setOrderhistorys(response.data);
+      setFilteredOrders(response.data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching pending orders:", error);
@@ -31,6 +45,7 @@ const Orderhistory = () => {
 
   const handleProcessOrder = (order) => {
     setOrderhistorys(orderhistorys.filter((o) => o._id !== order._id));
+    setFilteredOrders(filteredOrders.filter((o) => o._id !== order._id));
     navigate(`/adddelivery/${order._id}`, { state: order });
   };
 
@@ -41,12 +56,18 @@ const Orderhistory = () => {
       setOrderhistorys((prevOrders) =>
         prevOrders.filter((order) => order._id !== orderId)
       );
+      setFilteredOrders((prevOrders) =>
+        prevOrders.filter((order) => order._id !== orderId)
+      );
       setDeleteLoading(null);
     } catch (error) {
       console.error("Error deleting order:", error);
       try {
         await axios.post(`${API_URL}/orders/${orderId}/delete`);
         setOrderhistorys((prevOrders) =>
+          prevOrders.filter((order) => order._id !== orderId)
+        );
+        setFilteredOrders((prevOrders) =>
           prevOrders.filter((order) => order._id !== orderId)
         );
       } catch (fallbackError) {
@@ -63,6 +84,78 @@ const Orderhistory = () => {
     setOrderhistorys((prevOrders) =>
       prevOrders.filter((order) => order._id !== orderId)
     );
+    setFilteredOrders((prevOrders) =>
+      prevOrders.filter((order) => order._id !== orderId)
+    );
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+  };
+
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Pending Orders Report", 14, 22);
+
+    // Define table headers
+    const headers = [
+      "Order ID",
+      "Customer",
+      "Product",
+      "Quantity",
+      "Item Price",
+      "Delivery Price",
+      "Total Price",
+    ];
+
+    // Prepare table data
+    const data = filteredOrders.map((order) => [
+      order._id.substring(0, 8) + "...",
+      order.name,
+      order.products.map((p) => p.productName).join(", "),
+      order.products.map((p) => p.quantity).join(", "),
+      order.products.map((p) => `$${p.price}`).join(", "),
+      `$${order.deliveryPrice}`,
+      `$${order.totalPrice}`,
+    ]);
+
+    try {
+      // Apply autoTable plugin
+      autoTable(doc, {
+        startY: 30,
+        head: [headers],
+        body: data,
+        theme: "grid",
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [34, 197, 94], textColor: [255, 255, 255] },
+        alternateRowStyles: { fillColor: [240, 240, 240] },
+      });
+    } catch (error) {
+      console.error("autoTable failed:", error);
+      // Fallback manual table implementation
+      let y = 30;
+      doc.setFontSize(10);
+      // Headers
+      headers.forEach((header, index) => {
+        doc.text(header, 14 + index * 30, y);
+      });
+      y += 10;
+      // Data
+      data.forEach((row) => {
+        row.forEach((cell, index) => {
+          doc.text(cell, 14 + index * 30, y);
+        });
+        y += 10;
+      });
+    }
+
+    // Save the PDF
+    doc.save("pending_orders_report.pdf");
   };
 
   if (loading) {
@@ -126,9 +219,50 @@ const Orderhistory = () => {
             </p>
           </div>
 
+          {/* Search Bar and Download Button */}
+          <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="relative w-full sm:w-80">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search by Order ID..."
+                className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+              />
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
+            </div>
+            <button
+              onClick={downloadPDF}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 text-sm font-medium transition duration-150"
+            >
+              <FaDownload className="mr-2" />
+              Download PDF
+            </button>
+          </div>
+
           {/* Orders Table */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            {orderhistorys.length === 0 ? (
+            {filteredOrders.length === 0 ? (
               <div className="text-center p-10">
                 <svg
                   className="h-16 w-16 mx-auto text-gray-400"
@@ -144,7 +278,9 @@ const Orderhistory = () => {
                   />
                 </svg>
                 <p className="mt-4 text-gray-600 font-medium">
-                  No pending orders found
+                  {searchQuery
+                    ? "No orders match your search"
+                    : "No pending orders found"}
                 </p>
                 <button
                   onClick={() => fetchOrderhistorys()}
@@ -178,7 +314,7 @@ const Orderhistory = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {orderhistorys.map((order) => (
+                    {filteredOrders.map((order) => (
                       <tr
                         key={order._id}
                         className="hover:bg-gray-50 transition duration-150"
