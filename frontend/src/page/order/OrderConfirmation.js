@@ -102,17 +102,17 @@ const OrderConfirmation = () => {
 
           <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/product")}
               className="bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition"
             >
               Continue Shopping
             </button>
-            <button
+            {/* <button
               onClick={() => navigate("/orders/track", { state: { orderId } })}
               className="bg-gray-600 text-white py-3 px-6 rounded-lg hover:bg-gray-700 transition"
             >
               Track Order
-            </button>
+            </button> */}
             <button
             onClick={() => navigate("/paymentForm", { 
               state: {

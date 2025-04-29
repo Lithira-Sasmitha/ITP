@@ -253,28 +253,7 @@ const Dashboard = () => {
                       </td>
                     </tr>
                     
-                    {/* Payment Item 4 */}
-                    <tr>
-                      <td className="px-3 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">#INV-2025-004</div>
-                        <div className="text-xs text-gray-500">Mar 15, 2025</div>
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">Delta Corporation</div>
-                        <div className="text-xs text-gray-500">Finance</div>
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-green-600">$2,340.00</div>
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                          Rejected
-                        </span>
-                      </td>
-                      <td className="px-3 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="text-sm text-gray-500 italic">Declined</div>
-                      </td>
-                    </tr>
+                    
                     
                     {/* Payment Item 5 */}
                     <tr>

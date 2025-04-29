@@ -128,10 +128,7 @@ function App() {
         <Router>
           <Routes>
             {/* Financial parth */}
-            <Route
-              path="/financialdashboard"
-              element={<FinancialDashboard />}
-            />
+            <Route path="/financialdashboard" element={<FinancialDashboard />}/>
             <Route path="/income" element={<Income />} />
             <Route path="/expense" element={<Expense />} />
             <Route path="/salary" element={<Salary />} />
