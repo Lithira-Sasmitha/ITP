@@ -109,9 +109,9 @@ const AddMachine = () => {
       refetch();
     } catch (error) {
       console.error("Operation failed:", error);
-      setMessage({ 
-        type: "error", 
-        text: error.data?.message || "Operation failed. Please try again." 
+      setMessage({
+        type: "error",
+        text: error.data?.message || "Operation failed. Please try again.",
       });
     }
   };
@@ -385,10 +385,18 @@ const AddMachine = () => {
                             {machine.status || "N/A"}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
-                            {machine.purchaseDate || "N/A"}
+                            {machine.purchaseDate
+                              ? new Date(
+                                  machine.purchaseDate
+                                ).toLocaleDateString()
+                              : "N/A"}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
-                            {machine.warrantyDate || "N/A"}
+                            {machine.warrantyDate
+                              ? new Date(
+                                  machine.warrantyDate
+                                ).toLocaleDateString()
+                              : "N/A"}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
                             ${machine.value}
