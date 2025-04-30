@@ -79,7 +79,7 @@ const AddFinalProductForm = () => {
 
   return (
     <div className="max-w-4xl p-8 mx-auto bg-white rounded-lg shadow-lg">
-      <h2 className="mb-6 text-3xl font-semibold text-center text-green-900 transition duration-300 hover:text-green-900">Add Raw Material</h2>
+      <h2 className="mb-6 text-3xl font-semibold text-center text-green-900 transition duration-300 hover:text-green-900">Add Final Product</h2>
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Name */}

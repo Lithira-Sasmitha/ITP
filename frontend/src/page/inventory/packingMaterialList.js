@@ -6,6 +6,7 @@ import 'animate.css';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const ViewPackingMaterials = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -42,7 +43,7 @@ const ViewPackingMaterials = () => {
       .post("http://localhost:5000/api/warehouseEmail/send", {
         to: supplierEmail,
         subject: `Reorder Request for Packing Material: ${materialName}`,
-        message: `Dear Supplier,\n\nOur stock for "${materialName}" is running low. Kindly send a new supply.\n\nBest regards,\nWarehouse Management`
+        text: `Dear Supplier,\n\nOur stock for "${materialName}" is running low. Kindly send a new supply.\n\nBest regards,\nWarehouse Management`
       })
       .then((response) => {
         alert(`Email successfully sent to ${supplierEmail}`);
@@ -75,15 +76,56 @@ const ViewPackingMaterials = () => {
     navigate(`/inventory/updatePackingMaterial/${_id}`);
   };
 
-  // Generate and download report
-  const generateReport = () => {
-    const doc = new jsPDF();
-    doc.text("Packing Materials Report", 20, 20);
-    packingMaterials.forEach((material, index) => {
-      doc.text(`${material.name} - Quantity: ${material.quantity}`, 20, 30 + index * 10);
-    });
-    doc.save("packing_materials_report.pdf");
-  };
+  
+
+// Generate and download detailed report
+const generateReport = () => {
+  const doc = new jsPDF();
+  const currentDate = new Date().toLocaleString();
+
+  doc.setFontSize(16);
+  doc.text("Packing Materials Report", 20, 20);
+
+  doc.setFontSize(10);
+  doc.text(`Report Generated On: ${currentDate}`, 20, 28);
+
+  const headers = [
+    ["No","Product ID", "Name", "Quantity", "Supplier Email","Status", "Expiry Date", "Received Date"]
+  ];
+
+  const data = packingMaterials.map((material, index) => [
+    (index + 1).toString(),
+    material.packingMaterialId.toString(),
+    material.name,
+    material.quantity.toString(),
+    material.supplier_email || "N/A",
+    material.status,
+    material.expiry_date ? new Date(material.expiry_date).toLocaleDateString() : "N/A",
+    material.received_date ? new Date(material.received_date).toLocaleDateString() : "N/A",
+  ]);
+
+  autoTable(doc, {
+    startY: 35,
+    head: headers,
+    body: data,
+    styles: {
+      fontSize: 8,
+      cellPadding: 2,
+    },
+    headStyles: {
+      fillColor: [33, 150, 243],  // Blue
+      textColor: 255,             // White text
+      halign: 'center',
+      fontStyle: 'bold',
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245], // Light gray
+    },
+  });
+
+  doc.save("Packing_Materials_Report.pdf");
+};
+
 
   const generateColorArray = () => {
     const colors = [
