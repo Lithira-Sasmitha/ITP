@@ -3,6 +3,9 @@ import { useNavigate,} from "react-router-dom";
 
 const AddPackingMaterialForm = () => {
   const navigate = useNavigate();
+  const [serverMessage, setServerMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     quantity: "",
@@ -39,13 +42,13 @@ const AddPackingMaterialForm = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      });
-
+      });const data = await response.json();
+  
       if (response.ok) {
-        const data = await response.json();
         console.log("Packing material added successfully:", data);
+        setIsError(false);
+        setServerMessage("Packing material added successfully.");
         navigate("/inventory/packingMaterialList");
-        // Optionally reset the form
         setFormData({
           name: "",
           quantity: 1,
@@ -61,12 +64,15 @@ const AddPackingMaterialForm = () => {
           status: "In Stock",
         });
       } else {
-        console.error("Failed to add Packing material");
+        setIsError(true);
+        setServerMessage(data?.message || "Failed to add packing material.");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
+      setIsError(true);
+      setServerMessage("Network error occurred. Please try again later.");
     }
-  };
+  };  
 
   // Form validation
   const validateForm = () => {
@@ -261,10 +267,18 @@ const AddPackingMaterialForm = () => {
             type="submit"
             className="w-full px-4 py-2 mt-4 text-white transition bg-green-600 rounded-lg hover:bg-green-500"
           >
-            Add Material
+            Add Packing Material
           </button>
         </div>
+
+       
       </form>
+      {serverMessage && (
+          <div className={`mt-4 p-3 rounded-md text-sm font-medium ${isError ? "bg-red-100 text-red-700 border border-red-300" : "bg-green-100 text-green-700 border border-green-300"}`}>
+            {serverMessage}
+          </div>
+          )}
+
     </div>
   );
 };

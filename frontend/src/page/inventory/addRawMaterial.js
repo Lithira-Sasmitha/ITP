@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate,} from "react-router-dom";
 
+
 const RawMaterialForm = () => {
   const navigate = useNavigate();
+  const [serverMessage, setServerMessage] = useState("");
+  const [isError, setIsError] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     quantity: "",
@@ -28,14 +31,13 @@ const RawMaterialForm = () => {
   // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate form data
+  
     const newErrors = validateForm();
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
+  
     try {
       const response = await fetch("http://localhost:5000/api/rawMaterial/createRawMaterial", {
         method: "POST",
@@ -44,12 +46,14 @@ const RawMaterialForm = () => {
         },
         body: JSON.stringify(formData),
       });
-
+  
+      const data = await response.json();
+  
       if (response.ok) {
-        const data = await response.json();
         console.log("Raw material added successfully:", data);
+        setIsError(false);
+        setServerMessage("Raw material added successfully.");
         navigate("/inventory/rawMaterialList");
-        // Optionally reset the form
         setFormData({
           name: "",
           quantity: 1,
@@ -65,12 +69,17 @@ const RawMaterialForm = () => {
           status: "In Stock",
         });
       } else {
-        console.error("Failed to add raw material");
+        setIsError(true);
+        setServerMessage(data?.message || "Failed to add raw material.");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
+      setIsError(true);
+      setServerMessage("Network error occurred. Please try again later.");
     }
-  };
+  };  
+  
+  
 
   // Form validation
   const validateForm = () => {
@@ -268,6 +277,13 @@ const RawMaterialForm = () => {
               Add Raw Material
             </button>
           </div>
+
+          {serverMessage && (
+          <div className={`mt-4 p-3 rounded-md text-sm font-medium ${isError ? "bg-red-100 text-red-700 border border-red-300" : "bg-green-100 text-green-700 border border-green-300"}`}>
+            {serverMessage}
+          </div>
+          )}
+
         </div>
       </form>
     </div>
