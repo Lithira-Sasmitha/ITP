@@ -32,29 +32,26 @@ const Product = () => {
       return;
     }
 
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find(
-        (item) => item.name === product.productName
-      );
-      if (existingItem) {
-        existingItem.quantity += 1;
-        setCartCount(cartCount + 1); // Increment cartCount by 1 for each additional item
-        return [...prevItems];
-      } else {
-        setCartCount(cartCount + 1); // Increment cartCount for new item
-        return [
-          ...prevItems,
-          {
-            name: product.productName,
-            price: product.productPrice,
-            imageUrl: product.productImage
-              ? `http://localhost:5000/${product.productImage}`
-              : "https://via.placeholder.com/150",
-            quantity: 1,
-          },
-        ];
-      }
-    });
+    // Check if product is already in cart
+    const isAlreadyInCart = cartItems.some(
+      (item) => item.name === product.productName
+    );
+    if (isAlreadyInCart) {
+      return; // Do nothing if product is already in cart
+    }
+
+    setCartItems((prevItems) => [
+      ...prevItems,
+      {
+        name: product.productName,
+        price: product.productPrice,
+        imageUrl: product.productImage
+          ? `http://localhost:5000/${product.productImage}`
+          : "https://via.placeholder.com/150",
+        quantity: 1,
+      },
+    ]);
+    setCartCount(cartCount + 1); // Increment cartCount by 1 for new item
   };
 
   const handleRemoveFromCart = (productName) => {
@@ -163,6 +160,9 @@ const Product = () => {
             );
             const isOutOfStock =
               !finalProduct || finalProduct.status === "Out of Stock";
+            const isInCart = cartItems.some(
+              (item) => item.name === product.productName
+            );
             return (
               <div
                 key={index}
@@ -198,11 +198,11 @@ const Product = () => {
                     <button
                       onClick={() => handleAddToCart(product)}
                       className={`bg-green-500 text-white px-6 py-2 rounded-lg transition-all ${
-                        isOutOfStock
+                        isOutOfStock || isInCart
                           ? "opacity-50 cursor-not-allowed"
                           : "hover:bg-green-600"
                       }`}
-                      disabled={isOutOfStock}
+                      disabled={isOutOfStock || isInCart}
                     >
                       Add to Cart
                     </button>
