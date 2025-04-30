@@ -43,7 +43,7 @@ const ViewPackingMaterials = () => {
       .post("http://localhost:5000/api/warehouseEmail/send", {
         to: supplierEmail,
         subject: `Reorder Request for Packing Material: ${materialName}`,
-        message: `Dear Supplier,\n\nOur stock for "${materialName}" is running low. Kindly send a new supply.\n\nBest regards,\nWarehouse Management`
+        text: `Dear Supplier,\n\nOur stock for "${materialName}" is running low. Kindly send a new supply.\n\nBest regards,\nWarehouse Management`
       })
       .then((response) => {
         alert(`Email successfully sent to ${supplierEmail}`);
