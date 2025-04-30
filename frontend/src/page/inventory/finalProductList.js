@@ -6,6 +6,7 @@ import 'animate.css';
 import { useNavigate } from "react-router-dom";
 import axios from "axios"; // To make API calls
 import { jsPDF } from "jspdf";
+import autoTable from 'jspdf-autotable';
 
 const ViewFinalProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,15 +51,54 @@ useEffect(() => {
     navigate(`/inventory/updateFinalProduct/${_id}`);
   };
 
-  // Generate and download report
   const generateReport = () => {
     const doc = new jsPDF();
+    const currentDate = new Date().toLocaleString();
+  
+    doc.setFontSize(16);
     doc.text("Final Products Report", 20, 20);
-    finalProducts.forEach((material, index) => {
-      doc.text(`${material.name} - Quantity: ${material.quantity}`, 20, 30 + index * 10);
+  
+    doc.setFontSize(10);
+    doc.text(`Report Generated On: ${currentDate}`, 20, 28);
+  
+    const headers = [
+      ["No", "Product ID", "Name", "Quantity", "Unit Price", "Location", "Status", "Expiry Date", "Received Date"]
+    ];
+  
+    const data = finalProducts.map((product, index) => [
+      (index + 1).toString(),
+      product.finalProductId?.toString() || "N/A",
+      product.name,
+      product.quantity.toString(),
+      `${product.unit_price?.toFixed(2) || "0.00"}`,
+      product.location || "N/A",
+      product.status || "N/A",
+      new Date(product.expiry_date).toLocaleDateString() || "N/A",
+      new Date(product.received_date).toLocaleDateString() || "N/A"
+    ]);
+  
+    autoTable(doc, {
+      startY: 35,
+      head: headers,
+      body: data,
+      styles: {
+        fontSize: 8,
+        cellPadding: 2,
+      },
+      headStyles: {
+        fillColor: [33, 150, 243],  // Blue header
+        textColor: 255,             // White text
+        halign: 'center',
+        fontStyle: 'bold',
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245], // Light gray for alternate rows
+      },
     });
-    doc.save("final_products_report.pdf");
+  
+    doc.save("Final_Products_Report.pdf");
   };
+  
 
   // Generate a color array based on raw material names
   const generateColorArray = () => {
