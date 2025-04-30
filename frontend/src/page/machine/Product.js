@@ -38,8 +38,10 @@ const Product = () => {
       );
       if (existingItem) {
         existingItem.quantity += 1;
+        setCartCount(cartCount + 1); // Increment cartCount by 1 for each additional item
         return [...prevItems];
       } else {
+        setCartCount(cartCount + 1); // Increment cartCount for new item
         return [
           ...prevItems,
           {
@@ -53,7 +55,6 @@ const Product = () => {
         ];
       }
     });
-    setCartCount(cartCount + 1);
   };
 
   const handleRemoveFromCart = (productName) => {
@@ -61,10 +62,10 @@ const Product = () => {
       const existingItem = prevItems.find((item) => item.name === productName);
       if (existingItem && existingItem.quantity > 1) {
         existingItem.quantity -= 1;
-        setCartCount(cartCount - 1);
+        setCartCount(cartCount - 1); // Decrement cartCount by 1
         return [...prevItems];
       } else {
-        setCartCount(cartCount - (existingItem ? 1 : 0));
+        setCartCount(cartCount - (existingItem ? existingItem.quantity : 0)); // Remove total quantity of item
         return prevItems.filter((item) => item.name !== productName);
       }
     });
@@ -101,6 +102,27 @@ const Product = () => {
 
   const toggleCartModal = () => {
     setShowCartModal(!showCartModal);
+  };
+
+  // Function to handle + button in cart modal
+  const handleIncreaseQuantity = (productName) => {
+    setCartItems((prevItems) => {
+      const updatedItems = prevItems.map((item) => {
+        if (item.name === productName) {
+          const finalProduct = finalProducts.find(
+            (fp) => fp.name === item.name
+          );
+          if (!finalProduct || finalProduct.status === "Out of Stock") {
+            alert("This product is out of stock!");
+            return item;
+          }
+          return { ...item, quantity: item.quantity + 1 };
+        }
+        return item;
+      });
+      setCartCount(cartCount + 1); // Increment cartCount by 1
+      return updatedItems;
+    });
   };
 
   if (isLoading)
@@ -171,11 +193,6 @@ const Product = () => {
                   </h3>
                   <p className="text-lg text-gray-600">
                     ${product.productPrice}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {isOutOfStock
-                      ? ""
-                      : `Stock: ${finalProduct?.quantity || 0}`}
                   </p>
                   <div className="mt-4 flex gap-2">
                     <button
@@ -288,7 +305,9 @@ const Product = () => {
                               </button>
                               <span className="mx-2">{item.quantity}</span>
                               <button
-                                onClick={() => handleAddToCart(item)}
+                                onClick={() =>
+                                  handleIncreaseQuantity(item.name)
+                                }
                                 className={`bg-green-100 text-green-700 p-1 rounded ${
                                   isOutOfStock
                                     ? "opacity-50 cursor-not-allowed"
