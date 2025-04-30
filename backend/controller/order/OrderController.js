@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const Order = require("../../models/orderModel/Order");
+const FinalProduct = require("../../models/inventoryModel/finalProductModel");
+const StockMovement = require("../../models/inventoryModel/stockMovementModel");
 
 // Create a new order
 const createOrder = async (req, res) => {
@@ -14,6 +16,11 @@ const createOrder = async (req, res) => {
       total,
     } = req.body;
 
+    // Validate cart items
+    if (!cartItems || cartItems.length === 0) {
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
     // Transform cart items to the required format
     const products = cartItems.map((item) => ({
       productName: item.name,
@@ -21,6 +28,45 @@ const createOrder = async (req, res) => {
       price: item.price,
     }));
 
+    // Check inventory and update quantities
+    for (const item of cartItems) {
+      const product = await FinalProduct.findOne({ name: item.name });
+      if (!product) {
+        return res
+          .status(404)
+          .json({ message: `Product ${item.name} not found` });
+      }
+      if (product.quantity < item.quantity) {
+        return res
+          .status(400)
+          .json({ message: `Insufficient stock for ${item.name}` });
+      }
+
+      // Decrease the product quantity
+      product.quantity -= item.quantity;
+      // Update status based on new quantity
+      if (product.quantity === 0) {
+        product.status = "Out of Stock";
+      } else if (product.quantity <= product.reorder_level) {
+        product.status = "Low";
+      } else {
+        product.status = "In Stock";
+      }
+      await product.save();
+
+      // Create OUT stock movement
+      const stockMovement = new StockMovement({
+        productType: "Final",
+        productTypeRef: "FinalProduct",
+        productId: product._id,
+        productName: product.name,
+        movementType: "OUT",
+        quantity: item.quantity,
+      });
+      await stockMovement.save();
+    }
+
+    // Create the order
     const newOrder = new Order({
       name,
       address,
