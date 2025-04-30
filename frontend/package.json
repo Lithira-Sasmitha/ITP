@@ -5,6 +5,7 @@
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
     "@heroicons/react": "^2.2.0",
+    "@react-google-maps/api": "^2.20.6",
     "@react-pdf/renderer": "^4.3.0",
     "@react-three/drei": "^10.0.5",
     "@react-three/fiber": "^9.1.0",
