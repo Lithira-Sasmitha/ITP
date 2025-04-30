@@ -7,7 +7,7 @@ const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 const PlaceOrder = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { cartItems, deliveryPrice, total } = location.state || {}; // Fallback if state is not provided
+  const { cartItems, deliveryPrice, total } = location.state || {};
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -15,13 +15,62 @@ const PlaceOrder = () => {
   const [postalCode, setPostalCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [validationErrors, setValidationErrors] = useState({
+    name: "",
+    address: "",
+    phone: "",
+    postalCode: "",
+  });
+
+  // Validation functions
+  const validateName = (value) => {
+    const nameRegex = /^[A-Za-z\s]{2,}$/;
+    if (!value) return "Name is required";
+    if (!nameRegex.test(value))
+      return "Name must be at least 2 characters and contain only letters and spaces";
+    return "";
+  };
+
+  const validateAddress = (value) => {
+    if (!value) return "Address is required";
+    if (value.length < 5) return "Address must be at least 5 characters long";
+    return "";
+  };
+
+  const validatePhone = (value) => {
+    const phoneRegex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+    if (!value) return "Phone number is required";
+    if (!phoneRegex.test(value))
+      return "Please enter a valid phone number (e.g., 123-456-7890)";
+    return "";
+  };
+
+  const validatePostalCode = (value) => {
+    const postalCodeRegex = /^[A-Za-z0-9\s-]{5,}$/;
+    if (!value) return "Postal code is required";
+    if (!postalCodeRegex.test(value))
+      return "Please enter a valid postal code (e.g., 12345 or A1B 2C3)";
+    return "";
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form data
-    if (!name || !address || !phone || !postalCode) {
-      setError("Please fill in all fields");
+    // Validate all fields
+    const nameError = validateName(name);
+    const addressError = validateAddress(address);
+    const phoneError = validatePhone(phone);
+    const postalCodeError = validatePostalCode(postalCode);
+
+    setValidationErrors({
+      name: nameError,
+      address: addressError,
+      phone: phoneError,
+      postalCode: postalCodeError,
+    });
+
+    if (nameError || addressError || phoneError || postalCodeError) {
+      setError("Please correct the errors in the form");
       return;
     }
 
@@ -34,7 +83,6 @@ const PlaceOrder = () => {
     setError("");
 
     try {
-      // Submit order to backend
       const response = await axios.post(`${API_URL}/orders`, {
         name,
         address,
@@ -47,7 +95,6 @@ const PlaceOrder = () => {
 
       console.log("Order placed successfully:", response.data);
 
-      // Navigate to order confirmation page
       navigate("/order-confirmation", {
         state: {
           orderId: response.data._id,
@@ -60,6 +107,16 @@ const PlaceOrder = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Handle input change with real-time validation
+  const handleInputChange = (setter, validator, field) => (e) => {
+    const value = e.target.value;
+    setter(value);
+    setValidationErrors((prev) => ({
+      ...prev,
+      [field]: validator(value),
+    }));
   };
 
   return (
@@ -83,10 +140,13 @@ const PlaceOrder = () => {
           <input
             type="text"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleInputChange(setName, validateName, "name")}
             className="mt-2 block w-full p-4 border border-green-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-green-600 transition duration-150 ease-in-out transform hover:scale-105"
             required
           />
+          {validationErrors.name && (
+            <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
+          )}
         </div>
 
         {/* Address Input */}
@@ -97,10 +157,15 @@ const PlaceOrder = () => {
           <input
             type="text"
             value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            onChange={handleInputChange(setAddress, validateAddress, "address")}
             className="mt-2 block w-full p-4 border border-green-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-green-600 transition duration-150 ease-in-out transform hover:scale-105"
             required
           />
+          {validationErrors.address && (
+            <p className="mt-1 text-sm text-red-600">
+              {validationErrors.address}
+            </p>
+          )}
         </div>
 
         {/* Phone Number Input */}
@@ -111,10 +176,15 @@ const PlaceOrder = () => {
           <input
             type="tel"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            onChange={handleInputChange(setPhone, validatePhone, "phone")}
             className="mt-2 block w-full p-4 border border-green-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-green-600 transition duration-150 ease-in-out transform hover:scale-105"
             required
           />
+          {validationErrors.phone && (
+            <p className="mt-1 text-sm text-red-600">
+              {validationErrors.phone}
+            </p>
+          )}
         </div>
 
         {/* Postal Code Input */}
@@ -125,10 +195,19 @@ const PlaceOrder = () => {
           <input
             type="text"
             value={postalCode}
-            onChange={(e) => setPostalCode(e.target.value)}
+            onChange={handleInputChange(
+              setPostalCode,
+              validatePostalCode,
+              "postalCode"
+            )}
             className="mt-2 block w-full p-4 border border-green-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-green-600 transition duration-150 ease-in-out transform hover:scale-105"
             required
           />
+          {validationErrors.postalCode && (
+            <p className="mt-1 text-sm text-red-600">
+              {validationErrors.postalCode}
+            </p>
+          )}
         </div>
 
         {/* Order Summary */}

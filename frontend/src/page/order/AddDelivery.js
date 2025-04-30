@@ -38,7 +38,7 @@ const AddDelivery = () => {
         customerName: orderData.name || "",
         address: orderData.address || "",
         postalCode: orderData.postalCode || "",
-        telephone: orderData.telephone || "",
+        telephone: orderData.telephone || orderData.phone || "",
         quantity: orderData.products
           ? orderData.products.reduce(
               (total, product) => total + product.quantity,
@@ -80,7 +80,7 @@ const AddDelivery = () => {
             customerName: order.name || "",
             address: order.address || "",
             postalCode: order.postalCode || "",
-            telephone: order.telephone || "",
+            telephone: order.telephone || order.phone || "",
             quantity: order.products
               ? order.products.reduce(
                   (total, product) => total + product.quantity,
@@ -154,9 +154,31 @@ const AddDelivery = () => {
 
       console.log("Sending delivery data:", cleanedData);
 
+      // Create the delivery
       const response = await axios.post(`${API_URL}/deliveries`, cleanedData);
 
       console.log("Delivery created:", response.data);
+
+      // Delete the order from pending orders after successful delivery creation
+      try {
+        await axios.post(`${API_URL}/orders/delete`, {
+          orderId: cleanedData.orderId,
+        });
+        console.log("Order deleted from pending orders:", cleanedData.orderId);
+      } catch (deleteError) {
+        console.error(
+          "Error deleting order after delivery creation:",
+          deleteError
+        );
+        // Optionally handle fallback deletion
+        try {
+          await axios.post(`${API_URL}/orders/${cleanedData.orderId}/delete`);
+          console.log("Order deleted via fallback:", cleanedData.orderId);
+        } catch (fallbackError) {
+          console.error("Fallback delete also failed:", fallbackError);
+          // Log the error but proceed with navigation, as delivery was created
+        }
+      }
 
       navigate("/deliverydetail", {
         state: {

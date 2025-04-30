@@ -38,6 +38,7 @@ import AddMachineParts from "./page/machine/AddMachineParts";
 import MachineDashboard from "./page/machine/MachineDashboard";
 import MachineMaintenance from "./page/machine/MachineMaintenance";
 import Product from "./page/machine/Product";
+import ProductDetails from "./page/machine/ProductDetails";
 
 import FinancialDashboard from "./page/financial/dashboard";
 import Sidebar from "./components/sidebar/sidebar";
@@ -67,6 +68,7 @@ import PlaceOrder from "./page/order/PlaceOrder";
 import Orderhistorys from "./page/order/Orderhistorys";
 import OrderConfirmation from "./page/order/OrderConfirmation";
 import OrderTracking from "./page/order/OrderTracking"; 
+import Receipt from './page/financial/payment/recept.js';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -118,20 +120,14 @@ function App() {
             path="/inventory/finalProductQR"
             element={<FinalProductQR />}
           />
-          <Route
-            path="/inventory/stockMovement"
-            element={<StockMovement />}
-          />
+          <Route path="/inventory/stockMovement" element={<StockMovement />} />
         </Routes>
       </Router>
       <>
         <Router>
           <Routes>
             {/* Financial parth */}
-            <Route
-              path="/financialdashboard"
-              element={<FinancialDashboard />}
-            />
+            <Route path="/financialdashboard" element={<FinancialDashboard />}/>
             <Route path="/income" element={<Income />} />
             <Route path="/expense" element={<Expense />} />
             <Route path="/salary" element={<Salary />} />
@@ -139,7 +135,7 @@ function App() {
             <Route path="/message" element={<Message />} />
             <Route path="/paymentForm" element={<PaymentForm />} />
             <Route path="/payment-summary" element={<PaymentSummary />} />
-
+            <Route path="/receipt/:orderId" element={<Receipt />} />
 
             {/* Emp parth */}
             <Route path="/" element={<Home />} />
@@ -150,10 +146,16 @@ function App() {
             <Route path="/requestedleave" element={<Requestedleave />} />
             <Route path="/approveleave" element={<Approveleave />} />
             <Route path="/employeeDashboard" element={<Employeedashboard />} />
-            <Route path="/employeeProfileDashboard" element={<Employeeprofiledashboard />} />
-            <Route path="/employeeAttendance" element={<Employeeattendance />} />
-            <Route path="/e_userprofile" element={<Edidemployeeprofile/>}/>
-            <Route path="/forgetpassword" element={<ForgotPassword/>}/>
+            <Route
+              path="/employeeProfileDashboard"
+              element={<Employeeprofiledashboard />}
+            />
+            <Route
+              path="/employeeAttendance"
+              element={<Employeeattendance />}
+            />
+            <Route path="/e_userprofile" element={<Edidemployeeprofile />} />
+            <Route path="/forgetpassword" element={<ForgotPassword />} />
           </Routes>
         </Router>
         <Provider store={store}>
@@ -166,6 +168,10 @@ function App() {
               <Route path="/machine-parts" element={<AddMachineParts />} />
               <Route path="/maintenance" element={<MachineMaintenance />} />
               <Route path="/product" element={<Product />} />
+              <Route
+                path="/product/:productName"
+                element={<ProductDetails />}
+              />
 
               {/* oder parth */}
 
@@ -183,7 +189,9 @@ function App() {
               <Route path="/logout" element={<Logout />} />
 
               <Route path="placeorder" element={<PlaceOrder />} />
-              <Route path="/order-confirmation" element={<OrderConfirmation />}
+              <Route
+                path="/order-confirmation"
+                element={<OrderConfirmation />}
               />
               <Route path="/paymentForm" element={<PaymentForm />} />
 

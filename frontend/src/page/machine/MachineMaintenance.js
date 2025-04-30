@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import Machinesidebar from "../../components/sidebar/Machinesidebar";
+import { useGetMachinesQuery } from "../../page/machine/redux/api/machineapiSlice";
+import { useGetPartsQuery } from "../../page/machine/redux/api/machinepartapiSlice";
 import axios from "axios";
+import Machinesidebar from "../../components/sidebar/Machinesidebar";
 
 const API_BASE_URL = "http://localhost:5000/api";
 
@@ -26,11 +28,24 @@ const MachineMaintenance = () => {
   // State to track if current machine and part are under warranty
   const [isUnderWarranty, setIsUnderWarranty] = useState(false);
 
-  // State to store machines and parts
-  const [machines, setMachines] = useState([]);
-  const [parts, setParts] = useState([]);
-  const [machinesLoading, setMachinesLoading] = useState(false);
-  const [partsLoading, setPartsLoading] = useState(false);
+  // State to store filtered parts for the selected machine
+  const [filteredParts, setFilteredParts] = useState([]);
+
+  // Fetch machines and parts using RTK Query
+  const {
+    data: machinesData,
+    isLoading: machinesLoading,
+    error: machinesError,
+  } = useGetMachinesQuery();
+  const {
+    data: partsData,
+    isLoading: partsLoading,
+    error: partsError,
+  } = useGetPartsQuery();
+
+  // Ensure machines and parts are arrays
+  const machines = Array.isArray(machinesData?.data) ? machinesData.data : [];
+  const allParts = Array.isArray(partsData) ? partsData : [];
 
   // Handle input changes
   const handleInputChange = (e) => {
@@ -41,14 +56,18 @@ const MachineMaintenance = () => {
     }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
 
-    // Fetch parts when machine is selected
+    // Filter parts when machine is selected
     if (name === "machineId" && value) {
       const selectedMachine = machines.find((machine) => machine._id === value);
       if (selectedMachine) {
-        fetchParts(selectedMachine.name);
+        const machineParts = allParts.filter(
+          (part) => part.machineId === value
+        );
+        setFilteredParts(machineParts);
+        setFormValues((prev) => ({ ...prev, partId: "" }));
       }
     } else if (name === "machineId" && !value) {
-      setParts([]);
+      setFilteredParts([]);
       setFormValues((prev) => ({ ...prev, partId: "" }));
     }
   };
@@ -162,77 +181,26 @@ const MachineMaintenance = () => {
     }
   };
 
-  // Fetch machines
-  const fetchMachines = async () => {
-    setMachinesLoading(true);
-    try {
-      const response = await axios.get(`${API_BASE_URL}/machines`);
-      const data = response.data;
-
-      if (data.success) {
-        setMachines(data.data);
-      } else {
-        setMessage({
-          type: "error",
-          text: data.message || "Failed to fetch machines",
-        });
-      }
-    } catch (error) {
-      console.error(
-        "Error fetching machines:",
-        error.response?.data || error.message
-      );
-      setMessage({
-        type: "error",
-        text:
-          error.response?.data?.message ||
-          `Failed to fetch machines: ${error.message}`,
-      });
-    } finally {
-      setMachinesLoading(false);
-    }
-  };
-
-  // Fetch parts for a machine by machine name
-  const fetchParts = async (machineName) => {
-    setPartsLoading(true);
-    try {
-      const response = await axios.get(
-        `${API_BASE_URL}/maintenance/parts-by-machine-name/${encodeURIComponent(
-          machineName
-        )}`
-      );
-      const data = response.data;
-
-      if (data.success) {
-        setParts(data.data);
-      } else {
-        setMessage({
-          type: "error",
-          text: data.message || "Failed to fetch parts",
-        });
-      }
-    } catch (error) {
-      console.error(
-        "Error fetching parts:",
-        error.response?.data || error.message
-      );
-      setMessage({
-        type: "error",
-        text:
-          error.response?.data?.message ||
-          `Failed to fetch parts: ${error.message}`,
-      });
-    } finally {
-      setPartsLoading(false);
-    }
-  };
-
-  // Load maintenance inquiries and machines on component mount
+  // Load maintenance inquiries on component mount
   useEffect(() => {
     fetchMaintenanceInquiries();
-    fetchMachines();
   }, []);
+
+  // Handle errors from RTK Query
+  useEffect(() => {
+    if (machinesError) {
+      setMessage({
+        type: "error",
+        text: machinesError.data?.message || "Failed to fetch machines",
+      });
+    }
+    if (partsError) {
+      setMessage({
+        type: "error",
+        text: partsError.data?.message || "Failed to fetch parts",
+      });
+    }
+  }, [machinesError, partsError]);
 
   // Submit the maintenance inquiry
   const handleSubmitRequest = async () => {
@@ -272,7 +240,8 @@ const MachineMaintenance = () => {
         statusInquiryId: "",
         maintenanceStatus: "",
       });
-      setParts([]);
+      setFilteredParts([]);
+      setIsUnderWarranty(false);
 
       // Refresh the maintenance inquiries list
       await fetchMaintenanceInquiries();
@@ -298,24 +267,26 @@ const MachineMaintenance = () => {
     }
   };
 
-  // Send email to company
-  const handleSendEmail = async () => {
-    try {
-      // Mock email sending API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setMessage({
-        type: "success",
-        text: "Email sent successfully to the company!",
-      });
-      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
-    } catch (error) {
-      setMessage({
-        type: "error",
-        text: "Failed to send email. Please try again later.",
-      });
-      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
-    }
+  // Send email to company by opening Gmail compose window
+  const handleSendEmail = (inquiry) => {
+    const companyEmail = "support@company.com";
+    const subject = encodeURIComponent(`Maintenance Inquiry ${inquiry._id}`);
+    const body = encodeURIComponent(
+      `Dear Support Team,\n\n` +
+        `I am contacting you regarding a maintenance issue with the following details:\n` +
+        `Inquiry ID: ${inquiry._id}\n` +
+        `Machine: ${inquiry.machineId?.name || "Unknown Machine"} (ID: ${
+          inquiry.machineId?.id || inquiry.machineId
+        })\n` +
+        `Part: ${inquiry.partId?.machinepartName || "Unknown Part"} (ID: ${
+          inquiry.partId?.machinepartId || inquiry.partId
+        })\n` +
+        `Issue: ${inquiry.issue}\n\n` +
+        `This item is under warranty. Please advise on the next steps.\n\n` +
+        `Best regards,\n[Your Name]`
+    );
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${companyEmail}&su=${subject}&body=${body}`;
+    window.open(gmailUrl, "_blank");
   };
 
   // Delete a maintenance inquiry
@@ -498,10 +469,9 @@ const MachineMaintenance = () => {
                   disabled={partsLoading || !formValues.machineId}
                 >
                   <option value="">Select a part</option>
-                  {parts.map((part) => (
+                  {filteredParts.map((part) => (
                     <option key={part._id} value={part._id}>
-                      {part.machinepartName} (Machine: {part.machineName}, ID:{" "}
-                      {part.machinepartId})
+                      {part.machinepartName} (ID: {part.machinepartId})
                     </option>
                   ))}
                 </select>
@@ -537,7 +507,7 @@ const MachineMaintenance = () => {
                 )}
               </div>
 
-              <div className="flex justify-end space-x-4">
+              <div className="flex justify-end">
                 <button
                   type="button"
                   onClick={handleSubmitRequest}
@@ -545,15 +515,6 @@ const MachineMaintenance = () => {
                 >
                   Submit Inquiry
                 </button>
-                {isUnderWarranty && (
-                  <button
-                    type="button"
-                    onClick={handleSendEmail}
-                    className="bg-blue-700 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-md transition-colors"
-                  >
-                    Send Email to Company
-                  </button>
-                )}
               </div>
             </form>
           </section>
@@ -569,15 +530,15 @@ const MachineMaintenance = () => {
                 </label>
                 <select
                   name="statusInquiryId"
-                  value={formValues.statusInquiryId || ""}
+                  value={formValues.statusInquiryId}
                   onChange={handleInputChange}
                   className="w-full border rounded-md p-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all border-gray-300"
                 >
                   <option value="">Select Inquiry</option>
                   {maintenanceInquiries.map((inquiry) => (
                     <option key={inquiry._id} value={inquiry._id}>
-                      {inquiry.machineId?.name || "N/A"} -{" "}
-                      {inquiry.partId?.machinepartName || "N/A"} (
+                      {inquiry.machineId?.name || "Unknown Machine"} -{" "}
+                      {inquiry.partId?.machinepartName || "Unknown Part"} (
                       {inquiry.issue.substring(0, 20)}...)
                     </option>
                   ))}
@@ -590,7 +551,7 @@ const MachineMaintenance = () => {
                 </label>
                 <select
                   name="maintenanceStatus"
-                  value={formValues.maintenanceStatus || ""}
+                  value={formValues.maintenanceStatus}
                   onChange={handleInputChange}
                   className="w-full border rounded-md p-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all border-gray-300"
                 >
@@ -659,13 +620,13 @@ const MachineMaintenance = () => {
                         className="hover:bg-gray-50 transition-colors"
                       >
                         <td className="border border-gray-200 px-4 py-2">
-                          {inquiry.machineId?.name || "N/A"}
+                          {inquiry.machineId?.name || "Unknown Machine"}
                         </td>
                         <td className="border border-gray-200 px-4 py-2">
                           {inquiry.machineId?.id || inquiry.machineId}
                         </td>
                         <td className="border border-gray-200 px-4 py-2">
-                          {inquiry.partId?.machinepartName || "N/A"}
+                          {inquiry.partId?.machinepartName || "Unknown Part"}
                         </td>
                         <td className="border border-gray-200 px-4 py-2">
                           {inquiry.partId?.machinepartId || inquiry.partId}
@@ -699,13 +660,21 @@ const MachineMaintenance = () => {
                         <td className="border border-gray-200 px-4 py-2">
                           {new Date(inquiry.dateSubmitted).toLocaleString()}
                         </td>
-                        <td className="border border-gray-200 px-4 py-2">
+                        <td className="border border-gray-200 px-4 py-2 flex space-x-2">
                           <button
                             onClick={() => handleDeleteRequest(inquiry._id)}
                             className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md transition-colors"
                           >
                             Delete
                           </button>
+                          {inquiry.isUnderWarranty && (
+                            <button
+                              onClick={() => handleSendEmail(inquiry)}
+                              className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md transition-colors"
+                            >
+                              Send Email
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}

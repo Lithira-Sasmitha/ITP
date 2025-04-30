@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
 import IncomeForm from "../../components/form/incomeform";
-import IncomeChart from "../../components/Chart/incomechart";
 import IncomeList from "../../components/list/incomelist";
 import Fin_sidebar from "../../components/sidebar/fin_sidebar";
-import { CreditCard, TrendingUp, Layers, Settings } from "lucide-react";
+import { CreditCard, Layers, Plus } from "lucide-react";
+import { useState } from "react";
 
 function Income() {
+  const [showAddForm, setShowAddForm] = useState(false);
+  
   // Animated variants for smooth transitions
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -29,11 +31,15 @@ function Income() {
     }
   };
 
+  const toggleAddForm = () => {
+    setShowAddForm(!showAddForm);
+  };
+
   return (
     <div className="flex h-screen bg-gradient-to-br from-green-50 to-green-100">
       {/* Sidebar */}
       <Fin_sidebar />
-
+      
       {/* Main Content */}
       <div className="flex-1 overflow-auto p-6">
         {/* Page Header */}
@@ -43,23 +49,28 @@ function Income() {
           className="flex justify-between items-center mb-8"
         >
           <div>
-            <h1 className="text-3xl font-bold text-green-900">Income </h1>
+            <h1 className="text-3xl font-bold text-green-900">Income</h1>
             <p className="text-green-600 mt-2">Manage your income with ease</p>
           </div>
           
+          <motion.button
+            onClick={toggleAddForm}
+            className="px-5 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg flex items-center shadow-md"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Plus size={18} className="mr-2" />
+            <span>Add Income</span>
+          </motion.button>
         </motion.div>
 
-        {/* Main Content Grid */}
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid md:grid-cols-2 gap-6"
-        >
-          {/* Transaction Form Column */}
+        {/* Form Section - Only shown when showAddForm is true */}
+        {showAddForm && (
           <motion.div 
             variants={itemVariants}
-            className="md:col-span-1 space-y-6"
+            initial="hidden"
+            animate="visible"
+            className="mb-6"
           >
             <div className="bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-6 border-2 border-green-100">
               <div className="flex items-center mb-4">
@@ -69,34 +80,18 @@ function Income() {
               <IncomeForm />
             </div>
           </motion.div>
-
-          {/* Chart Column */}
-          <motion.div 
-            variants={itemVariants}
-            className="md:col-span-1 space-y-6"
-          >
-            <div className="bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-6 border-2 border-green-100 h-full">
-              <div className="flex items-center mb-4">
-                <TrendingUp className="mr-3 text-green-600" />
-                <h2 className="text-xl font-semibold text-green-900">Income Overview</h2>
-              </div>
-              <div className="flex justify-center items-center h-full">
-                <IncomeChart />
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
+        )}
 
         {/* Income List */}
         <motion.div 
           variants={itemVariants}
-          className="mt-6 bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-6 border-2 border-green-100"
+          className="bg-white/80 backdrop-blur-lg shadow-xl rounded-2xl p-6 border-2 border-green-100"
         >
           <div className="flex items-center mb-4">
             <Layers className="mr-3 text-green-600" />
             <h2 className="text-xl font-semibold text-green-900">Income History</h2>
           </div>
-          <IncomeList />
+          <IncomeList showAddButton={false} />
         </motion.div>
       </div>
     </div>

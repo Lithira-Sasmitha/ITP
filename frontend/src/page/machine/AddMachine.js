@@ -7,6 +7,7 @@ import {
   useDeleteMachineMutation,
 } from "../../page/machine/redux/api/machineapiSlice";
 import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import Machinesidebar from "../../components/sidebar/Machinesidebar";
 
 const AddMachine = () => {
@@ -109,9 +110,9 @@ const AddMachine = () => {
       refetch();
     } catch (error) {
       console.error("Operation failed:", error);
-      setMessage({ 
-        type: "error", 
-        text: error.data?.message || "Operation failed. Please try again." 
+      setMessage({
+        type: "error",
+        text: error.data?.message || "Operation failed. Please try again.",
       });
     }
   };
@@ -143,15 +144,144 @@ const AddMachine = () => {
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
-    doc.text("Machine List", 20, 20);
-    machines.forEach((machine, index) => {
-      doc.text(
-        `${index + 1}. ${machine.name} - $${machine.value}`,
-        20,
-        30 + index * 10
-      );
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 14;
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
-    doc.save("machines.pdf");
+
+    // Helper function for header and footer
+    const addHeader = () => {
+      // No branding
+    };
+
+    const addFooter = (pageNum, totalPages) => {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(107, 114, 128); // Gray-500
+      doc.text(`Generated on ${currentDate}`, margin, pageHeight - 10);
+      doc.text(
+        `Page ${pageNum} of ${totalPages}`,
+        pageWidth - margin - 30,
+        pageHeight - 10
+      );
+    };
+
+    // Cover Page
+    addHeader();
+    addFooter(1, 2);
+
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(34, 197, 94); // Green-600
+    doc.text("Machine List Report", margin, 60);
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(107, 114, 128); // Gray-500
+    doc.text(`Generated on ${currentDate}`, margin, 80);
+
+    // Decorative line
+    doc.setDrawColor(34, 197, 94); // Green-600
+    doc.setLineWidth(0.5);
+    doc.line(margin, 90, pageWidth - margin, 90);
+
+    // Border
+    doc.setDrawColor(37, 99, 235); // Blue-600
+    doc.setLineWidth(0.3);
+    doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+    // Machine List Table Page
+    doc.addPage();
+    addHeader();
+    addFooter(2, 2);
+
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(33, 33, 33); // Gray-900
+    doc.text("Machine List", margin, 30);
+
+    const headers = [
+      "Item Number",
+      "Machine Name",
+      "ID",
+      "Status",
+      "Purchase Date",
+      "Warranty Date",
+    ];
+    const data =
+      machines && machines.length > 0
+        ? machines.map((machine, index) => [
+            index + 1,
+            machine.name || "N/A",
+            machine.id || "N/A",
+            machine.status || "N/A",
+            machine.purchaseDate
+              ? new Date(machine.purchaseDate).toLocaleDateString()
+              : "N/A",
+            machine.warrantyDate
+              ? new Date(machine.warrantyDate).toLocaleDateString()
+              : "N/A",
+          ])
+        : [["", "No machines available", "", "", "", ""]];
+
+    try {
+      autoTable(doc, {
+        startY: 40,
+        head: [headers],
+        body: data,
+        theme: "grid",
+        styles: {
+          font: "helvetica",
+          fontSize: 12,
+          cellPadding: 6,
+          textColor: [33, 33, 33],
+          overflow: "linebreak",
+        },
+        headStyles: {
+          fillColor: [34, 197, 94], // Green-600
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+          fontSize: 12,
+        },
+        alternateRowStyles: {
+          fillColor: [240, 240, 240], // Gray-100
+        },
+        margin: { left: margin, right: margin },
+        tableWidth: "auto",
+        columnStyles: {
+          0: { cellWidth: 20 }, // Item Number
+          1: { cellWidth: 40 }, // Machine Name
+          2: { cellWidth: 30 }, // ID
+          3: { cellWidth: 30 }, // Status
+          4: { cellWidth: 30 }, // Purchase Date
+          5: { cellWidth: pageWidth - 2 * margin - 150 }, // Warranty Date
+        },
+      });
+    } catch (error) {
+      console.error("autoTable failed:", error.message, error.stack);
+      let y = 40;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(33, 33, 33);
+      headers.forEach((header, index) => {
+        doc.text(header, margin + index * 30, y);
+      });
+      y += 10;
+      doc.setFont("helvetica", "normal");
+      data.forEach((row) => {
+        row.forEach((cell, index) => {
+          doc.text(cell, margin + index * 30, y);
+        });
+        y += 10;
+      });
+    }
+
+    // Save the PDF
+    doc.save("machine_list_report.pdf");
   };
 
   return (
@@ -385,10 +515,18 @@ const AddMachine = () => {
                             {machine.status || "N/A"}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
-                            {machine.purchaseDate || "N/A"}
+                            {machine.purchaseDate
+                              ? new Date(
+                                  machine.purchaseDate
+                                ).toLocaleDateString()
+                              : "N/A"}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
-                            {machine.warrantyDate || "N/A"}
+                            {machine.warrantyDate
+                              ? new Date(
+                                  machine.warrantyDate
+                                ).toLocaleDateString()
+                              : "N/A"}
                           </td>
                           <td className="border border-gray-200 px-4 py-2">
                             ${machine.value}

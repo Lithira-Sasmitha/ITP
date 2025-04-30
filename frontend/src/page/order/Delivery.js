@@ -13,11 +13,16 @@ import {
   FaHistory,
   FaCar,
   FaUserPlus,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import { useGetDriversQuery } from "../../page/order/redux/api/driverApiSlice";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
@@ -32,6 +37,7 @@ export default function Delivery() {
   const [totalDrivers, setTotalDrivers] = useState(0);
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
   const [orderHistoryData, setOrderHistoryData] = useState({
     totalDeliveryEarnings: 0,
     totalItemEarnings: 0,
@@ -63,17 +69,20 @@ export default function Delivery() {
 
   const fetchDeliveries = async () => {
     try {
+      console.log("Fetching deliveries from:", `${API_URL}/deliveries`);
       const response = await axios.get(`${API_URL}/deliveries`);
       const fetchedDeliveries = response.data;
+      console.log("Fetched Deliveries:", fetchedDeliveries);
       setDeliveries(fetchedDeliveries);
       setLoading(false);
 
       setPendingDeliveries(
         fetchedDeliveries.filter((d) => d.deliveryStatus === "Pending").length
       );
-      setCompletedDeliveries(
-        fetchedDeliveries.filter((d) => d.deliveryStatus === "Completed").length
-      );
+      const completedCount = fetchedDeliveries.filter((d) => d.deliveryStatus === "Completed").length;
+      console.log("Completed Deliveries:", completedCount);
+      setCompletedDeliveries(completedCount);
+
       setDelayedDeliveries(
         fetchedDeliveries.filter((d) => d.deliveryStatus === "Delayed").length
       );
@@ -90,6 +99,7 @@ export default function Delivery() {
       setTotalEarnings(totalDeliveryEarnings);
       setTotalDeliveredItems(totalItemEarnings);
     } catch (err) {
+      console.error("Error fetching deliveries:", err);
       setError("Failed to fetch deliveries");
       setLoading(false);
       toast.error("Failed to fetch deliveries");
@@ -152,6 +162,7 @@ export default function Delivery() {
   };
 
   useEffect(() => {
+    console.log("Starting data load");
     const loadData = async () => {
       await Promise.all([
         fetchDeliveries(),
@@ -161,6 +172,21 @@ export default function Delivery() {
     };
     loadData();
   }, []);
+
+  // Control alert visibility for zero completed deliveries
+  useEffect(() => {
+    if (!loading && completedDeliveries === 0) {
+      console.log("Triggering alert for zero completed deliveries");
+      setShowAlert(true);
+      // Auto-dismiss after 5 seconds
+      const timer = setTimeout(() => setShowAlert(false), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, completedDeliveries]);
+
+  const handleDismissAlert = () => {
+    setShowAlert(false);
+  };
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
 
@@ -322,6 +348,40 @@ export default function Delivery() {
     );
   };
 
+  // Pie chart data
+  const chartData = {
+    labels: ["Completed Deliveries", "Other Deliveries"],
+    datasets: [
+      {
+        data: [completedDeliveries, deliveries.length - completedDeliveries],
+        backgroundColor: ["#3B82F6", "#F43F5E"], // Blue, Rose
+        hoverBackgroundColor: ["#2563EB", "#E11D48"], // Darker blue, darker rose
+        borderColor: darkMode ? "#1F2937" : "#FFFFFF",
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "top",
+        labels: {
+          color: darkMode ? "#D1D5DB" : "#4B5563",
+        },
+      },
+      tooltip: {
+        backgroundColor: darkMode ? "#1F2937" : "#FFFFFF",
+        titleColor: darkMode ? "#D1D5DB" : "#4B5563",
+        bodyColor: darkMode ? "#D1D5DB" : "#4B5563",
+        borderColor: darkMode ? "#4B5563" : "#D1D5DB",
+        borderWidth: 1,
+      },
+    },
+  };
+
   const AssignDriverModal = ({ drivers }) => {
     if (!showAssignDriverModal) return null;
 
@@ -426,7 +486,7 @@ export default function Delivery() {
             <button
               onClick={() => {
                 setShowNoDriversModal(false);
-                navigate("/drivervehicledetails"); // Navigate to DrivervehicleDetails page
+                navigate("/drivervehicledetails");
               }}
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150"
             >
@@ -495,6 +555,35 @@ export default function Delivery() {
           </div>
         </div>
 
+        {/* Zero Completed Deliveries Alert */}
+        {showAlert && (
+          <div className="fixed top-4 right-4 z-50 max-w-sm bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-lg flex items-center space-x-2 animate-slide-in">
+            <FaExclamationTriangle className="text-red-700 w-5 h-5" />
+            <p className="font-semibold">
+              No completed deliveries found. Please review pending or delayed deliveries.
+            </p>
+            <button
+              onClick={handleDismissAlert}
+              className="text-red-700 hover:text-red-900 focus:outline-none"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <DashboardCard
             icon={<FaBox />}
@@ -524,6 +613,20 @@ export default function Delivery() {
             color="rose"
             darkMode={darkMode}
           />
+        </div>
+
+        {/* Pie Chart Section */}
+        <div
+          className={`p-6 rounded-3xl shadow-xl transition-all duration-500 ${
+            darkMode
+              ? "bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700"
+              : "bg-gradient-to-r from-white to-gray-50 border border-gray-200"
+          }`}
+        >
+          <h2 className="text-xl font-semibold mb-4">Delivery Status</h2>
+          <div className="relative h-64">
+            <Pie data={chartData} options={chartOptions} />
+          </div>
         </div>
 
         <div

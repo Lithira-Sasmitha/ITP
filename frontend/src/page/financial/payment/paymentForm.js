@@ -19,7 +19,7 @@ const PaymentForm = () => {
         ],
     total: total || 5255,
   };
-  console.log(payData);
+  
 
   const [paymentForm, setPaymentForm] = useState({
     cardNumber: "",
@@ -136,132 +136,119 @@ const PaymentForm = () => {
   console.log(payData.orderId);
 
   return (
-    <div className="relative z-10 max-w-2xl mx-auto">
-      <h1 className="text-4xl font-bold text-center mb-8" style={{ color: "#5e5a36" }}>
-        Payment
-      </h1>
-
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 py-10">
-
-        {/* Booking Summary */}
-        <div className="mb-8 border border-gray-300 rounded-lg p-6 w-full" style={{ backgroundColor: "#fffded" }}>
-          <h2 className="text-xl font-bold mb-4" style={{ color: "#5e5a36" }}>Booking Summary</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <p className="text-sm text-gray-600">Booking ID</p>
-              <p className="font-medium">{payData.order_id}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Name</p>
-              <p className="font-medium">{payData.fullName}</p>
-            </div>
+    <div className="min-h-screen bg-green-100 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl w-full space-y-8">
+        <div className="bg-white rounded-xl shadow-xl overflow-hidden">
+          <div className="bg-green-600 py-6 px-6 text-center">
+            <h2 className="text-3xl font-extrabold text-white">Payment</h2>
           </div>
 
-          <div className="mb-4">
-            <p className="text-sm text-gray-600">Product Details</p>
-            <ul className="list-disc list-inside">
-              {payData.selectedproduct_type.map((facility, index) => (
-                <li key={index} className="flex justify-between">
-                  <span>{facility.title}</span>
-                  <span>${facility.price.toFixed(2)}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="flex justify-between items-center border-t border-gray-300 pt-4 font-bold">
-            <span>Total</span>
-            <span>${payData.total.toFixed(2)}</span>
-          </div>
-        </div>
-
-        {/* Card Payment Section */}
-        <div className="border border-gray-300 rounded-lg p-6 w-full" style={{ backgroundColor: "#fffded" }}>
-          <h2 className="text-xl font-bold mb-4" style={{ color: "#5e5a36" }}>Card Details</h2>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handlePaymentSubmit} className="space-y-4">
-            {/* Card Number */}
-            <div>
-              <label className="block text-sm font-medium mb-1" style={{ color: "#5e5a36" }}>Card Number</label>
-              <input
-                type="text"
-                name="cardNumber"
-                placeholder="1234 5678 9012 3456"
-                value={paymentForm.cardNumber}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-2 rounded border ${formErrors.cardNumber ? 'border-red-500' : 'border-gray-300'}`}
-                maxLength={19}
-              />
-              {formErrors.cardNumber && <p className="mt-1 text-sm text-red-600">{formErrors.cardNumber}</p>}
-            </div>
-
-            {/* Card Name */}
-            <div>
-              <label className="block text-sm font-medium mb-1" style={{ color: "#5e5a36" }}>Name on Card</label>
-              <input
-                type="text"
-                name="cardName"
-                placeholder="John Doe"
-                value={paymentForm.cardName}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-2 rounded border ${formErrors.cardName ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              {formErrors.cardName && <p className="mt-1 text-sm text-red-600">{formErrors.cardName}</p>}
-            </div>
-
-            {/* Expiry and CVV */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: "#5e5a36" }}>Expiry Date</label>
-                <input
-                  type="text"
-                  name="expiryDate"
-                  placeholder="MM/YY"
-                  value={paymentForm.expiryDate}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-2 rounded border ${formErrors.expiryDate ? 'border-red-500' : 'border-gray-300'}`}
-                  maxLength={5}
-                />
-                {formErrors.expiryDate && <p className="mt-1 text-sm text-red-600">{formErrors.expiryDate}</p>}
+          <div className="px-6 py-8">
+            {/* Booking Summary */}
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-green-700 mb-4">Order Summary</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p className="text-sm text-gray-500">Order ID</p>
+                  <p className="font-medium">{payData.order_id}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Name</p>
+                  <p className="font-medium">{payData.fullName}</p>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1" style={{ color: "#5e5a36" }}>CVV</label>
-                <input
-                  type="text"
-                  name="cvv"
-                  placeholder="123"
-                  value={paymentForm.cvv}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-2 rounded border ${formErrors.cvv ? 'border-red-500' : 'border-gray-300'}`}
-                  maxLength={4}
-                />
-                {formErrors.cvv && <p className="mt-1 text-sm text-red-600">{formErrors.cvv}</p>}
+
+              <ul className="divide-y divide-gray-200 mb-4">
+                {payData.selectedproduct_type.map((item, index) => (
+                  <li key={index} className="flex justify-between py-2">
+                    <span>{item.title}</span>
+                    <span>${item.price.toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex justify-between py-2 border-t border-gray-200 font-bold">
+                <span>Total</span>
+                <span>${payData.total.toFixed(2)}</span>
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="pt-4 text-center">
-              <button
-                type="submit"
-                className="py-3 px-12 rounded text-white font-bold text-lg"
-                style={{ backgroundColor: "#5e5a36" }}
-                disabled={loading}
-              >
-                {loading ? "PROCESSING..." : `PAY $${payData.total.toFixed(2)}`}
-              </button>
-            </div>
+            {/* Card Payment Form */}
+            <form onSubmit={handlePaymentSubmit} className="space-y-6">
+              {error && (
+                <div className="p-3 bg-red-100 text-red-700 rounded">
+                  {error}
+                </div>
+              )}
 
-            <div className="text-center text-sm text-gray-600">
-              <p>This is a demo payment page. No actual payment will be processed.</p>
-            </div>
-          </form>
+              <div>
+                <label className="block text-sm font-medium text-green-700 mb-1">Card Number</label>
+                <input
+                  type="text"
+                  name="cardNumber"
+                  value={paymentForm.cardNumber}
+                  onChange={handleInputChange}
+                  className={`w-full border ${formErrors.cardNumber ? "border-red-500" : "border-gray-300"} px-4 py-2 rounded-lg`}
+                  placeholder="1234 5678 9012 3456"
+                  maxLength={16}
+                />
+                {formErrors.cardNumber && <p className="text-red-600 text-sm">{formErrors.cardNumber}</p>}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-green-700 mb-1">Name on Card</label>
+                <input
+                  type="text"
+                  name="cardName"
+                  value={paymentForm.cardName}
+                  onChange={handleInputChange}
+                  className={`w-full border ${formErrors.cardName ? "border-red-500" : "border-gray-300"} px-4 py-2 rounded-lg`}
+                  placeholder="John Doe"
+                />
+                {formErrors.cardName && <p className="text-red-600 text-sm">{formErrors.cardName}</p>}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-green-700 mb-1">Expiry Date</label>
+                  <input
+                    type="text"
+                    name="expiryDate"
+                    value={paymentForm.expiryDate}
+                    onChange={handleInputChange}
+                    className={`w-full border ${formErrors.expiryDate ? "border-red-500" : "border-gray-300"} px-4 py-2 rounded-lg`}
+                    placeholder="MM/YY"
+                    maxLength={5}
+                  />
+                  {formErrors.expiryDate && <p className="text-red-600 text-sm">{formErrors.expiryDate}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-green-700 mb-1">CVV</label>
+                  <input
+                    type="text"
+                    name="cvv"
+                    value={paymentForm.cvv}
+                    onChange={handleInputChange}
+                    className={`w-full border ${formErrors.cvv ? "border-red-500" : "border-gray-300"} px-4 py-2 rounded-lg`}
+                    placeholder="123"
+                    maxLength={4}
+                  />
+                  {formErrors.cvv && <p className="text-red-600 text-sm">{formErrors.cvv}</p>}
+                </div>
+              </div>
+
+              <div className="text-center pt-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-green-600 hover:bg-green-700 text-white py-3 px-12 rounded-lg font-semibold transition"
+                >
+                  {loading ? "PROCESSING..." : `PAY $${payData.total.toFixed(2)}`}
+                </button>
+              </div>
+
+            </form>
+          </div>
         </div>
       </div>
     </div>
