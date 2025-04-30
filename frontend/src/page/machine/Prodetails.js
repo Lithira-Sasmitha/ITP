@@ -368,15 +368,15 @@ const Prodetails = () => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
-      <div className="fixed h-screen w-64 flex-shrink-0">
+      <div className="fixed flex-shrink-0 w-64 h-screen">
         <Machinesidebar />
       </div>
 
-      <main className="flex-1 ml-64 p-6 overflow-y-auto">
+      <main className="flex-1 p-6 ml-64 overflow-y-auto">
         <div className="flex space-x-6">
           {/* Final Products List Section */}
-          <div className="w-1/3 bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <div className="w-1/3 p-6 bg-white shadow-lg rounded-xl">
+            <h2 className="mb-4 text-xl font-semibold text-gray-800">
               Final Products
             </h2>
             <input
@@ -384,7 +384,7 @@ const Prodetails = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search final products..."
-              className="w-full border rounded-md p-3 mb-4 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="w-full p-3 mb-4 border rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
             <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
               {finalProducts
@@ -394,7 +394,7 @@ const Prodetails = () => {
                 .map((product) => (
                   <div
                     key={product._id}
-                    className="p-4 mb-2 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 cursor-pointer transition-colors"
+                    className="p-4 mb-2 transition-colors rounded-lg shadow-sm cursor-pointer bg-gray-50 hover:bg-gray-100"
                     onClick={() => handleFinalProductClick(product)}
                   >
                     <h3 className="font-semibold text-gray-800">
@@ -411,23 +411,23 @@ const Prodetails = () => {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg p-6">
-            <header className="bg-gray-50 rounded-lg shadow-sm p-6 mb-8">
+          <div className="flex-1 p-6 bg-white shadow-lg rounded-xl">
+            <header className="p-6 mb-8 rounded-lg shadow-sm bg-gray-50">
               <h1 className="text-3xl font-bold text-black-900">
                 Manage Products
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="mt-2 text-gray-600">
                 Add, edit, and delete product details
               </p>
             </header>
 
-            <section className="mb-8 bg-gray-50 p-6 rounded-lg shadow-sm">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            <section className="p-6 mb-8 rounded-lg shadow-sm bg-gray-50">
+              <h2 className="mb-4 text-xl font-semibold text-gray-800">
                 {editingProduct ? "Edit Product" : "Add New Product"}
               </h2>
               <form onSubmit={handleCreateOrUpdate} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
                     Product Name *
                   </label>
                   <input
@@ -441,14 +441,14 @@ const Prodetails = () => {
                     }`}
                   />
                   {errors.productName && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="mt-1 text-sm text-red-500">
                       {errors.productName}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
                     Product Price *
                   </label>
                   <input
@@ -462,14 +462,14 @@ const Prodetails = () => {
                     }`}
                   />
                   {errors.productPrice && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="mt-1 text-sm text-red-500">
                       {errors.productPrice}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
                     Product Description *
                   </label>
                   <textarea
@@ -485,14 +485,14 @@ const Prodetails = () => {
                     }`}
                   />
                   {errors.productDescription && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="mt-1 text-sm text-red-500">
                       {errors.productDescription}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-sm font-medium text-gray-700">
                     Product Image
                   </label>
                   <input
@@ -500,15 +500,10 @@ const Prodetails = () => {
                     ref={fileInputRef}
                     accept="image/png, image/jpeg, image/jpg"
                     onChange={handleImageChange}
-                    className="mt-1 block w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-green-50 file:text-green-700
-                      hover:file:bg-green-100"
+                    className="block w-full mt-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
                   />
                   {errors.productImage && (
-                    <p className="text-red-500 text-sm mt-1">
+                    <p className="mt-1 text-sm text-red-500">
                       {errors.productImage}
                     </p>
                   )}
@@ -517,7 +512,7 @@ const Prodetails = () => {
                       <img
                         src={previewImage}
                         alt="Product preview"
-                        className="h-40 w-40 object-cover rounded-md border shadow-sm"
+                        className="object-cover w-40 h-40 border rounded-md shadow-sm"
                       />
                     </div>
                   )}
@@ -527,14 +522,14 @@ const Prodetails = () => {
                   <button
                     type="button"
                     onClick={handleCancel}
-                    className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-2 px-6 rounded-md transition-colors"
+                    className="px-6 py-2 font-semibold text-gray-700 transition-colors bg-gray-200 rounded-md hover:bg-gray-300"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isCreating || isUpdating}
-                    className="bg-green-700 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-md disabled:opacity-70 transition-colors"
+                    className="px-6 py-2 font-semibold text-white transition-colors bg-green-700 rounded-md hover:bg-green-600 disabled:opacity-70"
                   >
                     {isCreating || isUpdating
                       ? "Processing..."
@@ -546,14 +541,14 @@ const Prodetails = () => {
               </form>
             </section>
 
-            <section className="bg-gray-50 p-6 rounded-lg shadow-sm">
-              <div className="flex justify-between items-center mb-6">
+            <section className="p-6 rounded-lg shadow-sm bg-gray-50">
+              <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-semibold text-gray-800">
                   Product List
                 </h2>
                 <button
                   onClick={handleDownloadPDF}
-                  className="bg-green-700 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md transition-colors"
+                  className="px-4 py-2 font-semibold text-white transition-colors bg-green-700 rounded-md hover:bg-green-600"
                 >
                   Download PDF
                 </button>
@@ -563,31 +558,31 @@ const Prodetails = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search by product name..."
-                className="w-full max-w-md border rounded-md p-3 mb-4 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                className="w-full max-w-md p-3 mb-4 border rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
 
               {isLoading ? (
-                <p className="text-gray-500 text-center py-4 animate-pulse">
+                <p className="py-4 text-center text-gray-500 animate-pulse">
                   Loading products...
                 </p>
               ) : products && products.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <table className="min-w-full border-collapse border border-gray-200 rounded-lg">
+                  <table className="min-w-full border border-collapse border-gray-200 rounded-lg">
                     <thead className="bg-gray-100">
                       <tr>
-                        <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700 border border-gray-200">
                           Image
                         </th>
-                        <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700 border border-gray-200">
                           Name
                         </th>
-                        <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700 border border-gray-200">
                           Price
                         </th>
-                        <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700 border border-gray-200">
                           Description
                         </th>
-                        <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-sm font-semibold text-left text-gray-700 border border-gray-200">
                           Actions
                         </th>
                       </tr>
@@ -604,14 +599,14 @@ const Prodetails = () => {
                         .map((product) => (
                           <tr
                             key={product._id}
-                            className="hover:bg-gray-50 transition-colors"
+                            className="transition-colors hover:bg-gray-50"
                           >
-                            <td className="border border-gray-200 px-4 py-2">
+                            <td className="px-4 py-2 border border-gray-200">
                               {product.productImage ? (
                                 <img
                                   src={`${apiBaseUrl}/${product.productImage}`}
                                   alt={product.productName}
-                                  className="h-16 w-16 object-cover rounded-md"
+                                  className="object-cover w-16 h-16 rounded-md"
                                   onError={(e) => {
                                     e.target.onerror = null;
                                     e.target.src =
@@ -622,20 +617,20 @@ const Prodetails = () => {
                                 <p className="text-gray-500">No image</p>
                               )}
                             </td>
-                            <td className="border border-gray-200 px-4 py-2">
+                            <td className="px-4 py-2 border border-gray-200">
                               {product.productName}
                             </td>
-                            <td className="border border-gray-200 px-4 py-2">
+                            <td className="px-4 py-2 border border-gray-200">
                               ${product.productPrice}
                             </td>
-                            <td className="border border-gray-200 px-4 py-2">
+                            <td className="px-4 py-2 border border-gray-200">
                               {product.productDescription}
                             </td>
-                            <td className="border border-gray-200 px-4 py-2">
+                            <td className="px-4 py-2 border border-gray-200">
                               <div className="flex space-x-2">
                                 <button
                                   onClick={() => handleEditProduct(product)}
-                                  className="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors"
+                                  className="px-4 py-2 text-white transition-colors bg-green-700 rounded-md hover:bg-green-600"
                                 >
                                   Edit
                                 </button>
@@ -644,7 +639,7 @@ const Prodetails = () => {
                                     setShowDeleteModal(true);
                                     setProductToDelete(product._id);
                                   }}
-                                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors"
+                                  className="px-4 py-2 text-white transition-colors bg-red-500 rounded-md hover:bg-red-600"
                                 >
                                   Delete
                                 </button>
@@ -656,31 +651,31 @@ const Prodetails = () => {
                   </table>
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-4">
+                <p className="py-4 text-center text-gray-500">
                   No products found.
                 </p>
               )}
             </section>
 
             {showDeleteModal && (
-              <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-500 bg-opacity-75">
+                <div className="p-6 bg-white rounded-lg shadow-lg w-96">
+                  <h3 className="mb-4 text-xl font-semibold text-gray-800">
                     Confirm Deletion
                   </h3>
-                  <p className="text-gray-600 mb-6">
+                  <p className="mb-6 text-gray-600">
                     Are you sure you want to delete this product?
                   </p>
                   <div className="flex justify-end space-x-4">
                     <button
                       onClick={() => setShowDeleteModal(false)}
-                      className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-4 py-2 rounded-md transition-colors"
+                      className="px-4 py-2 font-semibold text-gray-700 transition-colors bg-gray-200 rounded-md hover:bg-gray-300"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleDeleteProduct}
-                      className="bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-md transition-colors"
+                      className="px-4 py-2 font-semibold text-white transition-colors bg-red-500 rounded-md hover:bg-red-600"
                     >
                       Delete
                     </button>

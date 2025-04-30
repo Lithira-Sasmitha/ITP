@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const mongooseSequence = require('mongoose-sequence');
 const AutoIncrement = mongooseSequence(mongoose);
 
+
 const finalProductSchema = new mongoose.Schema(
   {
     finalProductId: { type: Number, unique: true, index: true }, 
