@@ -375,8 +375,8 @@ const Prodetails = () => {
       <main className="flex-1 ml-64 p-6 overflow-y-auto">
         <div className="flex space-x-6">
           {/* Final Products List Section */}
-          <div className="w-1/3 bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <div className="w-1/3 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-lg p-6 border-2 border-black">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4 tracking-tight">
               Final Products
             </h2>
             <input
@@ -384,7 +384,7 @@ const Prodetails = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search final products..."
-              className="w-full border rounded-md p-3 mb-4 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              className="w-full border rounded-lg p-3 mb-4 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300"
             />
             <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
               {finalProducts
@@ -394,17 +394,17 @@ const Prodetails = () => {
                 .map((product) => (
                   <div
                     key={product._id}
-                    className="p-4 mb-2 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 cursor-pointer transition-colors"
+                    className="p-4 mb-2 bg-white rounded-lg shadow-sm hover:bg-gray-100 cursor-pointer transition-colors duration-300"
                     onClick={() => handleFinalProductClick(product)}
                   >
-                    <h3 className="font-semibold text-gray-800">
+                    <h3 className="font-semibold text-gray-900">
                       {product.name}
                     </h3>
                     <p className="text-gray-600">
                       Price: ${product.unit_price}
                     </p>
-                    <p className="text-gray-600">Stock: ${product.quantity}</p>
-                    <p className="text-gray-600">Status: ${product.status}</p>
+                    <p className="text-gray-600">Stock: {product.quantity}</p>
+                    <p className="text-gray-600">Status: {product.status}</p>
                   </div>
                 ))}
             </div>

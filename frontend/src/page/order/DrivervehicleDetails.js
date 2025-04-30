@@ -7,6 +7,7 @@ import {
   useDeleteDriverMutation,
 } from "../../page/order/redux/api/apiSlice";
 import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import Oderslidebar from "../../components/sidebar/oderslidebar";
 
 const DrivervehicleDetails = () => {
@@ -248,21 +249,150 @@ const DrivervehicleDetails = () => {
 
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
-    doc.text("Driver List", 20, 20);
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 14;
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 
-    if (drivers && drivers.length > 0) {
-      drivers.forEach((driver, index) => {
-        doc.text(
-          `${index + 1}. ${driver.name} - ${driver.nic}`,
-          20,
-          30 + index * 10
-        );
+    // Helper function for header and footer
+    const addHeader = () => {
+      // No branding
+    };
+
+    const addFooter = (pageNum, totalPages) => {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(107, 114, 128); // Gray-500
+      doc.text(`Generated on ${currentDate}`, margin, pageHeight - 10);
+      doc.text(
+        `Page ${pageNum} of ${totalPages}`,
+        pageWidth - margin - 30,
+        pageHeight - 10
+      );
+    };
+
+    // Cover Page
+    addHeader();
+    addFooter(1, 2);
+
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(34, 197, 94); // Green-600
+    doc.text("Driver List Report", margin, 60);
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(107, 114, 128); // Gray-500
+    doc.text(`Generated on ${currentDate}`, margin, 80);
+
+    // Decorative line
+    doc.setDrawColor(34, 197, 94); // Green-600
+    doc.setLineWidth(0.5);
+    doc.line(margin, 90, pageWidth - margin, 90);
+
+    // Border
+    doc.setDrawColor(37, 99, 235); // Blue-600
+    doc.setLineWidth(0.3);
+    doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+    // Driver List Table Page
+    doc.addPage();
+    addHeader();
+    addFooter(2, 2);
+
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(33, 33, 33); // Gray-900
+    doc.text("Driver List", margin, 30);
+
+    const headers = [
+      "Item Number",
+      "NIC",
+      "Name",
+      "DOB",
+      "Telephone",
+      "Vehicle",
+      "Vehicle Reg No",
+      "Driver License No",
+    ];
+    const data = drivers && drivers.length > 0
+      ? drivers.map((driver, index) => [
+          index + 1,
+          driver.nic || "N/A",
+          driver.name || "N/A",
+          driver.dob || "N/A",
+          driver.telephone || "N/A",
+          driver.vehicle || "N/A",
+          driver.vehicleRegNo || "N/A",
+          driver.licenseNo || "N/A",
+        ])
+      : [["", "No drivers available", "", "", "", "", "", ""]];
+
+    try {
+      autoTable(doc, {
+        startY: 40,
+        head: [headers],
+        body: data,
+        theme: "grid",
+        styles: {
+          font: "helvetica",
+          fontSize: 12,
+          cellPadding: 6,
+          textColor: [33, 33, 33],
+          overflow: "linebreak",
+        },
+        headStyles: {
+          fillColor: [34, 197, 94], // Green-600
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+          fontSize: 12,
+        },
+        alternateRowStyles: {
+          fillColor: [240, 240, 240], // Gray-100
+        },
+        margin: { left: margin, right: margin },
+        tableWidth: "wrap",
+        columnStyles: {
+          0: { cellWidth: 15, halign: "center" }, // Item Number
+          1: { cellWidth: 25, halign: "left" }, // NIC
+          2: { cellWidth: 35, halign: "left" }, // Name
+          3: { cellWidth: 25, halign: "left" }, // DOB
+          4: { cellWidth: 25, halign: "left" }, // Telephone
+          5: { cellWidth: 25, halign: "left" }, // Vehicle
+          6: { cellWidth: 17, halign: "left" }, // Vehicle Reg No
+          7: { cellWidth: 15, halign: "left" }, // Driver License No
+        },
       });
-    } else {
-      doc.text("No drivers found", 20, 30);
+    } catch (error) {
+      console.error("autoTable failed:", error.message, error.stack);
+      let y = 40;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(33, 33, 33);
+      const columnWidths = [15, 25, 35, 25, 25, 25, 17, 15];
+      let x = margin;
+      headers.forEach((header, index) => {
+        doc.text(header, x, y, { align: index === 0 ? "center" : "left" });
+        x += columnWidths[index];
+      });
+      y += 10;
+      doc.setFont("helvetica", "normal");
+      data.forEach((row) => {
+        x = margin;
+        row.forEach((cell, index) => {
+          doc.text(cell, x, y, { align: index === 0 ? "center" : "left" });
+          x += columnWidths[index];
+        });
+        y += 10;
+      });
     }
 
-    doc.save("drivers.pdf");
+    // Save the PDF
+    doc.save("driver_list_report.pdf");
   };
 
   return (

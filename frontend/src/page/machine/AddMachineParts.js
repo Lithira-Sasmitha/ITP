@@ -8,6 +8,7 @@ import {
 } from "../../page/machine/redux/api/machinepartapiSlice";
 import { useGetMachinesQuery } from "../../page/machine/redux/api/machineapiSlice";
 import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import Machinesidebar from "../../components/sidebar/Machinesidebar";
 
 const AddMachinePart = () => {
@@ -209,17 +210,153 @@ const AddMachinePart = () => {
   // Handle PDF download
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
-    doc.text("Machine Parts List", 20, 20);
-    parts.forEach((part, index) => {
-      doc.text(
-        `${index + 1}. ${part.machinepartName} - $${
-          part.machinepartValue
-        } (Machine: ${part.machineName})`,
-        20,
-        30 + index * 10
-      );
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    const margin = 14;
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
-    doc.save("machine_parts.pdf");
+
+    // Helper function for header and footer
+    const addHeader = () => {
+      // No branding
+    };
+
+    const addFooter = (pageNum, totalPages) => {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(107, 114, 128); // Gray-500
+      doc.text(`Generated on ${currentDate}`, margin, pageHeight - 10);
+      doc.text(
+        `Page ${pageNum} of ${totalPages}`,
+        pageWidth - margin - 30,
+        pageHeight - 10
+      );
+    };
+
+    // Cover Page
+    addHeader();
+    addFooter(1, 2);
+
+    doc.setFontSize(24);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(34, 197, 94); // Green-600
+    doc.text("Machine Parts List Report", margin, 60);
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(107, 114, 128); // Gray-500
+    doc.text(`Generated on ${currentDate}`, margin, 80);
+
+    // Decorative line
+    doc.setDrawColor(34, 197, 94); // Green-600
+    doc.setLineWidth(0.5);
+    doc.line(margin, 90, pageWidth - margin, 90);
+
+    // Border
+    doc.setDrawColor(37, 37, 99, 235); // Blue-600
+    doc.setLineWidth(0.3);
+    doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
+    // Machine Parts List Table Page
+    doc.addPage();
+    addHeader();
+    addFooter(2, 2);
+
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(33, 33, 33); // Gray-900
+    doc.text("Machine Parts List", margin, 30);
+
+    const headers = [
+      "Item Number",
+      "Part Name",
+      "ID",
+      "Machine",
+      "Purchase Date",
+      "Warranty Period",
+      "Value",
+    ];
+    const data = parts && parts.length > 0
+      ? parts.map((part, index) => [
+          index + 1,
+          part.machinepartName || "N/A",
+          part.machinepartId || "N/A",
+          part.machineName || "N/A",
+          part.machinepartPurchaseDate
+            ? new Date(part.machinepartPurchaseDate).toLocaleDateString()
+            : "N/A",
+          part.machinepartWarrantyPeriod
+            ? `${part.machinepartWarrantyPeriod} months`
+            : "N/A",
+          part.machinepartValue
+            ? `$${parseFloat(part.machinepartValue).toFixed(2)}`
+            : "N/A",
+        ])
+      : [["", "No parts available", "", "", "", "", ""]];
+
+    try {
+      autoTable(doc, {
+        startY: 40,
+        head: [headers],
+        body: data,
+        theme: "grid",
+        styles: {
+          font: "helvetica",
+          fontSize: 12,
+          cellPadding: 6,
+          textColor: [33, 33, 33],
+          overflow: "linebreak",
+        },
+        headStyles: {
+          fillColor: [34, 197, 94], // Green-600
+          textColor: [255, 255, 255],
+          fontStyle: "bold",
+          fontSize: 12,
+        },
+        alternateRowStyles: {
+          fillColor: [240, 240, 240], // Gray-100
+        },
+        margin: { left: margin, right: margin },
+        tableWidth: "wrap",
+        columnStyles: {
+          0: { cellWidth: 15, halign: "center" }, // Item Number
+          1: { cellWidth: 40, halign: "left" }, // Part Name
+          2: { cellWidth: 25, halign: "left" }, // ID
+          3: { cellWidth: 30, halign: "left" }, // Machine
+          4: { cellWidth: 25, halign: "left" }, // Purchase Date
+          5: { cellWidth: 25, halign: "left" }, // Warranty Period
+          6: { cellWidth: 22, halign: "center" }, // Value
+        },
+      });
+    } catch (error) {
+      console.error("autoTable failed:", error.message, error.stack);
+      let y = 40;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(33, 33, 33);
+      const columnWidths = [15, 40, 25, 30, 25, 25, 22];
+      let x = margin;
+      headers.forEach((header, index) => {
+        doc.text(header, x, y, { align: index === 0 || index === 6 ? "center" : "left" });
+        x += columnWidths[index];
+      });
+      y += 10;
+      doc.setFont("helvetica", "normal");
+      data.forEach((row) => {
+        x = margin;
+        row.forEach((cell, index) => {
+          doc.text(cell, x, y, { align: index === 0 || index === 6 ? "center" : "left" });
+          x += columnWidths[index];
+        });
+        y += 10;
+      });
+    }
+
+    // Save the PDF
+    doc.save("machine_parts_list_report.pdf");
   };
 
   return (
