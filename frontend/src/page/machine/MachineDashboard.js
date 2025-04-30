@@ -135,8 +135,9 @@ export default function MachineDashboard() {
               {showUtilizationAlert && (
                 <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg">
                   <p className="font-semibold">
-                    Reminder: Some machines have utilization below 30%. Consider
-                    taking action to improve performance.
+                    Reminder: {lowUtilizationMachines.length} machine(s) have
+                    utilization below 30%. Consider taking action to improve
+                    performance.
                   </p>
                 </div>
               )}
@@ -144,8 +145,8 @@ export default function MachineDashboard() {
                 <div className="fixed top-4 right-4 z-50 max-w-sm bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-lg flex items-center space-x-2 animate-slide-in">
                   <FaExclamationTriangle className="text-red-700 w-5 h-5" />
                   <p className="font-semibold">
-                    Some machines have utilization below 30%. Consider taking
-                    action to improve performance.
+                    {lowUtilizationMachines.length} machine(s) have utilization
+                    below 30%. Consider taking action to improve performance.
                   </p>
                   <button
                     onClick={handleDismissAlert}
