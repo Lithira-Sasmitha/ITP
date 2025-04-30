@@ -6,6 +6,11 @@ exports.createFinalProduct = async (req, res) => {
   try {
     const { name, quantity, unit, reorder_level, unit_price, location, received_date, expiry_date, status } = req.body;
 
+    const existingMaterial = await FinalProduct.findOne({ name: name.trim() });
+        if (existingMaterial) {
+          return res.status(400).json({ message: "Product already exists. Please update it instead." });
+        }
+    
     const newProduct = new FinalProduct({
       name, quantity, unit, reorder_level, unit_price, location, received_date, expiry_date, status
     });

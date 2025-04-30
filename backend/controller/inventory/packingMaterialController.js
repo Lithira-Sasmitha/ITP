@@ -1,24 +1,34 @@
-
-
-
 const PackingMaterial = require("../../models/inventoryModel/packingMaterialModel");
 const StockMovement = require("../../models/inventoryModel/stockMovementModel");
 
 // Create a new Packing material
 exports.createPackingMaterial = async (req, res) => {
   try {
-    const { id, name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status } = req.body;
+    const {
+      name, quantity, unit, reorder_level, unit_price,
+      supplier_name, supplier_email, supplier_phone,
+      location, received_date, expiry_date, status
+    } = req.body;
 
+    // 🔍 Check if material with the same name already exists
+    const existingMaterial = await PackingMaterial.findOne({ name: name.trim() });
+    if (existingMaterial) {
+      return res.status(400).json({ message: "Material already exists. Please update it instead." });
+    }
+
+    // ✅ Create new material
     const newMaterial = new PackingMaterial({
-      id, name, quantity, unit, reorder_level, unit_price, supplier_name, supplier_email, supplier_phone, location, received_date, expiry_date, status
+      name, quantity, unit, reorder_level, unit_price,
+      supplier_name, supplier_email, supplier_phone,
+      location, received_date, expiry_date, status
     });
 
     await newMaterial.save();
 
-    // ➡️ After saving, create IN stock movement
+    // ➕ Record IN stock movement
     const newStockMovement = new StockMovement({
-      productType: 'Packing',
-      productTypeRef: 'PackingMaterial',
+      productType: 'Raw',
+      productTypeRef: 'RawMaterial',
       productId: newMaterial._id,
       productName: newMaterial.name,
       movementType: 'IN',
@@ -32,6 +42,7 @@ exports.createPackingMaterial = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Get all Packing materials
 exports.getPackingMaterials = async (req, res) => {
