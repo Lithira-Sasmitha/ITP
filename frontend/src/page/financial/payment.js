@@ -124,7 +124,7 @@ function Payment() {
                     <tr className="bg-gradient-to-r from-green-600 to-green-500">
                       <th className="px-6 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">Order ID</th>
                       <th className="px-6 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">Name</th>
-                      <th className="px-6 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">Total Amount (LKR)</th>
+                      <th className="px-6 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">Total Amount </th>
                       <th className="px-6 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">Payment Status</th>
                       <th className="px-6 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">Created At</th>
                       <th className="px-6 py-3 text-center text-sm font-medium text-white uppercase tracking-wider">Actions</th>
@@ -135,7 +135,7 @@ function Payment() {
                       <tr key={item._id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.order_id}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.fullName}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.total?.toLocaleString()} LKR</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{item.total?.toLocaleString()} $</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <span className={`px-3 py-1 rounded-full font-semibold text-xs ${
                             item.paymentStatus === "Pending"
