@@ -211,6 +211,7 @@ const AddMachine = () => {
       "Status",
       "Purchase Date",
       "Warranty Date",
+      "Value",
     ];
     const data =
       machines && machines.length > 0
@@ -225,8 +226,9 @@ const AddMachine = () => {
             machine.warrantyDate
               ? new Date(machine.warrantyDate).toLocaleDateString()
               : "N/A",
+            machine.value ? `$${parseFloat(machine.value).toFixed(2)}` : "N/A",
           ])
-        : [["", "No machines available", "", "", "", ""]];
+        : [["", "No machines available", "", "", "", "", ""]];
 
     try {
       autoTable(doc, {
@@ -251,14 +253,15 @@ const AddMachine = () => {
           fillColor: [240, 240, 240], // Gray-100
         },
         margin: { left: margin, right: margin },
-        tableWidth: "auto",
+        tableWidth: "wrap",
         columnStyles: {
-          0: { cellWidth: 20 }, // Item Number
-          1: { cellWidth: 40 }, // Machine Name
-          2: { cellWidth: 30 }, // ID
-          3: { cellWidth: 30 }, // Status
-          4: { cellWidth: 30 }, // Purchase Date
-          5: { cellWidth: pageWidth - 2 * margin - 150 }, // Warranty Date
+          0: { cellWidth: 15, halign: "center" }, // Item Number
+          1: { cellWidth: 40, halign: "left" }, // Machine Name
+          2: { cellWidth: 25, halign: "left" }, // ID
+          3: { cellWidth: 25, halign: "left" }, // Status
+          4: { cellWidth: 25, halign: "left" }, // Purchase Date
+          5: { cellWidth: 25, halign: "left" }, // Warranty Date
+          6: { cellWidth: 27, halign: "center" }, // Value
         },
       });
     } catch (error) {
@@ -267,14 +270,23 @@ const AddMachine = () => {
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(33, 33, 33);
+      const columnWidths = [15, 40, 25, 25, 25, 25, 27];
+      let x = margin;
       headers.forEach((header, index) => {
-        doc.text(header, margin + index * 30, y);
+        doc.text(header, x, y, {
+          align: index === 0 || index === 6 ? "center" : "left",
+        });
+        x += columnWidths[index];
       });
       y += 10;
       doc.setFont("helvetica", "normal");
       data.forEach((row) => {
+        x = margin;
         row.forEach((cell, index) => {
-          doc.text(cell, margin + index * 30, y);
+          doc.text(cell, x, y, {
+            align: index === 0 || index === 6 ? "center" : "left",
+          });
+          x += columnWidths[index];
         });
         y += 10;
       });
