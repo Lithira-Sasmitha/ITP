@@ -5,6 +5,7 @@ const {
   getPendingOrders,
   updateOrderStatus,
   getOrderById,
+  deleteOrder,
 } = require("../controller/order/OrderController");
 
 // Create a new order
@@ -18,5 +19,8 @@ router.get("/:orderId", getOrderById);
 
 // Update order status
 router.patch("/:orderId/status", updateOrderStatus);
+
+// Delete an order
+router.delete("/:orderId", deleteOrder);
 
 module.exports = router;
