@@ -205,7 +205,6 @@ const AddMachine = () => {
     doc.text("Machine List", margin, 30);
 
     const headers = [
-      "Item Number",
       "Machine Name",
       "ID",
       "Status",
@@ -215,8 +214,7 @@ const AddMachine = () => {
     ];
     const data =
       machines && machines.length > 0
-        ? machines.map((machine, index) => [
-            index + 1,
+        ? machines.map((machine) => [
             machine.name || "N/A",
             machine.id || "N/A",
             machine.status || "N/A",
@@ -228,7 +226,7 @@ const AddMachine = () => {
               : "N/A",
             machine.value ? `$${parseFloat(machine.value).toFixed(2)}` : "N/A",
           ])
-        : [["", "No machines available", "", "", "", "", ""]];
+        : [["No machines available", "", "", "", "", ""]];
 
     try {
       autoTable(doc, {
@@ -255,13 +253,12 @@ const AddMachine = () => {
         margin: { left: margin, right: margin },
         tableWidth: "wrap",
         columnStyles: {
-          0: { cellWidth: 15, halign: "center" }, // Item Number
-          1: { cellWidth: 40, halign: "left" }, // Machine Name
-          2: { cellWidth: 25, halign: "left" }, // ID
-          3: { cellWidth: 25, halign: "left" }, // Status
-          4: { cellWidth: 25, halign: "left" }, // Purchase Date
-          5: { cellWidth: 25, halign: "left" }, // Warranty Date
-          6: { cellWidth: 27, halign: "center" }, // Value
+          0: { cellWidth: 40, halign: "left" }, // Machine Name
+          1: { cellWidth: 25, halign: "left" }, // ID
+          2: { cellWidth: 25, halign: "left" }, // Status
+          3: { cellWidth: 25, halign: "left" }, // Purchase Date
+          4: { cellWidth: 25, halign: "left" }, // Warranty Date
+          5: { cellWidth: 27, halign: "center" }, // Value
         },
       });
     } catch (error) {
@@ -270,11 +267,11 @@ const AddMachine = () => {
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(33, 33, 33);
-      const columnWidths = [15, 40, 25, 25, 25, 25, 27];
+      const columnWidths = [40, 25, 25, 25, 25, 27];
       let x = margin;
       headers.forEach((header, index) => {
         doc.text(header, x, y, {
-          align: index === 0 || index === 6 ? "center" : "left",
+          align: index === 5 ? "center" : "left",
         });
         x += columnWidths[index];
       });
@@ -284,7 +281,7 @@ const AddMachine = () => {
         x = margin;
         row.forEach((cell, index) => {
           doc.text(cell, x, y, {
-            align: index === 0 || index === 6 ? "center" : "left",
+            align: index === 5 ? "center" : "left",
           });
           x += columnWidths[index];
         });

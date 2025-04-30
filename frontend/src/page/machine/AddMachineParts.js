@@ -256,7 +256,7 @@ const AddMachinePart = () => {
     doc.line(margin, 90, pageWidth - margin, 90);
 
     // Border
-    doc.setDrawColor(37, 37, 99, 235); // Blue-600
+    doc.setDrawColor(37, 99, 235); // Blue-600 ​​Blue-600
     doc.setLineWidth(0.3);
     doc.rect(10, 10, pageWidth - 20, pageHeight - 20);
 
@@ -271,7 +271,6 @@ const AddMachinePart = () => {
     doc.text("Machine Parts List", margin, 30);
 
     const headers = [
-      "Item Number",
       "Part Name",
       "ID",
       "Machine",
@@ -279,23 +278,23 @@ const AddMachinePart = () => {
       "Warranty Period",
       "Value",
     ];
-    const data = parts && parts.length > 0
-      ? parts.map((part, index) => [
-          index + 1,
-          part.machinepartName || "N/A",
-          part.machinepartId || "N/A",
-          part.machineName || "N/A",
-          part.machinepartPurchaseDate
-            ? new Date(part.machinepartPurchaseDate).toLocaleDateString()
-            : "N/A",
-          part.machinepartWarrantyPeriod
-            ? `${part.machinepartWarrantyPeriod} months`
-            : "N/A",
-          part.machinepartValue
-            ? `$${parseFloat(part.machinepartValue).toFixed(2)}`
-            : "N/A",
-        ])
-      : [["", "No parts available", "", "", "", "", ""]];
+    const data =
+      parts && parts.length > 0
+        ? parts.map((part) => [
+            part.machinepartName || "N/A",
+            part.machinepartId || "N/A",
+            part.machineName || "N/A",
+            part.machinepartPurchaseDate
+              ? new Date(part.machinepartPurchaseDate).toLocaleDateString()
+              : "N/A",
+            part.machinepartWarrantyPeriod
+              ? `${part.machinepartWarrantyPeriod} months`
+              : "N/A",
+            part.machinepartValue
+              ? `$${parseFloat(part.machinepartValue).toFixed(2)}`
+              : "N/A",
+          ])
+        : [["No parts available", "", "", "", "", ""]];
 
     try {
       autoTable(doc, {
@@ -322,13 +321,12 @@ const AddMachinePart = () => {
         margin: { left: margin, right: margin },
         tableWidth: "wrap",
         columnStyles: {
-          0: { cellWidth: 15, halign: "center" }, // Item Number
-          1: { cellWidth: 40, halign: "left" }, // Part Name
-          2: { cellWidth: 25, halign: "left" }, // ID
-          3: { cellWidth: 30, halign: "left" }, // Machine
-          4: { cellWidth: 25, halign: "left" }, // Purchase Date
-          5: { cellWidth: 25, halign: "left" }, // Warranty Period
-          6: { cellWidth: 22, halign: "center" }, // Value
+          0: { cellWidth: 40, halign: "left" }, // Part Name
+          1: { cellWidth: 25, halign: "left" }, // ID
+          2: { cellWidth: 30, halign: "left" }, // Machine
+          3: { cellWidth: 25, halign: "left" }, // Purchase Date
+          4: { cellWidth: 25, halign: "left" }, // Warranty Period
+          5: { cellWidth: 22, halign: "center" }, // Value
         },
       });
     } catch (error) {
@@ -337,10 +335,10 @@ const AddMachinePart = () => {
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(33, 33, 33);
-      const columnWidths = [15, 40, 25, 30, 25, 25, 22];
+      const columnWidths = [40, 25, 30, 25, 25, 22];
       let x = margin;
       headers.forEach((header, index) => {
-        doc.text(header, x, y, { align: index === 0 || index === 6 ? "center" : "left" });
+        doc.text(header, x, y, { align: index === 5 ? "center" : "left" });
         x += columnWidths[index];
       });
       y += 10;
@@ -348,7 +346,7 @@ const AddMachinePart = () => {
       data.forEach((row) => {
         x = margin;
         row.forEach((cell, index) => {
-          doc.text(cell, x, y, { align: index === 0 || index === 6 ? "center" : "left" });
+          doc.text(cell, x, y, { align: index === 5 ? "center" : "left" });
           x += columnWidths[index];
         });
         y += 10;
