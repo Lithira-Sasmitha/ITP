@@ -83,6 +83,21 @@ exports.createMaintenanceInquiry = async (req, res) => {
         .json({ success: false, message: "Part not found" });
     }
 
+    // Check for existing inquiries with the same machine and issue
+    const existingInquiry = await MaintenanceInquiry.findOne({
+      machineId,
+      issue,
+      status: { $ne: "complete" }, // Only check for non-completed statuses
+    });
+
+    if (existingInquiry) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "An active maintenance inquiry for this machine and issue already exists. Please wait until it is completed.",
+      });
+    }
+
     const maintenanceInquiry = new MaintenanceInquiry({
       machineId,
       partId,
