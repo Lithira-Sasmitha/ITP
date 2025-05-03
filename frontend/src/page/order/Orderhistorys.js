@@ -2,25 +2,95 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Oderslidebar from "../../components/sidebar/oderslidebar";
+import {
+  Document,
+  Page,
+  Text,
+  View,
+  StyleSheet,
+  pdf,
+} from "@react-pdf/renderer";
+import { saveAs } from "file-saver";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
+// PDF Styles
+const styles = StyleSheet.create({
+  page: {
+    padding: 30,
+    fontSize: 12,
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  table: {
+    display: "table",
+    width: "auto",
+    marginBottom: 20,
+  },
+  tableRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderColor: "#000",
+  },
+  tableColHeader: {
+    width: "14.28%",
+    borderRightWidth: 1,
+    borderColor: "#000",
+    padding: 5,
+    fontWeight: "bold",
+    backgroundColor: "#f0f0f0",
+  },
+  tableCol: {
+    width: "14.28%",
+    borderRightWidth: 1,
+    borderColor: "#000",
+    padding: 5,
+  },
+  footer: {
+    position: "absolute",
+    bottom: 30,
+    left: 30,
+    right: 30,
+    textAlign: "center",
+    fontSize: 10,
+  },
+});
+
 const Orderhistory = () => {
   const [orderhistorys, setOrderhistorys] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchOrderhistorys();
   }, []);
 
+  useEffect(() => {
+    // Filter orders based on search query
+    const filtered = orderhistorys.filter(
+      (order) =>
+        order._id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.products.some((product) =>
+          product.productName.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    );
+    setFilteredOrders(filtered);
+  }, [searchQuery, orderhistorys]);
+
   const fetchOrderhistorys = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_URL}/orders/pending`);
       setOrderhistorys(response.data);
+      setFilteredOrders(response.data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching pending orders:", error.response || error);
@@ -30,16 +100,14 @@ const Orderhistory = () => {
   };
 
   const handleProcessOrder = (order) => {
-    // Removed order removal logic; order stays in list until delivery is created
     navigate(`/adddelivery/${order._id}`, { state: order });
   };
 
   const handleDeleteOrder = async (orderId) => {
     try {
       setDeleteLoading(orderId);
-      console.log(`Sending DELETE request for order ID: ${orderId}`); // Debug log
       const response = await axios.delete(`${API_URL}/orders/${orderId}`);
-      console.log("Delete response:", response.data); // Debug log
+      console.log("Delete response:", response.data);
       setOrderhistorys((prevOrders) =>
         prevOrders.filter((order) => order._id !== orderId)
       );
@@ -49,7 +117,7 @@ const Orderhistory = () => {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
-      }); // Detailed error log
+      });
       alert(
         `Failed to delete the order: ${
           error.response?.data?.message || error.message
@@ -59,10 +127,69 @@ const Orderhistory = () => {
     }
   };
 
-  const handleLocalDelete = (orderId) => {
-    setOrderhistorys((prevOrders) =>
-      prevOrders.filter((order) => order._id !== orderId)
+  // PDF Generation
+  const generatePDF = async (orders) => {
+    const doc = (
+      <Document>
+        <Page style={styles.page}>
+          <Text style={styles.title}>Pending Orders Report</Text>
+          <View style={styles.table}>
+            <View style={styles.tableRow}>
+              {[
+                "Order ID",
+                "Customer",
+                "Product",
+                "Quantity",
+                "Item Price",
+                "Delivery Price",
+                "Total Price",
+              ].map((header) => (
+                <View style={styles.tableColHeader} key={header}>
+                  <Text>{header}</Text>
+                </View>
+              ))}
+            </View>
+            {orders.map((order) => (
+              <View style={styles.tableRow} key={order._id}>
+                <View style={styles.tableCol}>
+                  <Text>{order._id.substring(0, 8)}...</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text>{order.name}</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text>
+                    {order.products.map((p) => p.productName).join(", ")}
+                  </Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text>
+                    {order.products.map((p) => p.quantity).join(", ")}
+                  </Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text>
+                    {order.products.map((p) => `$${p.price}`).join(", ")}
+                  </Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text>${order.deliveryPrice}</Text>
+                </View>
+                <View style={styles.tableCol}>
+                  <Text>${order.totalPrice}</Text>
+                </View>
+              </View>
+            ))}
+          </View>
+          <Text style={styles.footer}>
+            Generated on {new Date().toLocaleString()}
+          </Text>
+        </Page>
+      </Document>
     );
+
+    const blob = await pdf(doc).toBlob();
+    saveAs(blob, "pending_orders.pdf");
   };
 
   if (loading) {
@@ -119,16 +246,67 @@ const Orderhistory = () => {
       <div className="flex-1 p-6 overflow-y-auto ml-64">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
+          <div className="mb-6 flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">
+                Pending Orders
+              </h1>
+              <p className="text-sm text-gray-500">
+                Manage and process your pending orders
+              </p>
+            </div>
+            <div>
+              <button
+                onClick={() => generatePDF(filteredOrders)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 text-sm font-medium transition duration-150 flex items-center"
+              >
+                <svg
+                  className="h-4 w-4 mr-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                Generate PDF
+              </button>
+            </div>
+          </div>
+
+          {/* Search Bar */}
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">Pending Orders</h1>
-            <p className="text-sm text-gray-500">
-              Manage and process your pending orders
-            </p>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search by Order ID, Customer, or Product..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+              />
+              <svg
+                className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
           </div>
 
           {/* Orders Table */}
           <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            {orderhistorys.length === 0 ? (
+            {filteredOrders.length === 0 ? (
               <div className="text-center p-10">
                 <svg
                   className="h-16 w-16 mx-auto text-gray-400"
@@ -144,7 +322,7 @@ const Orderhistory = () => {
                   />
                 </svg>
                 <p className="mt-4 text-gray-600 font-medium">
-                  No pending orders found
+                  No orders found
                 </p>
                 <button
                   onClick={() => fetchOrderhistorys()}
@@ -178,7 +356,7 @@ const Orderhistory = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {orderhistorys.map((order) => (
+                    {filteredOrders.map((order) => (
                       <tr
                         key={order._id}
                         className="hover:bg-gray-50 transition duration-150"
