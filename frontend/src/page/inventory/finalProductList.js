@@ -99,6 +99,39 @@ useEffect(() => {
     doc.save("Final_Products_Report.pdf");
   };
   
+  const generateSingleProductPDF = (product) => {
+    const doc = new jsPDF();
+    const currentDate = new Date().toLocaleString();
+  
+    doc.setFontSize(16);
+    doc.text("Final Product Detail", 20, 20);
+  
+    doc.setFontSize(10);
+    doc.text(`Report Generated On: ${currentDate}`, 20, 28);
+  
+    const productData = [
+      ["Product ID", product.finalProductId || "N/A"],
+      ["Name", product.name],
+      ["Quantity", product.quantity.toString()],
+      ["Unit", product.unit || "N/A"],
+      ["Unit Price", `${product.unit_price?.toFixed(2) || "0.00"}`],
+      ["Location", product.location || "N/A"],
+      ["Status", product.status || "N/A"],
+      ["Received Date", new Date(product.received_date).toLocaleDateString() || "N/A"],
+      ["Expiry Date", new Date(product.expiry_date).toLocaleDateString() || "N/A"]
+    ];
+  
+    autoTable(doc, {
+      startY: 35,
+      body: productData,
+      theme: 'grid',
+      styles: { fontSize: 10, cellPadding: 3 },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+    });
+  
+    doc.save(`${product.name}_Details.pdf`);
+  };
+  
 
   // Generate a color array based on raw material names
   const generateColorArray = () => {
@@ -201,6 +234,9 @@ useEffect(() => {
                   </button>
                   <button onClick={() => handleDelete(material._id)} className="text-red-600 hover:text-red-800">
                     <FaTrash />
+                  </button>
+                  <button onClick={() => generateSingleProductPDF(material)} className="text-green-600 hover:text-green-800">
+                    <FaDownload />
                   </button>
                 </td>
               </tr>

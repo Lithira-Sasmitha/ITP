@@ -99,6 +99,48 @@ const ViewRawMaterials = () => {
     doc.save("Raw_Materials_Report.pdf");
   };
 
+  const generateSingleProductPDF = (material) => {
+    const doc = new jsPDF();
+    const currentDate = new Date().toLocaleString();
+  
+    doc.setFontSize(16);
+    doc.text(`Raw Material Report - ${material.name}`, 20, 20);
+  
+    doc.setFontSize(10);
+    doc.text(`Report Generated On: ${currentDate}`, 20, 28);
+  
+    const tableData = [
+      ["Raw Material ID", material.rawMaterialId || "N/A"],
+      ["Name", material.name],
+      ["Quantity", material.quantity.toString()],
+      ["Supplier Email", material.supplier_email || "N/A"],
+      ["Status", material.status || "N/A"],
+      ["Expiry Date", material.expiry_date ? new Date(material.expiry_date).toLocaleDateString() : "N/A"],
+      ["Received Date", material.received_date ? new Date(material.received_date).toLocaleDateString() : "N/A"]
+    ];
+  
+    autoTable(doc, {
+      startY: 35,
+      head: [["Field", "Value"]],
+      body: tableData,
+      styles: {
+        fontSize: 10,
+        cellPadding: 3,
+      },
+      headStyles: {
+        fillColor: [33, 150, 243],
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
+      },
+    });
+  
+    doc.save(`Raw_Material_Report_${material.name}.pdf`);
+  };
+  
+
   const generateColorArray = () => {
     const colors = [
       "#8884d8", "#ff6347", "#4caf50", "#ffeb3b", "#2196f3", "#ff5722", "#9c27b0", "#3f51b5"
@@ -234,6 +276,9 @@ const ViewRawMaterials = () => {
                   </button>
                   <button onClick={() => handleDelete(material._id)} className="text-red-600 hover:text-red-800">
                     <FaTrash />
+                  </button>
+                  <button onClick={() => generateSingleProductPDF(material)} className="text-green-600 hover:text-green-800">
+                    <FaDownload />
                   </button>
                 </td>
               </tr>
