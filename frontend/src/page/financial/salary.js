@@ -1,17 +1,11 @@
 import React, { useState, useEffect } from "react";
-import {
-  PDFDownloadLink,
-  Document,
-  Page,
-  Text,
-  StyleSheet,
-  View,
-} from "@react-pdf/renderer";
 import Salarylist from "../../components/list/salarylist";
 import AddSalary from "../../components/form/addsalary";
 import { default as api } from "../../store/apiSLice";
 import EditSallary from "../../components/form/editsallary";
 import Fin_sidebar from "../../components/sidebar/fin_sidebar";
+import { BlobProvider } from '@react-pdf/renderer';
+import { Document, Page, Text, StyleSheet, View } from "@react-pdf/renderer";
 
 // Define the PDF styles outside the component
 const styles = StyleSheet.create({
@@ -140,6 +134,7 @@ function Salary() {
   // Only enable PDF generation when data is available
   useEffect(() => {
     if (data && Array.isArray(data) && data.length > 0) {
+      setFilteredData(data);
       setPdfReady(true);
     }
   }, [data]);
@@ -214,22 +209,23 @@ function Salary() {
                 Add Employee Salary
               </button>
               
-              {/* PDF Download Link - only render when data is ready */}
+              {/* PDF Download Link - using BlobProvider instead of PDFDownloadLink */}
               {pdfReady ? (
-                <PDFDownloadLink
-                  document={<SalaryPDF data={searchQuery ? filteredData : data} />}
-                  fileName="salary_management.pdf"
-                  className="flex items-center justify-center px-4 py-2 rounded-md bg-green-600 text-white font-medium hover:bg-green-700 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 w-full sm:w-auto"
-                >
+                <BlobProvider document={<SalaryPDF data={searchQuery ? filteredData : data} />}>
                   {({ blob, url, loading, error }) => (
-                    <>
+                    <a
+                      href={url || '#'}
+                      download="salary_management.pdf"
+                      className={`flex items-center justify-center px-4 py-2 rounded-md ${url ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-500'} font-medium hover:bg-green-700 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 w-full sm:w-auto`}
+                      disabled={!url}
+                    >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
                       </svg>
                       {loading ? "Preparing PDF..." : "Download PDF"}
-                    </>
+                    </a>
                   )}
-                </PDFDownloadLink>
+                </BlobProvider>
               ) : (
                 <button 
                   className="flex items-center justify-center px-4 py-2 rounded-md bg-gray-300 text-gray-500 font-medium cursor-not-allowed w-full sm:w-auto"
