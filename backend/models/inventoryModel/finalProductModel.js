@@ -10,7 +10,6 @@ const finalProductSchema = new mongoose.Schema(
     unit: {type: String },
     reorder_level: {type: Number,default: 0,min: [0, 'Reorder level cannot be negative'],},
     unit_price: { type: Number, min: [0, "Unit price can't be negative"],},
-    Description: { type: String },
     location: { type: String, enum: ["Storage Room 1", "Storage Room 2", "Storage Room 3", "Main Rack Zone", "Cold Room",],default: "Storage Room 2",},
     received_date: { type: Date, default: Date.now,},
     expiry_date: {
