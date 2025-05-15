@@ -11,7 +11,6 @@ const AddFinalProductForm = () => {
     unit: "",
     reorder_level: "",
     unit_price: "",
-    description: "",
     location: "Storage Room 3",
     received_date: "",
     expiry_date: "",
@@ -45,7 +44,6 @@ const AddFinalProductForm = () => {
       const data = await response.json();
       
       if (response.ok) {
-        const data = await response.json();
         console.log("Final product added successfully:", data);
         navigate("/inventory/finalProductList");
         // Optionally reset the form
