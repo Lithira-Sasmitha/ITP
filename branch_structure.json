@@ -1,0 +1,33 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "bugfix",
+    "financial_management",
+    "main",
+    "order_&_delivery_management",
+    "origin",
+    "product-and-machine-management",
+    "user_management",
+    "warehouse_mangement"
+  ],
+  "parent": {
+    "bugfix": "main",
+    "financial_management": "main",
+    "main": null,
+    "order_&_delivery_management": "main",
+    "origin": "main",
+    "product-and-machine-management": "main",
+    "user_management": "main",
+    "warehouse_mangement": "main"
+  },
+  "order": [
+    "main",
+    "bugfix",
+    "financial_management",
+    "order_&_delivery_management",
+    "origin",
+    "product-and-machine-management",
+    "user_management",
+    "warehouse_mangement"
+  ]
+}
